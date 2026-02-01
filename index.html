@@ -2,9 +2,8 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-	<link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="随机福瑞api-提供高质量 快速的福瑞相关接口 Random Furry API - Providing High-Quality and Fast Furry-Related Interfaces">
+    <meta name="description" content="FurryAPI - 福瑞内容开放API平台，提供随机福瑞图片、IP查询等高质量、快速的免费API接口服务 FurryAPI - Open Furry Content API Platform, providing high-quality and fast free API services including random furry images, IP query and more">
     <meta name="keywords" content="Furry,随机图片,福瑞,免费API,免费接口,API接口,furryapi,Randomimage,furries">
     <!-- QQ头像 favicon：全规格（含重复尺寸的 spec=2 / 40 / 100 等） -->
     <link rel="icon" type="image/png" sizes="40x40"  href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=1">
@@ -12,286 +11,117 @@
     <link rel="icon" type="image/png" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4">
     <link rel="icon" type="image/png" sizes="640x640" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=5">
     <link rel="apple-touch-icon" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4">
-    <!-- 或者用更高清的 640： -->
-    <!-- <link rel="apple-touch-icon" sizes="640x640" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=5"> -->
 
+    <link rel="preconnect" href="https://api.furry.ist" crossorigin>
+    <link rel="dns-prefetch" href="//api.furry.ist">
     <link rel="preload" as="image" href="https://api.furry.ist/furry-img/">
-    <title>随机福瑞图片API - 提供兽装图片接口</title>
-    <style>
-      :root {
-        --mint: #3eb489;
-        --mint-dark: #31997f;
-        --bg-light: #d0f0e8;
-        --bg-dark: #1c1c1c;
-        --text-light: #333;
-        --text-dark: #f0f0f0;
-      }
-
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.8;
-        background: var(--bg-light);
-        color: var(--text-light);
-        margin: 0;
-        padding: 0;
-        text-align: left;
-        transition: background 0.3s, color 0.3s;
-      }
-
-      body.dark-mode {
-        background: var(--bg-dark);
-        color: var(--text-dark);
-      }
-
-      header {
-        background-color: var(--mint);
-        color: white;
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      a {
-        text-decoration: none;
-        color: var(--mint);
-      }
-      .header-left h1 {
-        margin: 0;
-      }
-
-      .header-right {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-
-      /* 合并按钮基础样式 */
-      .base-btn {
-        padding: 10px 16px;
-        border: none;
-        background-color: var(--mint);
-        color: #fff;
-        border-radius: 6px;
-        font-size: 15px;
-        cursor: pointer;
-        transition: background 0.3s, transform 0.2s;
-        text-decoration: none;
-      }
-
-      .base-btn:hover {
-        background-color: var(--mint-dark);
-        transform: scale(1.05);
-      }
-
-      .api-section {
-        margin: 20px auto;
-        max-width: 800px;
-        padding: 20px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: background 0.3s, color 0.3s;
-      }
-
-      .dark-mode .api-section {
-        background: #2b2b2b;
-        color: var(--text-dark);
-      }
-
-      img {
-        max-width: 100%;
-        height: auto;
-        margin-top: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      }
-
-      footer {
-        padding: 20px;
-        text-align: center;
-        margin-top: 30px;
-      }
-
-      .footer-links {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
-        line-height: 1;
-      }
-
-      /* 合并链接样式 */
-      .footer-links a {
-        display: inline-flex;
-        align-items: baseline;
-        gap: 5px;
-        padding: 2px 0;
-        transform: translateY(0.15em);
-        color: var(--mint);
-        font-weight: 500;
-        text-decoration: none;
-        transition: color 0.3s, text-decoration 0.3s;
-      }
-
-      .footer-links a:hover {
-        color: var(--mint-dark);
-        text-decoration: underline;
-      }
-
-      .footer-links a img {
-        width: 1em;
-        height: 1em;
-        margin-right: 5px;
-        display: block;
-        flex-shrink: 0;
-        vertical-align: middle;
-      }
-
-      .footer-contact,
-      .footer-icp {
-        color: var(--mint);
-        font-size: 14px;
-        margin-top: 15px;
-        text-decoration: none;
-        transition: color 0.3s, text-decoration 0.3s;
-        display: block;
-      }
-      
-      .dark-mode .footer-icp {
-        color: #aaa;
-        
-      }
-
-      @media (max-width: 768px) {
-        header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        .header-right {
-          flex-direction: column;
-          align-items: flex-end;
-          width: 100%;
-        }
-        .api-btn {
-          width: 100%;
-        }
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>FurryAPI - 福瑞内容开放API平台</title>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="c46be53b-8c5c-4ad9-82d2-f39177a9b4a6"></script>
     <script>!function(p){"use strict";!function(){var s=window,e=document,i=p,c=("https:"===e.location.protocol?"https://":"http://")+"mxana.tacool.com/sdk.js",n=e.createElement("script"),r=e.getElementsByTagName("script")[0];n.type="text/javascript",n.setAttribute("charset","UTF-8"),n.async=!0,n.src=c,n.id="MXA_COLLECT",i.d=n;var o=function(){s.MXA&&s.MXA.init&&s.MXA.init(i)};n.onload=function(){o()},r.parentNode.insertBefore(n,r)}()}({ id: "c2-BeHTXiGx", useHeatMap: true, useErrorLog: true });</script>
   </head>
-  <body>
+  <body class="home-body has-dynamic-bg">
     <header>
       <div class="header-left">
-        <h1 data-lang="zh">随机福瑞图片API - 提供兽装图片接口</h1>
-        <h1 data-lang="en" style="display:none;">Random Furry Image API - Furry Content Provider</h1>
+        <h1 id="main-title" data-lang="zh">FurryAPI - 福瑞内容开放API平台</h1>
       </div>
       <div class="header-right">
-        <a class="base-btn" href="https://api.furry.ist/thank/" target="_blank">感谢页面 / Thank You Page</a>
-        <button class="base-btn" onclick="toggleLanguage()">切换语言 / Switch Language</button>
-        <button class="base-btn" onclick="toggleDarkMode()">🌙/☀️ 暗黑模式 / Light/Dark Mode</button>
+        <a class="base-btn" href="apiIntro/" rel="noopener noreferrer" data-lang="zh">API文档中心</a>
+        <a class="base-btn en-hidden" href="apiIntro/" rel="noopener noreferrer" data-lang="en">API Docs</a>
+        <a class="base-btn" href="thank/" rel="noopener noreferrer">感谢页面 / Thank You Page</a>
+        <button class="base-btn" type="button" onclick="toggleLanguage()">切换语言 / Switch Language</button>
+
+        <button id="theme-toggle" class="base-btn" type="button" onclick="toggleDarkMode()" aria-label="切换暗黑/浅色模式">
+          <span class="mode-icon" aria-hidden="true">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+            </svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="M4.93 4.93l1.41 1.41"></path>
+              <path d="M17.66 17.66l1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="M4.93 19.07l1.41-1.41"></path>
+              <path d="M17.66 6.34l1.41-1.41"></path>
+            </svg>
+          </span>
+        </button>
       </div>
     </header>
 
-    <div class="api-section">
-      <h2 data-lang="zh">API 调用指南</h2>
-      <h2 data-lang="en" style="display:none;">API Usage Guide</h2>
-      <p data-lang="zh">直接将 API 地址作为图片链接即可，目前 API 无缓存</p>
-      <p data-lang="en" style="display:none;">Use the API URL directly as an image link. Currently the API is cache-free.</p>
-      <p data-lang="zh">主站图片接口支持以下查询参数(均为可选)：<br>1.format=json|file 前者返回json格式的图片链接，后者直接返回图片<br>2.redirect=1|0 前者将302跳转至图片url，后者不进行跳转<br>3.mode=auto|box|large 改变返回图片的模式，auto为自动判断，box为返回竖屏图，large为返回横屏图</p>
-      <p data-lang="en" style="display:none;">The main site image API supports the following optional query parameters:<br>
-      1. format=json|file The former returns the image link in JSON format, the latter directly returns the image file<br>
-      2. redirect=1|0 The former issues a 302 redirect to the image URL, the latter does not perform a redirect<br>
-      3. mode=auto|box|large Changes the returned image mode: auto = automatic detection, box = portrait image, large = landscape image<br>
-      </p>
-      <p data-lang="zh">推荐访客主要为国内用户的站点使用此URL:<br>https://furry.axzt.top 注：此国内接口禁除中国大陆以外的访问（不含港澳台）</p>
-      <p data-lang="en" style="display:none;">Recommended URL for visitors mainly from mainland China:<br>https://furry.axzt.top<br>Note: This domestic endpoint is restricted to visitors within mainland China only (excluding Hong Kong, Macao, and Taiwan).</p>
-      <h3 data-lang="zh">接口 1 地址：</h3>
-      <h3 data-lang="en" style="display:none;">Endpoint 1:</h3>
-      <p>https://api.furry.ist/furry-img/</p>
-      <button class="base-btn" onclick="reloadImage('api1-img', 'https://api.furry.ist/furry-img/')">刷新 / Refresh</button>
-      <img id="api1-img" src="https://api.furry.ist/furry-img/" alt="接口 1 图片加载失败 / Failed to load image">
+    <div class="api-section hero">
+      <div class="hero-inner">
+        <h2 class="hero-title" data-lang="zh">FurryAPI</h2>
+        <h2 class="hero-title" data-lang="en">FurryAPI</h2>
+
+        <p class="hero-desc" data-lang="zh">
+          专注福瑞内容的开放API平台，提供稳定、快速、免费的接口服务，支持随机图片、IP查询与文档测试。
+        </p>
+        <p class="hero-desc" data-lang="en">
+          An open API platform focused on furry content, delivering stable, fast, and free services with random images, IP lookup, and interactive docs.
+        </p>
+
+        <div class="cta-buttons hero-buttons">
+          <a class="cta-btn primary" href="apiIntro/" rel="noopener noreferrer">
+            <span data-lang="zh"><svg class="small-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><path d="M8 7h8M8 11h8M8 15h5"></path></svg> 浏览API文档</span>
+            <span data-lang="en"><svg class="small-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><path d="M8 7h8M8 11h8M8 15h5"></path></svg> Browse API Docs</span>
+          </a>
+          <a class="cta-btn secondary" href="SwaggerDocs/" rel="noopener noreferrer">
+            <span data-lang="zh"><svg class="small-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> Swagger文档</span>
+            <span data-lang="en"><svg class="small-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> Swagger Docs</span>
+          </a>
+          <a class="cta-btn secondary" href="https://stats.uptimerobot.com/6zqrufirxf" target="_blank" rel="noopener noreferrer">
+            <span data-lang="zh"><svg class="small-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> 服务状态</span>
+            <span data-lang="en"><svg class="small-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Service Status</span>
+          </a>
+        </div>
+      </div>
     </div>
 
     <footer>
       <div class="footer-section">
         <h4 data-lang="zh">友情链接</h4>
-        <h4 data-lang="en" style="display: none;">Friend Links</h4>
+        <h4 data-lang="en">Friend Links</h4>
         <div class="footer-links">
-          <a href="https://www.rnmcnm.com" target="_blank" title="日出资源网">
+          <a href="https://www.rnmcnm.com" target="_blank" rel="noopener noreferrer" title="日出资源网">
             <img loading="lazy" src="https://www.rnmcnm.com/wp-content/uploads/2022/06/%E5%A4%AA%E9%98%B3.png" alt="日出资源网">
             日出资源网
           </a>
-          <!---怎么死亡了(*Φ皿Φ*)
-          <a href="https://pawslog.org/" target="_blank" title="应该是一个关于技术和笔记的个人空间。">
-            <img loading="lazy" src="https://pawslog.org/icon.png" alt="秋苍月的博客">
-            秋苍月的博客
-          </a>
-          -->
-          <a href="https://linfun.top/" target="_blank" title="立志于成为一只最最最最酷的兽兽！">
+          <a href="https://linfun.top/" target="_blank" rel="noopener noreferrer" title="立志于成为一只最最最最酷的兽兽！">
             <img loading="lazy" src="https://img.linfun.top/imgapp/CxDragon-big-heade.png" alt="一只林风owo">
             一只林风owo
           </a>
-          <a href="https://blog-gaewdfyy.fun" target="_blank" title="只是兴趣！">
+          <a href="https://blog-gaewdfyy.fun" target="_blank" rel="noopener noreferrer" title="只是兴趣！">
             <img loading="lazy" src="https://blog-gaewdfyy.fun/img/02.jpg" alt="GaewdFyyの部落格">
             GaewdFyyの部落格
           </a>
-          <!---这个我自己都还没写完，就先不放了吧(●'◡'●)
-          <a href="https://furryrealm.com" target="_blank" title="不知道干啥的furryrealm">
-            <img loading="lazy" src="https://furryrealm.com/favicon.ico" alt="furryrealm">
-            Furryrealm
-          </a>
-          -->
         </div>
       </div>
-	<!---
-      <div class="footer-section">
-        <h4 data-lang="zh">访问统计（自2025年3月1日起）</h4>
-        <h4 data-lang="en" style="display:none;">Visitor Statistics (since March 1, 2025)</h4>
-        <p data-lang="zh" id="finicount_total_views">总访问量: 加载中...</p>
-        <p data-lang="en" id="finicount_total_views_en" style="display:none;">Total Visits: Loading...</p>
-        <p data-lang="zh" id="finicount_web_views">网页访问量: 加载中...</p>
-        <p data-lang="en" id="finicount_web_views_en" style="display:none;">Web Views: Loading...</p>
-        <p data-lang="zh" id="finicount_api_views">API 调用次数: 加载中...</p>
-        <p data-lang="en" id="finicount_api_views_en" style="display:none;">API Calls: Loading...</p>
-      </div>
-	-->
-	<br>
+      <br>
       <div>
-        <a  target="_blank" href="https://stats.uptimerobot.com/6zqrufirxf">服务状态 / Service Stats </a><br>
+        <a target="_blank" rel="noopener noreferrer" href="https://stats.uptimerobot.com/6zqrufirxf">服务状态 / Service Stats </a><br>
       </div>
 
       <div class="footer-contact">
-        <a  target="_blank" href="mailto:furryimg@furry.ist">联系我邮箱 / Email me</a><br />
-        <a  target="_blank" href="https://contact-furry-img.rth1.xyz/">联系我 - 外站CN</a><br />
-        <a  target="_blank" href="https://contact-furryimg.pages.dev/">联系我 - 外站Global</a>
+        <a target="_blank" href="mailto:furryimg@furry.ist">联系我邮箱 / Email me</a><br />
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furry-img.rth1.xyz/">联系我 - 外站CN</a><br />
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furryimg.pages.dev/">联系我 - 外站Global</a>
       </div>
 
       <div class="footer-icp">
-        <a href="https://icp.gov.moe/?keyword=20245680" target="_blank">萌ICP备 20245680号</a>
+        <a href="https://icp.gov.moe/?keyword=20245680" target="_blank" rel="noopener noreferrer">萌ICP备 20245680号</a>
+      </div>
+      <div class="footer-sitemap">
+        <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer">Sitemap / 站点地图</a>
       </div>
     </footer>
 
-    <script>
-      function reloadImage(elementId, apiUrl) {
-        const imgElement = document.getElementById(elementId);
-        imgElement.src = apiUrl + '?' + new Date().getTime();
-      }
-
-      function toggleLanguage() {
-        document.querySelectorAll('[data-lang="zh"]').forEach(el => el.style.display = el.style.display === 'none' ? '' : 'none');
-        document.querySelectorAll('[data-lang="en"]').forEach(el => el.style.display = el.style.display === 'none' ? '' : 'none');
-      }
-
-      function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-      }
-
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark-mode');
-      }
-    </script>
-    <script src="//cont.api.furry.ist/cont.js" defer></script>
+    <script src="script.js"></script>
   </body>
 </html>

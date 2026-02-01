@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="随机福瑞图片API - 提供高质量 快速的接口">
+    <meta name="keywords" content="Furry,随机图片,福瑞,免费API,免费接口,API接口,furryapi">
+    <link rel="icon" type="image/png" sizes="40x40"  href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=1">
+    <link rel="icon" type="image/png" sizes="100x100" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=3">
+    <link rel="icon" type="image/png" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4">
+    <link rel="icon" type="image/png" sizes="640x640" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=5">
+    <link rel="apple-touch-icon" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4">
+
+    <link rel="preconnect" href="https://api.furry.ist" crossorigin>
+    <link rel="dns-prefetch" href="//api.furry.ist">
+    <link rel="preload" as="image" href="https://api.furry.ist/furry-img/">
+    <link rel="stylesheet" href="../../style.css">
+    <title>随机福瑞图片API - API文档</title>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="c46be53b-8c5c-4ad9-82d2-f39177a9b4a6"></script>
+  </head>
+  <body class="has-dynamic-bg">
+    <header>
+      <div class="header-left">
+        <h1 id="main-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <path d="m21 15-5-5L5 21"></path>
+          </svg>
+          <span data-lang="zh">随机福瑞图片API</span>
+        </h1>
+      </div>
+      <div class="header-right">
+        <a class="base-btn" href="../" rel="noopener noreferrer" data-lang="zh">回到API列表</a>
+        <a class="base-btn en-hidden" href="../" rel="noopener noreferrer" data-lang="en">Back to API List</a>
+        <a class="base-btn" href="../../" rel="noopener noreferrer" data-lang="zh">返回首页</a>
+        <a class="base-btn en-hidden" href="../../" rel="noopener noreferrer" data-lang="en">Home</a>
+        <button class="base-btn" type="button" onclick="toggleLanguage()">切换语言 / Switch Language</button>
+        <button id="theme-toggle" class="base-btn" type="button" onclick="toggleDarkMode()" aria-label="切换暗黑/浅色模式">
+          <span class="mode-icon" aria-hidden="true">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+            </svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="M4.93 4.93l1.41 1.41"></path>
+              <path d="M17.66 17.66l1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="M4.93 19.07l1.41-1.41"></path>
+              <path d="M17.66 6.34l1.41-1.41"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <div class="api-section">
+      <h2 data-lang="zh">API 简介</h2>
+      <h2 data-lang="en" class="en-hidden">API Overview</h2>
+      
+      <p data-lang="zh">随机福瑞图片API提供高质量、快速的福瑞相关图片接口。无需认证，直接调用即可获取随机福瑞图片。</p>
+      <p data-lang="en" class="en-hidden">The Random Furry Image API provides high-quality and fast furry-related image interfaces. No authentication required, just call directly to get random furry images.</p>
+
+      <h3 data-lang="zh">基础地址</h3>
+      <h3 data-lang="en" class="en-hidden">Base URL</h3>
+      <div class="code-block">https://api.furry.ist/furry-img/</div>
+
+      <h3 data-lang="zh">国内加速地址</h3>
+      <h3 data-lang="en" class="en-hidden">China Accelerated URL</h3>
+      <p data-lang="zh">推荐访客主要为国内用户的站点使用此URL：</p>
+      <p data-lang="en" class="en-hidden">Recommended for websites with mainly Chinese mainland visitors:</p>
+      <div class="code-block">https://furry.axzt.top</div>
+      <p data-lang="zh"><strong>注意：</strong>此国内端点仅限中国大陆访客使用（不包括港澳台）。</p>
+      <p data-lang="en" class="en-hidden"><strong>Note:</strong> This domestic endpoint is restricted to visitors within mainland China only (excluding Hong Kong, Macao, and Taiwan).</p>
+
+      <h2 data-lang="zh">查询参数</h2>
+      <h2 data-lang="en" class="en-hidden">Query Parameters</h2>
+      
+      <table class="parameter-table">
+        <thead>
+          <tr>
+            <th><span data-lang="zh">参数名</span><span data-lang="en" class="en-hidden">Parameter</span></th>
+            <th><span data-lang="zh">类型</span><span data-lang="en" class="en-hidden">Type</span></th>
+            <th><span data-lang="zh">说明</span><span data-lang="en" class="en-hidden">Description</span></th>
+            <th><span data-lang="zh">示例</span><span data-lang="en" class="en-hidden">Example</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>format</td>
+            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
+            <td><span data-lang="zh">返回格式。json：返回JSON格式的图片链接；file：直接返回图片文件（默认）</span><span data-lang="en" class="en-hidden">Return format. json: returns image link in JSON format; file: directly returns image file (default)</span></td>
+            <td>format=json</td>
+          </tr>
+          <tr>
+            <td>redirect</td>
+            <td><span data-lang="zh">数字</span><span data-lang="en" class="en-hidden">Number</span></td>
+            <td><span data-lang="zh">重定向。1：302跳转至图片URL；0：不进行跳转（默认）</span><span data-lang="en" class="en-hidden">Redirect. 1: 302 redirect to image URL; 0: no redirect (default)</span></td>
+            <td>redirect=1</td>
+          </tr>
+          <tr>
+            <td>mode</td>
+            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
+            <td><span data-lang="zh">图片模式。auto：自动判断（默认）；box：竖屏图；large：横屏图</span><span data-lang="en" class="en-hidden">Image mode. auto: automatic detection (default); box: portrait image; large: landscape image</span></td>
+            <td>mode=box</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 data-lang="zh">使用示例</h2>
+      <h2 data-lang="en" class="en-hidden">Usage Examples</h2>
+
+      <h3 data-lang="zh">1. 基础用法（直接返回图片）</h3>
+      <h3 data-lang="en" class="en-hidden">1. Basic Usage (Return Image Directly)</h3>
+      <p data-lang="zh">直接在HTML中使用或在markdown中引用：</p>
+      <p data-lang="en" class="en-hidden">Use directly in HTML or reference in markdown:</p>
+      <div class="code-block">&lt;img src="https://api.furry.ist/furry-img/" alt="随机福瑞图片"&gt;</div>
+
+      <h3 data-lang="zh">2. 返回JSON格式</h3>
+      <h3 data-lang="en" class="en-hidden">2. Return JSON Format</h3>
+      <div class="code-block">https://api.furry.ist/furry-img/?format=json</div>
+      <p data-lang="zh">返回示例：</p>
+      <p data-lang="en" class="en-hidden">Response example:</p>
+      <div class="code-block">{"url":"https://api.furry.ist/large/00002411.webp","type":"large","filename":"00002411.webp"}</div>
+
+      <h3 data-lang="zh">3. 指定图片模式（竖屏）</h3>
+      <h3 data-lang="en" class="en-hidden">3. Specify Image Mode (Portrait)</h3>
+      <div class="code-block">https://api.furry.ist/furry-img/?mode=box</div>
+
+      <h3 data-lang="zh">4. 使用302重定向</h3>
+      <h3 data-lang="en" class="en-hidden">4. Use 302 Redirect</h3>
+      <div class="code-block">https://api.furry.ist/furry-img/?redirect=1</div>
+
+      <h3 data-lang="zh">5. 组合参数使用</h3>
+      <h3 data-lang="en" class="en-hidden">5. Combined Parameters</h3>
+      <div class="code-block">https://api.furry.ist/furry-img/?format=json&mode=large&redirect=0</div>
+    </div>
+
+    <!-- 实时演示 -->
+    <div class="example-section">
+      <h3>
+        <svg class="inline-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <path d="m21 15-5-5L5 21"></path>
+        </svg>
+        <span data-lang="zh">实时图片演示</span>
+        <span data-lang="en" class="en-hidden">Live Image Demo</span>
+      </h3>
+      
+      <p data-lang="zh">点击下方按钮获取新的随机福瑞图片：</p>
+      <p data-lang="en" class="en-hidden">Click the button below to get a new random furry image:</p>
+      
+      <button class="base-btn" type="button" onclick="reloadImage('api-demo-img', 'https://api.furry.ist/furry-img/')" data-lang="zh">刷新图片 / Refresh</button>
+      <button class="base-btn en-hidden" type="button" onclick="reloadImage('api-demo-img', 'https://api.furry.ist/furry-img/')" data-lang="en">Refresh Image</button>
+      
+      <img id="api-demo-img" src="https://api.furry.ist/furry-img/" alt="随机福瑞图片加载失败 / Failed to load image" class="demo-img">
+    </div>
+
+    <footer>
+      <div>
+        <a target="_blank" rel="noopener noreferrer" href="https://stats.uptimerobot.com/6zqrufirxf" data-lang="zh">服务状态 / Service Stats</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://stats.uptimerobot.com/6zqrufirxf" data-lang="en" class="en-hidden">Service Stats</a><br>
+      </div>
+
+      <div class="footer-contact">
+        <a target="_blank" href="mailto:furryimg@furry.ist" data-lang="zh">联系我邮箱 / Email me</a>
+        <a target="_blank" href="mailto:furryimg@furry.ist" data-lang="en" class="en-hidden">Email me</a><br />
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furry-img.rth1.xyz/" data-lang="zh">联系我 - 外站CN</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furry-img.rth1.xyz/" data-lang="en" class="en-hidden">Contact me - CN Mirror</a><br />
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furryimg.pages.dev/" data-lang="zh">联系我 - 外站Global</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furryimg.pages.dev/" data-lang="en" class="en-hidden">Contact me - Global Mirror</a>
+      </div>
+    </footer>
+
+    <script src="../../script.js"></script>
+    <script>
+      initLanguageNow();
+    </script>
+  </body>
+</html>
