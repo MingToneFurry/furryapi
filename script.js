@@ -114,34 +114,18 @@ function loadDynamicBackground() {
   
   if (!shouldLoadBg) return;
 
+  if (!document.body) return;
+
+  // 防止重复初始化（例如脚本被重复引入）
+  if (document.body.dataset.dynamicBgLoaded === '1') return;
+  document.body.dataset.dynamicBgLoaded = '1';
+
   // 添加标记class
   document.body.classList.add('has-dynamic-bg');
 
-  // 动态加载背景图片
-  const bgImage = new Image();
-  bgImage.crossOrigin = 'anonymous';
-  
-  bgImage.onload = function() {
-    document.body.style.setProperty('--bg-image', `url("${bgImage.src}")`);
-    const beforePseudo = document.body;
-    if (beforePseudo) {
-      // 使用伪元素设置背景
-      const style = document.createElement('style');
-      style.textContent = `
-        body.has-dynamic-bg::before {
-          background-image: url("${bgImage.src}");
-        }
-      `;
-      document.head.appendChild(style);
-    }
-  };
-
-  bgImage.onerror = function() {
-    console.log('背景图片加载失败，使用默认背景');
-  };
-
-  // 添加时间戳防止缓存
-  bgImage.src = 'https://api.furry.ist/furry-img/?t=' + new Date().getTime();
+  // 直接设置 CSS 变量，由 ::before 伪元素请求图片（避免 Image 预加载 + CSS 再请求的重复）
+  const bgUrl = 'https://api.furry.ist/furry-img/?t=' + Date.now();
+  document.body.style.setProperty('--dynamic-bg-image', `url("${bgUrl}")`);
 }
 
 // 在页面加载时初始化背景
