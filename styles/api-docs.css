@@ -1,0 +1,256 @@
+.api-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  margin: 30px auto;
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.api-card {
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-align: center;
+}
+
+.dark-mode .api-card {
+  background: #2b2b2b;
+  color: var(--text-dark);
+}
+
+.api-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.api-card h2 {
+  color: var(--mint);
+  margin-top: 0;
+  font-size: 24px;
+}
+
+.api-card .description {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 15px 0;
+  text-align: left;
+}
+
+.api-card .endpoint {
+  background: #f5f5f5;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 15px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  word-break: break-all;
+  text-align: left;
+}
+
+.dark-mode .api-card .endpoint {
+  background: #1a1a1a;
+  color: #aaa;
+}
+
+.api-card .btn-wrapper {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.api-link-btn {
+  padding: 12px 24px;
+  background-color: var(--mint);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.api-link-btn:hover {
+  background-color: var(--mint-dark);
+  transform: scale(1.05);
+}
+
+.code-block {
+  background: #f5f5f5;
+  border-left: 4px solid var(--mint);
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.dark-mode .code-block {
+  background: #1a1a1a;
+  color: #aaa;
+}
+
+.parameter-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.parameter-table th,
+.parameter-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.dark-mode .parameter-table th,
+.dark-mode .parameter-table td {
+  border-color: #444;
+}
+
+.parameter-table th {
+  background-color: var(--mint);
+  color: white;
+}
+
+.dark-mode .parameter-table th {
+  background-color: #2a6e5f;
+}
+
+.parameter-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.dark-mode .parameter-table tr:nth-child(even) {
+  background-color: #2b2b2b;
+}
+
+.example-section {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .example-section {
+  background: #2b2b2b;
+}
+
+.example-section h3 {
+  color: var(--mint);
+  margin-top: 0;
+}
+
+.demo-img {
+  margin-top: 15px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.response-example {
+  background: #f5f5f5;
+  border-left: 4px solid var(--mint);
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dark-mode .response-example {
+  background: #1a1a1a;
+  color: #aaa;
+}
+
+.query-input {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.query-input input,
+.query-input select {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px;
+  border: 2px solid var(--mint);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+}
+
+.dark-mode .query-input input,
+.dark-mode .query-input select {
+  background: #1a1a1a;
+  color: var(--text-dark);
+  border-color: var(--mint-dark);
+}
+
+.query-result {
+  background: #f5f5f5;
+  border-left: 4px solid var(--mint);
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  display: none;
+}
+
+.dark-mode .query-result {
+  background: #1a1a1a;
+  color: #aaa;
+}
+
+.query-result.active {
+  display: block;
+}
+
+.query-result pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.query-footer {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.query-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+  .api-list {
+    padding: 0 10px;
+  }
+
+  .api-card {
+    padding: 20px;
+  }
+
+  .api-card h2 {
+    font-size: 20px;
+  }
+}

@@ -3,21 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="IP信息查询API - 查看IP地址的地理位置、ISP等详细信息">
-    <meta name="keywords" content="IP查询,IP地址,地理位置,ISP,IP信息,免费API">
-    <script>
-      // 域名重定向检测
-      (function() {
-        const allowedHosts = ['sni-api.furry.ist', 'api.furry.ist', 'web.archive.org'];
-        const targetHost = 'api.furry.ist';
-        const currentHost = window.location.hostname;
-        
-        if (!allowedHosts.includes(currentHost)) {
-          const newUrl = window.location.href.replace(currentHost, targetHost);
-          window.location.replace(newUrl);
-        }
-      })();
-    </script>
+    <meta name="description" content="IP信息查询API - 支持 ipapi、ipinfo、bilibili 多数据库查询与 db 参数切换">
+    <meta name="keywords" content="IP查询,IP地址,ipapi,ipinfo,bilibili,db参数,免费API">
+    <script src="../../scripts/domain-redirect.js" data-target-host="api.furry.ist" data-allowed-hosts="sni-api.furry.ist,api.furry.ist,web.archive.org,localhost,127.0.0.1"></script>
     <link rel="icon" type="image/png" sizes="40x40"  href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=1">
     <link rel="icon" type="image/png" sizes="100x100" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=3">
     <link rel="icon" type="image/png" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4">
@@ -25,8 +13,9 @@
     <link rel="apple-touch-icon" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4">
     <link rel="preconnect" href="https://api.furry.ist" crossorigin>
     <link rel="dns-prefetch" href="//api.furry.ist">
-    <link rel="stylesheet" href="../../style.css">
-    <title>IP信息查询API - API文档</title>
+    <link rel="stylesheet" href="../../styles/common.css">
+    <link rel="stylesheet" href="../../styles/api-docs.css">
+    <title>IP信息查询API - 多数据库文档</title>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="c46be53b-8c5c-4ad9-82d2-f39177a9b4a6"></script>
   </head>
   <body class="has-dynamic-bg">
@@ -72,33 +61,48 @@
       <h2 data-lang="zh">API 简介</h2>
       <h2 data-lang="en" class="en-hidden">API Overview</h2>
       
-      <p data-lang="zh">IP信息查询API提供快速、准确的IP地址信息查询服务。可查询当前访问者的IP信息，也可查询任意指定IP地址的详细信息，包括地理位置、ISP、城市、国家等。无需认证，直接调用即可。</p>
-      <p data-lang="en" class="en-hidden">The IP Information Query API provides fast and accurate IP address information lookup service. You can query the current visitor's IP information or any specified IP address for detailed information including geolocation, ISP, city, country, etc. No authentication required, just call directly.</p>
+      <p data-lang="zh">当前 IP 查询接口已支持多数据库聚合，默认返回 `available_db`、`ipapi`、`ipinfo`、`bilibili` 等数据块，并可通过 `?db=` 指定单一数据源。</p>
+      <p data-lang="en" class="en-hidden">The current IP API now supports multi-database aggregation. By default it may return `available_db`, `ipapi`, `ipinfo`, and `bilibili`, and you can force a specific source via `?db=`.</p>
 
       <h3 data-lang="zh">基础地址</h3>
       <h3 data-lang="en" class="en-hidden">Base URL</h3>
       <div class="code-block">https://sni-api.furry.ist/ipapi</div>
 
-      <h2 data-lang="zh">请求方式</h2>
-      <h2 data-lang="en" class="en-hidden">Request Methods</h2>
+      <h2 data-lang="zh">查询方式</h2>
+      <h2 data-lang="en" class="en-hidden">Query Modes</h2>
 
       <h3 data-lang="zh">1. 查询当前访问者IP信息</h3>
       <h3 data-lang="en" class="en-hidden">1. Query Current Visitor IP Information</h3>
-      <p data-lang="zh">直接访问基础地址，返回当前请求者的IP信息。</p>
-      <p data-lang="en" class="en-hidden">Access the base URL directly to get the current requester's IP information:</p>
+      <p data-lang="zh">直接访问基础地址，返回当前请求者 IP 的聚合结果。</p>
+      <p data-lang="en" class="en-hidden">Access the base URL directly to get the aggregated result for the current requester.</p>
       <div class="code-block">https://sni-api.furry.ist/ipapi</div>
-      <p data-lang="zh"><strong>HTTP方法：</strong> GET</p>
-      <p data-lang="en" class="en-hidden"><strong>HTTP Method:</strong> GET</p>
 
       <h3 data-lang="zh">2. 查询指定IP地址信息</h3>
-      <h3 data-lang="en" class="en-hidden">2. Query Specific IP Address Information</h3>
-      <p data-lang="zh">在基础地址后追加IP地址，返回该IP的详细信息：</p>
-      <p data-lang="en" class="en-hidden">Append an IP address to the base URL to get detailed information about that IP:</p>
+      <h3 data-lang="en" class="en-hidden">2. Query a Specific IP</h3>
+      <p data-lang="zh">在基础地址后追加 IP 地址，返回该 IP 的聚合结果：</p>
+      <p data-lang="en" class="en-hidden">Append an IP address to get the aggregated result for that IP:</p>
       <div class="code-block">https://sni-api.furry.ist/ipapi/{ip}</div>
-      <p data-lang="zh"><strong>示例：</strong></p>
-      <p data-lang="en" class="en-hidden"><strong>Example:</strong></p>
       <div class="code-block">https://sni-api.furry.ist/ipapi/1.1.1.1</div>
       <div class="code-block">https://sni-api.furry.ist/ipapi/8.8.8.8</div>
+
+      <h3 data-lang="zh">3. 使用 `db` 参数指定数据库</h3>
+      <h3 data-lang="en" class="en-hidden">3. Choose a Database via `db`</h3>
+      <p data-lang="zh">通过 `?db=` 可指定单一数据库。目前可用值来自返回字段 `available_db`。</p>
+      <p data-lang="en" class="en-hidden">Use `?db=` to choose a single upstream database. Valid values come from the `available_db` field.</p>
+      <div class="code-block">https://sni-api.furry.ist/ipapi/1.1.1.1?db=ipapi</div>
+      <div class="code-block">https://sni-api.furry.ist/ipapi/1.1.1.1?db=ipinfo</div>
+      <div class="code-block">https://sni-api.furry.ist/ipapi/1.1.1.1?db=bilibili</div>
+
+      <h3 data-lang="zh">4. 当前说明</h3>
+      <h3 data-lang="en" class="en-hidden">4. Current Notes</h3>
+      <ul>
+        <li data-lang="zh">新增数据库：`ipapi` 与 `bilibili`。</li>
+        <li data-lang="en" class="en-hidden">New databases: `ipapi` and `bilibili`.</li>
+        <li data-lang="zh">默认结果会带上 `available_db`，用于提示当前支持的数据源。</li>
+        <li data-lang="en" class="en-hidden">Default responses include `available_db` to show supported sources.</li>
+        <li data-lang="zh">`bilibili` 当前在聚合模式下可能报错，仅在 `?db=bilibili` 时正常。</li>
+        <li data-lang="en" class="en-hidden">`bilibili` may fail in aggregate mode and currently works reliably only with `?db=bilibili`.</li>
+      </ul>
 
       <h2 data-lang="zh">响应数据</h2>
       <h2 data-lang="en" class="en-hidden">Response Data</h2>
@@ -113,95 +117,166 @@
         </thead>
         <tbody>
           <tr>
-            <td>ip</td>
-            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
-            <td><span data-lang="zh">IP地址</span><span data-lang="en" class="en-hidden">IP address</span></td>
+            <td>available_db</td>
+            <td>Array&lt;string&gt;</td>
+            <td><span data-lang="zh">当前可用数据库列表，例如 `ipapi`、`ipinfo`、`bilibili`。</span><span data-lang="en" class="en-hidden">List of currently available databases, such as `ipapi`, `ipinfo`, and `bilibili`.</span></td>
           </tr>
           <tr>
-            <td>hostname</td>
-            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
-            <td><span data-lang="zh">主机名</span><span data-lang="en" class="en-hidden">Hostname</span></td>
+            <td>ipapi</td>
+            <td>Object</td>
+            <td><span data-lang="zh">`ipapi` 数据库结果，包含位置、时区、货币、连接与安全信息。</span><span data-lang="en" class="en-hidden">Result from the `ipapi` database, including location, timezone, currency, connection, and security data.</span></td>
           </tr>
           <tr>
-            <td>anycast</td>
-            <td><span data-lang="zh">布尔值</span><span data-lang="en" class="en-hidden">Boolean</span></td>
-            <td><span data-lang="zh">是否为anycast IP</span><span data-lang="en" class="en-hidden">Whether it's an anycast IP</span></td>
+            <td>ipinfo</td>
+            <td>Object</td>
+            <td><span data-lang="zh">`ipinfo` 数据库结果，包含 ASN、公司、隐私、滥用信息等。</span><span data-lang="en" class="en-hidden">Result from the `ipinfo` database, including ASN, company, privacy, and abuse data.</span></td>
           </tr>
           <tr>
-            <td>city</td>
-            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
-            <td><span data-lang="zh">城市名称</span><span data-lang="en" class="en-hidden">City name</span></td>
+            <td>bilibili</td>
+            <td>Object</td>
+            <td><span data-lang="zh">`bilibili` 数据库结果；若上游异常，可能返回错误对象。</span><span data-lang="en" class="en-hidden">Result from the `bilibili` database; may return an error object if the upstream fails.</span></td>
           </tr>
           <tr>
-            <td>region</td>
-            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
-            <td><span data-lang="zh">地区/州</span><span data-lang="en" class="en-hidden">Region/State</span></td>
+            <td>code</td>
+            <td>Number</td>
+            <td><span data-lang="zh">接口响应状态码。</span><span data-lang="en" class="en-hidden">API response status code.</span></td>
           </tr>
+        </tbody>
+      </table>
+
+      <h3 data-lang="zh">`ipapi` 子字段摘要</h3>
+      <h3 data-lang="en" class="en-hidden">`ipapi` Nested Fields Summary</h3>
+      <table class="parameter-table">
+        <thead>
           <tr>
-            <td>country</td>
-            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
-            <td><span data-lang="zh">国家代码</span><span data-lang="en" class="en-hidden">Country code</span></td>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
           </tr>
-          <tr>
-            <td>loc</td>
-            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
-            <td><span data-lang="zh">地理位置坐标（纬度,经度）</span><span data-lang="en" class="en-hidden">Geographic coordinates (latitude,longitude)</span></td>
-          </tr>
-          <tr>
-            <td>postal</td>
-            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
-            <td><span data-lang="zh">邮政编码</span><span data-lang="en" class="en-hidden">Postal code</span></td>
-          </tr>
-          <tr>
-            <td>timezone</td>
-            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
-            <td><span data-lang="zh">时区</span><span data-lang="en" class="en-hidden">Timezone</span></td>
-          </tr>
-          <tr>
-            <td>asn</td>
-            <td><span data-lang="zh">对象</span><span data-lang="en" class="en-hidden">Object</span></td>
-            <td><span data-lang="zh">自治系统号信息（包含asn、name、domain、route、type）</span><span data-lang="en" class="en-hidden">ASN information (includes asn, name, domain, route, type)</span></td>
-          </tr>
-          <tr>
-            <td>company</td>
-            <td><span data-lang="zh">对象</span><span data-lang="en" class="en-hidden">Object</span></td>
-            <td><span data-lang="zh">公司信息（包含name、domain、type）</span><span data-lang="en" class="en-hidden">Company information (includes name, domain, type)</span></td>
-          </tr>
-          <tr>
-            <td>privacy</td>
-            <td><span data-lang="zh">对象</span><span data-lang="en" class="en-hidden">Object</span></td>
-            <td><span data-lang="zh">隐私信息（包含vpn、proxy、tor、relay、hosting、service）</span><span data-lang="en" class="en-hidden">Privacy information (includes vpn, proxy, tor, relay, hosting, service)</span></td>
-          </tr>
-          <tr>
-            <td>abuse</td>
-            <td><span data-lang="zh">对象</span><span data-lang="en" class="en-hidden">Object</span></td>
-            <td><span data-lang="zh">滥用举报信息（包含address、country、email、name、network、phone）</span><span data-lang="en" class="en-hidden">Abuse contact information (includes address, country, email, name, network, phone)</span></td>
-          </tr>
-          <tr>
-            <td>domains</td>
-            <td><span data-lang="zh">对象</span><span data-lang="en" class="en-hidden">Object</span></td>
-            <td><span data-lang="zh">域名信息（包含ip、total、domains数组）</span><span data-lang="en" class="en-hidden">Domain information (includes ip, total, domains array)</span></td>
-          </tr>
+        </thead>
+        <tbody>
+          <tr><td>type</td><td>String</td><td>ipv4 / ipv6</td></tr>
+          <tr><td>continent_code / continent_name</td><td>String</td><td>洲信息</td></tr>
+          <tr><td>country_code / country_name</td><td>String</td><td>国家信息</td></tr>
+          <tr><td>region_code / region_name / city / zip</td><td>String</td><td>地区、城市、邮编</td></tr>
+          <tr><td>latitude / longitude</td><td>Number</td><td>经纬度</td></tr>
+          <tr><td>location</td><td>Object</td><td>旗帜、语言、区号、是否欧盟等</td></tr>
+          <tr><td>time_zone</td><td>Object</td><td>时区与当前时间信息</td></tr>
+          <tr><td>currency</td><td>Object</td><td>货币代码、名称、符号</td></tr>
+          <tr><td>connection</td><td>Object</td><td>ASN、ISP、运营商与行业分类</td></tr>
+          <tr><td>security</td><td>Object</td><td>代理、爬虫、威胁等级等安全判定</td></tr>
         </tbody>
       </table>
 
       <h2 data-lang="zh">使用示例</h2>
       <h2 data-lang="en" class="en-hidden">Usage Examples</h2>
 
-      <h3 data-lang="zh">1. 查询当前IP信息</h3>
-      <h3 data-lang="en" class="en-hidden">1. Query Current IP Information</h3>
+      <h3 data-lang="zh">1. 查询当前IP（聚合模式）</h3>
+      <h3 data-lang="en" class="en-hidden">1. Query Current IP (Aggregate)</h3>
       <div class="code-block">curl https://sni-api.furry.ist/ipapi</div>
-      <p data-lang="zh">或在浏览器中直接打开。</p>
-      <p data-lang="en" class="en-hidden">Or open directly in your browser:</p>
       <div class="code-block">https://sni-api.furry.ist/ipapi</div>
 
-      <h3 data-lang="zh">2. 查询特定IP（1.1.1.1 - Cloudflare DNS）</h3>
-      <h3 data-lang="en" class="en-hidden">2. Query Specific IP (1.1.1.1 - Cloudflare DNS)</h3>
+      <h3 data-lang="zh">2. 查询特定IP并指定 `ipapi` 数据库</h3>
+      <h3 data-lang="en" class="en-hidden">2. Query Specific IP with `ipapi`</h3>
+      <div class="code-block">https://sni-api.furry.ist/ipapi/1.1.1.1?db=ipapi</div>
+
+      <h3 data-lang="zh">3. 查询特定IP并指定 `ipinfo` 数据库</h3>
+      <h3 data-lang="en" class="en-hidden">3. Query Specific IP with `ipinfo`</h3>
+      <div class="code-block">https://sni-api.furry.ist/ipapi/1.1.1.1?db=ipinfo</div>
+
+      <h3 data-lang="zh">4. 查询 `bilibili` 数据库</h3>
+      <h3 data-lang="en" class="en-hidden">4. Query `bilibili`</h3>
+      <div class="code-block">https://sni-api.furry.ist/ipapi/1.1.1.1?db=bilibili</div>
+
+      <h3 data-lang="zh">5. 最新返回示例</h3>
+      <h3 data-lang="en" class="en-hidden">5. Latest Response Example</h3>
       <div class="code-block">https://sni-api.furry.ist/ipapi/1.1.1.1</div>
-      <p data-lang="zh">响应示例：</p>
-      <p data-lang="en" class="en-hidden">Response example:</p>
       <div class="response-example"><pre>{
+  "available_db": [
+    "ipapi",
+    "ipinfo",
+    "bilibili"
+  ],
   "ipapi": {
+    "ip": "1.1.1.1",
+    "hostname": "one.one.one.one",
+    "type": "ipv4",
+    "continent_code": "NA",
+    "continent_name": "North America",
+    "country_code": "US",
+    "country_name": "United States",
+    "region_code": "CO",
+    "region_name": "Colorado",
+    "city": "Englewood",
+    "zip": "80113",
+    "latitude": 39.6413688659668,
+    "longitude": -104.95458984375,
+    "msa": "19740",
+    "dma": "751",
+    "radius": "0",
+    "ip_routing_type": "fixed",
+    "connection_type": "tx",
+    "location": {
+      "geoname_id": 5421250,
+      "capital": "Washington D.C.",
+      "languages": [
+        {
+          "code": "en",
+          "name": "English",
+          "native": "English"
+        }
+      ],
+      "country_flag": "https://assets.ipstack.com/flags/us.svg",
+      "country_flag_emoji": "🇺🇸",
+      "country_flag_emoji_unicode": "U+1F1FA U+1F1F8",
+      "calling_code": "1",
+      "is_eu": false
+    },
+    "time_zone": {
+      "id": "America/Denver",
+      "current_time": "2026-03-13T09:16:59-06:00",
+      "gmt_offset": -21600,
+      "code": "MDT",
+      "is_daylight_saving": true
+    },
+    "currency": {
+      "code": "USD",
+      "name": "US Dollar",
+      "plural": "US dollars",
+      "symbol": "$",
+      "symbol_native": "$"
+    },
+    "connection": {
+      "asn": 13335,
+      "isp": "Cloudflare",
+      "sld": null,
+      "tld": null,
+      "carrier": "cloudflare",
+      "home": false,
+      "organization_type": "Internet Hosting Services",
+      "isic_code": "J6311",
+      "naics_code": "518210"
+    },
+    "security": {
+      "is_proxy": false,
+      "proxy_type": null,
+      "is_crawler": false,
+      "crawler_name": null,
+      "crawler_type": null,
+      "is_tor": false,
+      "threat_level": "high",
+      "threat_types": [
+        "attack_source",
+        "attack_source_ssh"
+      ],
+      "proxy_last_detected": null,
+      "proxy_level": null,
+      "vpn_service": null,
+      "anonymizer_status": null,
+      "hosting_facility": false
+    }
+  },
+  "ipinfo": {
     "ip": "1.1.1.1",
     "hostname": "one.one.one.one",
     "anycast": true,
@@ -241,22 +316,21 @@
     },
     "domains": {
       "ip": "1.1.1.1",
-      "total": 30006,
+      "total": 47640,
       "domains": [
-        "furry.ist"
+        "example.com"
       ]
     }
+  },
+  "bilibili": {
+    "error": "Upstream fetch failed"
   },
   "code": 200
 }</pre></div>
 
-      <h3 data-lang="zh">3. 查询Google DNS（8.8.8.8）</h3>
-      <h3 data-lang="en" class="en-hidden">3. Query Google DNS (8.8.8.8)</h3>
-      <div class="code-block">https://sni-api.furry.ist/ipapi/8.8.8.8</div>
-
-      <h3 data-lang="zh">4. 在JavaScript中使用</h3>
-      <h3 data-lang="en" class="en-hidden">4. Usage in JavaScript</h3>
-      <div class="code-block">fetch('https://sni-api.furry.ist/ipapi/1.1.1.1')
+      <h3 data-lang="zh">6. 在 JavaScript 中使用 `db` 参数</h3>
+      <h3 data-lang="en" class="en-hidden">6. Use `db` in JavaScript</h3>
+      <div class="code-block">fetch('https://sni-api.furry.ist/ipapi/1.1.1.1?db=ipapi')
   .then(response => response.json())
   .then(data => console.log(data))</div>
     </div>
@@ -272,11 +346,17 @@
         <span data-lang="en" class="en-hidden">Live Query Demo</span>
       </h3>
       
-      <p data-lang="zh">输入IP地址进行查询（不输入则查询你的IP）：</p>
-      <p data-lang="en" class="en-hidden">Enter an IP address to query (leave blank to query your IP):</p>
+      <p data-lang="zh">输入 IP 并选择数据库；留空 IP 可查询当前访客。`bilibili` 建议单独用 `?db=bilibili`。</p>
+      <p data-lang="en" class="en-hidden">Enter an IP and choose a database; leave the IP blank to query the current visitor. Use `?db=bilibili` for bilibili.</p>
       
       <div class="query-input">
         <input type="text" id="ip-input" placeholder="例如: 1.1.1.1 / e.g. 8.8.8.8" />
+        <select id="db-select" title="选择数据库">
+          <option value="">aggregate / 默认聚合</option>
+          <option value="ipapi">ipapi</option>
+          <option value="ipinfo">ipinfo</option>
+          <option value="bilibili">bilibili</option>
+        </select>
         <button class="base-btn" type="button" onclick="queryIP()" data-lang="zh">查询</button>
         <button class="base-btn en-hidden" type="button" onclick="queryIP()" data-lang="en">Query</button>
       </div>
@@ -290,20 +370,21 @@
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M12 16v-4M12 8h.01" stroke="white" stroke-width="2"></path>
         </svg>
-        <strong>提示：</strong>你也可以点击下方预设按钮快速查询常见公共DNS服务。
+        <strong>提示：</strong>下方预设按钮会自动填入常见 IP；若测试 `bilibili`，建议同时选中 `bilibili` 数据库。
       </p>
       <p data-lang="en" class="query-footer en-hidden">
         <svg class="small-icon-svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M12 16v-4M12 8h.01" stroke="white" stroke-width="2"></path>
         </svg>
-        <strong>Tip:</strong> You can also click the preset buttons below to quickly query common public DNS servers
+        <strong>Tip:</strong> Preset buttons help you test common IPs quickly. For `bilibili`, select the `bilibili` database as well.
       </p>
 
       <div class="query-buttons">
         <button class="base-btn" type="button" onclick="queryIP('1.1.1.1')">Cloudflare DNS (1.1.1.1)</button>
         <button class="base-btn" type="button" onclick="queryIP('8.8.8.8')">Google DNS (8.8.8.8)</button>
         <button class="base-btn" type="button" onclick="queryIP('114.114.114.114')">114 DNS (114.114.114.114)</button>
+        <button class="base-btn" type="button" onclick="queryIP('1.1.1.1', 'bilibili')">Bilibili DB Test</button>
         <button class="base-btn" type="button" onclick="queryIP(' ')">My IP</button>
       </div>
     </div>
@@ -324,33 +405,11 @@
       </div>
     </footer>
 
-    <script src="../../script.js"></script>
+    <script src="../../scripts/core.js"></script>
+    <script src="../../scripts/dynamic-bg.js"></script>
+    <script src="./ip-api.js"></script>
     <script>
       initLanguageNow();
-
-      function queryIP(ip = null) {
-        const ipInput = document.getElementById('ip-input');
-        const ipToQuery = ip || ipInput.value;
-        const resultDiv = document.getElementById('query-result');
-        const resultContent = document.getElementById('result-content');
-
-        let url = 'https://sni-api.furry.ist/ipapi';
-        if (ipToQuery) {
-          url += '/' + ipToQuery;
-        }
-
-        resultContent.textContent = '加载中... / Loading...';
-        resultDiv.classList.add('active');
-
-        fetch(url)
-          .then(response => response.json())
-          .then(data => {
-            resultContent.textContent = JSON.stringify(data, null, 2);
-          })
-          .catch(error => {
-            resultContent.textContent = '错误 / Error: ' + error.message;
-          });
-      }
     </script>
   </body>
 </html>

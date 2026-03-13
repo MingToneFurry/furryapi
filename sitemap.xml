@@ -13,10 +13,10 @@
     <loc>https://api.furry.ist/apiIntro/ip-api/index.html</loc>
   </url>
   <url>
-    <loc>https://api.furry.ist/index.html</loc>
+    <loc>https://api.furry.ist/apiIntro/ip-calc/index.html</loc>
   </url>
   <url>
-    <loc>https://api.furry.ist/SwaggerDocs/index.html</loc>
+    <loc>https://api.furry.ist/index.html</loc>
   </url>
   <url>
     <loc>https://api.furry.ist/thank/index.html</loc>

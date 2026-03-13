@@ -5,19 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="随机福瑞API - 提供高质量 快速的福瑞相关接口 Random Furry API - Providing High-Quality and Fast Furry-Related Interfaces">
     <meta name="keywords" content="Furry,随机图片,福瑞,免费API,免费接口,API接口,furryapi,Randomimage,furries">
-    <script>
-      // 域名重定向检测
-      (function() {
-        const allowedHosts = ['sni-api.furry.ist', 'api.furry.ist', 'web.archive.org'];
-        const targetHost = 'api.furry.ist';
-        const currentHost = window.location.hostname;
-        
-        if (!allowedHosts.includes(currentHost)) {
-          const newUrl = window.location.href.replace(currentHost, targetHost);
-          window.location.replace(newUrl);
-        }
-      })();
-    </script>
+    <script src="../scripts/domain-redirect.js" data-target-host="api.furry.ist" data-allowed-hosts="sni-api.furry.ist,api.furry.ist,web.archive.org,localhost,127.0.0.1"></script>
     <!-- QQ头像 favicon：全规格（含重复尺寸的 spec=2 / 40 / 100 等） -->
     <link rel="icon" type="image/png" sizes="40x40"  href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=1">
     <link rel="icon" type="image/png" sizes="100x100" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=3">
@@ -27,7 +15,8 @@
 
     <link rel="preconnect" href="https://api.furry.ist" crossorigin>
     <link rel="dns-prefetch" href="//api.furry.ist">
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../styles/common.css">
+    <link rel="stylesheet" href="../styles/api-docs.css">
     <title>API 文档 - FurryAPI</title>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="c46be53b-8c5c-4ad9-82d2-f39177a9b4a6"></script>
   </head>
@@ -103,10 +92,10 @@
         </h2>
         
         <div class="description" data-lang="zh">
-          查询IP地址信息，获取IP的地理位置、ISP等详细信息。可查询当前访问者IP或指定IP地址。
+          查询 IP 地址信息，支持 `ipapi`、`ipinfo`、`bilibili` 三个数据库，并可通过 `?db=` 指定数据源。
         </div>
         <div class="description en-hidden" data-lang="en">
-          Query IP address information including geolocation, ISP and other details. You can check your current IP or query a specific IP address.
+          Query IP address information using `ipapi`, `ipinfo`, or `bilibili`, and choose the data source via the `?db=` parameter.
         </div>
 
         <div class="endpoint" data-lang="zh">基础地址 / Base URL: https://sni-api.furry.ist/ipapi</div>
@@ -118,33 +107,30 @@
         </div>
       </div>
 
-      <!-- Swagger API文档卡片 -->
+      <!-- IP计算器工具卡片 -->
       <div class="api-card">
         <h2>
           <svg class="inline-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
+            <path d="M3 3h18v18H3z"></path>
+            <path d="M8 8h8M8 12h3M13 12h3M8 16h8"></path>
           </svg>
-          <span data-lang="zh">Swagger API文档</span>
-          <span data-lang="en" class="en-hidden">Swagger API Documentation</span>
+          <span data-lang="zh">IP 计算器工具</span>
+          <span data-lang="en" class="en-hidden">IP Calculator Tool</span>
         </h2>
-        
+
         <div class="description" data-lang="zh">
-          完整的OpenAPI规范文档，提供交互式的API测试界面。可以在线测试所有API接口，查看详细的请求和响应格式。
+          提供网络地址/广播地址计算、子网掩码与CIDR互转、IP多格式转换、地址数量与掩码换算等完整IP计算功能。
         </div>
         <div class="description en-hidden" data-lang="en">
-          Complete OpenAPI specification documentation with interactive API testing interface. Test all API endpoints online and view detailed request and response formats.
+          Provides full IP calculation features including network/broadcast calculation, subnet mask & CIDR conversion, multi-format IP conversion, and host-count to mask planning.
         </div>
 
-        <div class="endpoint" data-lang="zh">Swagger UI: /SwaggerDocs/</div>
-        <div class="endpoint en-hidden" data-lang="en">Swagger UI: /SwaggerDocs/</div>
+        <div class="endpoint" data-lang="zh">工具入口: /apiIntro/ip-calc/</div>
+        <div class="endpoint en-hidden" data-lang="en">Tool URL: /apiIntro/ip-calc/</div>
 
         <div class="btn-wrapper">
-          <a href="../SwaggerDocs/" class="api-link-btn" data-lang="zh">查看Swagger文档</a>
-          <a href="../SwaggerDocs/" class="api-link-btn en-hidden" data-lang="en">View Swagger Docs</a>
+          <a href="ip-calc/" class="api-link-btn" data-lang="zh">打开IP计算器</a>
+          <a href="ip-calc/" class="api-link-btn en-hidden" data-lang="en">Open Calculator</a>
         </div>
       </div>
     </div>
@@ -165,7 +151,8 @@
       </div>
     </footer>
 
-    <script src="../script.js"></script>
+    <script src="../scripts/core.js"></script>
+    <script src="../scripts/dynamic-bg.js"></script>
     <script>
       // 初始化
       initLanguageNow();

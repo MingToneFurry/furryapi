@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="IP 计算器 - 网络地址、子网掩码、IP格式转换与子网规划工具" />
+    <meta name="keywords" content="IP计算器,子网掩码,CIDR,网络地址,广播地址,IP转换" />
+    <script src="../../scripts/domain-redirect.js" data-target-host="api.furry.ist" data-allowed-hosts="sni-api.furry.ist,api.furry.ist,web.archive.org,localhost,127.0.0.1"></script>
+    <link rel="icon" type="image/png" sizes="40x40" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=1" />
+    <link rel="icon" type="image/png" sizes="100x100" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=3" />
+    <link rel="icon" type="image/png" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4" />
+    <link rel="icon" type="image/png" sizes="640x640" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=5" />
+    <link rel="apple-touch-icon" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4" />
+
+    <link rel="preconnect" href="https://api.furry.ist" crossorigin />
+    <link rel="dns-prefetch" href="//api.furry.ist" />
+    <link rel="stylesheet" href="../../styles/common.css" />
+    <link rel="stylesheet" href="../../styles/api-docs.css" />
+    <link rel="stylesheet" href="./ip-calc.css" />
+    <title>IP 计算器 - FurryAPI 工具</title>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="c46be53b-8c5c-4ad9-82d2-f39177a9b4a6"></script>
+  </head>
+  <body class="has-dynamic-bg">
+    <header>
+      <div class="header-left">
+        <h1 id="main-title">IP 计算器</h1>
+      </div>
+      <div class="header-right">
+        <a class="base-btn" href="../" rel="noopener noreferrer">回到API列表</a>
+        <a class="base-btn" href="../../" rel="noopener noreferrer">返回首页</a>
+        <button class="base-btn" type="button" onclick="toggleLanguage()">切换语言 / Switch Language</button>
+        <button id="theme-toggle" class="base-btn" type="button" onclick="toggleDarkMode()" aria-label="切换暗黑/浅色模式">
+          <span class="mode-icon" aria-hidden="true">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+            </svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="M4.93 4.93l1.41 1.41"></path>
+              <path d="M17.66 17.66l1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="M4.93 19.07l1.41-1.41"></path>
+              <path d="M17.66 6.34l1.41-1.41"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <main class="ipcalc-wrap">
+      <section class="api-section ipcalc-hero">
+        <h2>网络和 IP 地址计算器</h2>
+        <p>显示网络地址、广播地址、第一个和最后一个可用地址，并提供掩码/格式转换与子网规划。</p>
+      </section>
+
+      <section class="ipcalc-grid">
+        <article class="example-section calc-card">
+          <h3>1) 网络与地址范围计算 (IP/CIDR)</h3>
+          <div class="calc-form-row">
+            <input id="net-ip" type="text" value="10.0.0.5" placeholder="IP地址，例如 10.0.0.5" />
+            <input id="net-cidr" type="number" value="24" min="0" max="32" placeholder="CIDR" />
+            <button class="base-btn" type="button" id="btn-net-calc">计算</button>
+          </div>
+          <div id="net-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>2) 网络/节点计算器</h3>
+          <div class="calc-form-col">
+            <input id="network-node-mask" type="text" placeholder="子网掩码，例如 255.255.255.0" />
+            <input id="network-node-ip" type="text" placeholder="TCP/IP地址，例如 10.0.0.9" />
+            <button class="base-btn" type="button" id="btn-network-node">计算</button>
+          </div>
+          <div id="network-node-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>3) IP 地址转换器</h3>
+          <div class="calc-form-col">
+            <input id="conv-dotted" type="text" placeholder="点分十进制，例如 10.0.0.1" />
+            <input id="conv-binary" type="text" placeholder="二进制，例如 00001010.00000000.00000000.00000001" />
+            <input id="conv-hex" type="text" placeholder="十六进制，例如 0A000001" />
+            <input id="conv-decimal" type="text" placeholder="十进制，例如 167772161" />
+            <button class="base-btn" type="button" id="btn-convert-ip">转换</button>
+          </div>
+          <div id="convert-ip-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>4) 子网掩码转换 (点分十进制 -> /位)</h3>
+          <div class="calc-form-row">
+            <input id="mask-dotted-to-cidr" type="text" value="255.255.255.0" placeholder="255.255.255.0" />
+            <button class="base-btn" type="button" id="btn-mask-to-cidr">转换</button>
+          </div>
+          <div id="mask-to-cidr-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>5) 子网掩码转换 (/位 -> 点分十进制/十进制/十六进制)</h3>
+          <div class="calc-form-row">
+            <input id="cidr-to-mask" type="number" value="24" min="0" max="32" placeholder="CIDR位数" />
+            <button class="base-btn" type="button" id="btn-cidr-to-mask">转换</button>
+          </div>
+          <div id="cidr-to-mask-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>6) 掩码 -> 可用地址数量</h3>
+          <div class="calc-form-row">
+            <input id="mask-host-count" type="number" value="27" min="0" max="32" placeholder="CIDR位数" />
+            <button class="base-btn" type="button" id="btn-mask-host-count">计算</button>
+          </div>
+          <div id="mask-host-count-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>7) 所需地址数量 -> 掩码转换</h3>
+          <div class="calc-form-row">
+            <input id="required-addresses" type="number" value="5" min="1" placeholder="需要地址数量" />
+            <button class="base-btn" type="button" id="btn-required-to-mask">计算</button>
+          </div>
+          <div id="required-to-mask-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>8) 掩码取反 (Wildcard)</h3>
+          <div class="calc-form-row">
+            <input id="mask-invert" type="text" value="255.255.240.0" placeholder="255.255.240.0" />
+            <button class="base-btn" type="button" id="btn-mask-invert">计算</button>
+          </div>
+          <div id="mask-invert-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>9) 点分十进制IP -> 二进制/十六进制</h3>
+          <div class="calc-form-row">
+            <input id="dotted-to-binhex" type="text" value="10.0.0.255" placeholder="10.0.0.255" />
+            <button class="base-btn" type="button" id="btn-dotted-to-binhex">转换</button>
+          </div>
+          <div id="dotted-to-binhex-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>10) 十六进制 -> 点分十进制IP/二进制</h3>
+          <div class="calc-form-row">
+            <input id="hex-to-ip" type="text" value="FFFFFF00" placeholder="FFFFFF00 或 0xFFFFFF00" />
+            <button class="base-btn" type="button" id="btn-hex-to-ip">转换</button>
+          </div>
+          <div id="hex-to-ip-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>11) 子网掩码换算器</h3>
+          <div class="calc-form-col">
+            <input id="mask-converter-dotted" type="text" placeholder="点分十进制子网掩码，例如 255.255.255.0" />
+            <input id="mask-converter-bits" type="number" min="0" max="32" placeholder="位元数，例如 24" />
+            <button class="base-btn" type="button" id="btn-mask-converter">换算</button>
+          </div>
+          <div id="mask-converter-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>12) 子网掩码逆算器</h3>
+          <div class="calc-form-row">
+            <input id="mask-reverse" type="text" placeholder="输入点分十进制子网掩码，例如 255.255.255.0" />
+            <button class="base-btn" type="button" id="btn-mask-reverse">逆算</button>
+          </div>
+          <div id="mask-reverse-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card">
+          <h3>13) 子网掩码计算器（Classful）</h3>
+          <div class="calc-form-col">
+            <input id="classful-ip" type="text" placeholder="输入TCP/IP地址，例如 192.168.1.10" />
+            <select id="classful-net-type" title="选择网络类型">
+              <option value="default">默认（按IP自动识别）</option>
+              <option value="A">A类网</option>
+              <option value="B">B类网</option>
+              <option value="C">C类网</option>
+            </select>
+            <input id="classful-subnets" type="number" min="0" placeholder="子网数量（可选）" />
+            <input id="classful-hosts" type="number" min="0" placeholder="每个网络所需节点/主机数（含广播，可选）" />
+            <button class="base-btn" type="button" id="btn-classful">计算</button>
+          </div>
+          <div id="classful-result" class="calc-output"></div>
+        </article>
+
+        <article class="example-section calc-card multicast-card">
+          <h3>IP 组播地址范围</h3>
+          <ul>
+            <li><strong>224.0.0.0 - 224.0.0.255：</strong>知名多播地址，控制通道</li>
+            <li><strong>224.0.1.0 - 238.255.255.255：</strong>全球范围（互联网）组播地址</li>
+            <li><strong>239.0.0.0 - 239.255.255.255：</strong>本地管理组播地址</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <a target="_blank" rel="noopener noreferrer" href="https://stats.uptimerobot.com/6zqrufirxf">服务状态 / Service Stats</a><br />
+      </div>
+
+      <div class="footer-contact">
+        <a target="_blank" href="mailto:furryimg@furry.ist">联系我邮箱 / Email me</a><br />
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furry-img.rth1.xyz/">联系我 - 外站CN</a><br />
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furryimg.pages.dev/">联系我 - 外站Global</a>
+      </div>
+    </footer>
+
+    <script src="../../scripts/core.js"></script>
+    <script src="../../scripts/dynamic-bg.js"></script>
+    <script src="./ip-calc.js"></script>
+    <script>
+      initLanguageNow();
+    </script>
+  </body>
+</html>
