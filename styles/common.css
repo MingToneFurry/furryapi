@@ -83,6 +83,7 @@ header {
   gap: 10px;
   flex-wrap: wrap;
   width: 100%;
+  box-sizing: border-box;
 }
 
 header .header-left {
@@ -119,6 +120,19 @@ a {
   flex-shrink: 0;
 }
 
+.header-left h1 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-left h1 svg {
+  width: 1.2em;
+  height: 1.2em;
+  flex-shrink: 0;
+}
+
 .header-right {
   display: flex;
   gap: 10px;
@@ -143,6 +157,7 @@ a {
   gap: 8px;
   line-height: 1.2;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .base-btn:hover {
@@ -150,7 +165,10 @@ a {
   transform: scale(1.05);
 }
 
-.dark-mode .base-btn,
+.dark-mode .base-btn {
+  color: var(--text-dark);
+}
+
 .dark-mode .base-btn:hover {
   color: var(--text-dark);
 }
@@ -161,6 +179,7 @@ a {
   justify-content: center;
   width: 1.2em;
   height: 1.2em;
+  flex: 0 0 auto;
 }
 
 #theme-toggle svg {
@@ -195,6 +214,7 @@ body.dark-mode #theme-toggle .icon-sun {
   transition: background 0.3s, color 0.3s;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  box-sizing: border-box;
   width: 100%;
 }
 
@@ -235,7 +255,9 @@ footer {
   padding: 20px 15px;
   text-align: center;
   margin-top: 30px;
+  box-sizing: border-box;
   width: 100%;
+  overflow-x: hidden;
 }
 
 footer h4 {
@@ -281,13 +303,16 @@ footer > div > a:hover,
 .dark-mode .footer-sitemap a:hover,
 .dark-mode .footer-links a:hover {
   color: var(--mint);
+  text-decoration: underline;
 }
 
 .footer-contact,
 .footer-icp,
 .footer-sitemap {
+  color: var(--mint);
   font-size: 14px;
   margin-top: 15px;
+  display: block;
 }
 
 .footer-links {
@@ -295,12 +320,17 @@ footer > div > a:hover,
   flex-wrap: wrap;
   justify-content: center;
   gap: 15px;
+  line-height: 1;
+  padding: 0 10px;
 }
 
 .footer-links a {
   display: inline-flex;
   align-items: baseline;
   gap: 5px;
+  padding: 2px 0;
+  transform: translateY(0.15em);
+  font-weight: 500;
 }
 
 .footer-links a img {
@@ -308,6 +338,7 @@ footer > div > a:hover,
   height: 1em;
   margin-right: 5px;
   display: block;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
@@ -342,5 +373,6 @@ footer > div > a:hover,
 
   .footer-links {
     gap: 10px;
+    padding: 0 5px;
   }
 }

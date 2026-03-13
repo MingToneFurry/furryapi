@@ -90,6 +90,11 @@
   overflow-x: auto;
   font-family: 'Courier New', monospace;
   font-size: 14px;
+  -ms-overflow-style: none;
+}
+
+.code-block::-webkit-scrollbar {
+  display: none;
 }
 
 .dark-mode .code-block {
