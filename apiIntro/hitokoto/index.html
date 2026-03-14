@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="一言API - 随机返回一条句子，支持分类筛选、长度过滤与多种返回格式">
+    <meta name="keywords" content="一言,hitokoto,随机句子,免费API,免费接口,API接口,furryapi">
+    <script src="../../scripts/domain-redirect.js" data-target-host="api.furry.ist" data-allowed-hosts="sni-api.furry.ist,api.furry.ist,web.archive.org,localhost,127.0.0.1"></script>
+    <link rel="icon" type="image/png" sizes="40x40"  href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=1">
+    <link rel="icon" type="image/png" sizes="100x100" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=3">
+    <link rel="icon" type="image/png" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4">
+    <link rel="icon" type="image/png" sizes="640x640" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=5">
+    <link rel="apple-touch-icon" sizes="140x140" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=4">
+    <link rel="preconnect" href="https://api.furry.ist" crossorigin>
+    <link rel="dns-prefetch" href="//api.furry.ist">
+    <link rel="stylesheet" href="../../styles/common.css">
+    <link rel="stylesheet" href="../../styles/api-docs.css">
+    <title>一言API - API文档</title>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="c46be53b-8c5c-4ad9-82d2-f39177a9b4a6"></script>
+    <style>
+      .hitokoto-demo-box {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 1.5rem 2rem;
+        margin-top: 1rem;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .dark-mode .hitokoto-demo-box {
+        background: #1a1a1a;
+        border-color: #444;
+      }
+      .hitokoto-text {
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 1.7;
+      }
+      .hitokoto-meta {
+        font-size: 0.875rem;
+        color: #888;
+        text-align: right;
+      }
+      .dark-mode .hitokoto-meta {
+        color: #aaa;
+      }
+      .hitokoto-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
+      .hitokoto-controls select {
+        padding: 0.35rem 0.7rem;
+        border-radius: 6px;
+        border: 2px solid var(--mint);
+        background: white;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.3s, color 0.3s;
+      }
+      .hitokoto-controls select:focus {
+        outline: none;
+        border-color: var(--mint-dark);
+      }
+      .dark-mode .hitokoto-controls select {
+        background: #2b2b2b;
+        color: var(--text-dark);
+        border-color: var(--mint);
+      }
+    </style>
+  </head>
+  <body class="has-dynamic-bg">
+    <header>
+      <div class="header-left">
+        <h1 id="main-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span data-lang="zh">一言 API</span>
+          <span data-lang="en" class="en-hidden">Hitokoto API</span>
+        </h1>
+      </div>
+      <div class="header-right">
+        <a class="base-btn" href="../" rel="noopener noreferrer" data-lang="zh">回到API列表</a>
+        <a class="base-btn en-hidden" href="../" rel="noopener noreferrer" data-lang="en">Back to API List</a>
+        <a class="base-btn" href="../../" rel="noopener noreferrer" data-lang="zh">返回首页</a>
+        <a class="base-btn en-hidden" href="../../" rel="noopener noreferrer" data-lang="en">Home</a>
+        <button class="base-btn" type="button" onclick="toggleLanguage()">切换语言 / Switch Language</button>
+        <button id="theme-toggle" class="base-btn" type="button" onclick="toggleDarkMode()" aria-label="切换暗黑/浅色模式">
+          <span class="mode-icon" aria-hidden="true">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+            </svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="M4.93 4.93l1.41 1.41"></path>
+              <path d="M17.66 17.66l1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="M4.93 19.07l1.41-1.41"></path>
+              <path d="M17.66 6.34l1.41-1.41"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <div class="api-section">
+      <h2 data-lang="zh">API 简介</h2>
+      <h2 data-lang="en" class="en-hidden">API Overview</h2>
+
+      <p data-lang="zh">一言接口随机返回一条句子，来源涵盖动画、漫画、游戏、文学、诗词等多个分类。支持按分类筛选、长度过滤，并可选择 JSON 或纯文本格式返回。无需认证，直接调用即可。</p>
+      <p data-lang="en" class="en-hidden">The Hitokoto API returns a random sentence from various categories including anime, manga, games, literature, and poetry. Supports category filtering, length filtering, and JSON or plain-text response formats. No authentication required.</p>
+
+      <h3 data-lang="zh">基础地址</h3>
+      <h3 data-lang="en" class="en-hidden">Base URL</h3>
+      <div class="code-block">https://api.furry.ist/hitokoto</div>
+
+      <h3 data-lang="zh">支持的 HTTP 方法</h3>
+      <h3 data-lang="en" class="en-hidden">Supported HTTP Methods</h3>
+      <p data-lang="zh">支持 <code>GET</code>、<code>HEAD</code>、<code>OPTIONS</code>。其他方法将返回：</p>
+      <p data-lang="en" class="en-hidden">Supports <code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>. Other methods return:</p>
+      <div class="code-block">{"error":"Method Not Allowed","code":405}</div>
+
+      <h2 data-lang="zh">查询参数</h2>
+      <h2 data-lang="en" class="en-hidden">Query Parameters</h2>
+
+      <table class="parameter-table">
+        <thead>
+          <tr>
+            <th><span data-lang="zh">参数名</span><span data-lang="en" class="en-hidden">Parameter</span></th>
+            <th><span data-lang="zh">类型</span><span data-lang="en" class="en-hidden">Type</span></th>
+            <th><span data-lang="zh">说明</span><span data-lang="en" class="en-hidden">Description</span></th>
+            <th><span data-lang="zh">示例</span><span data-lang="en" class="en-hidden">Example</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>c</td>
+            <td><span data-lang="zh">字符串（可多值）</span><span data-lang="en" class="en-hidden">String (multi-value)</span></td>
+            <td><span data-lang="zh">分类 key，可传多个（见下方分类表）。不传或全部无效时从全部分类随机。</span><span data-lang="en" class="en-hidden">Category key, can be passed multiple times (see category table below). Omitted or all-invalid values result in a random pick from all categories.</span></td>
+            <td>c=a&amp;c=b</td>
+          </tr>
+          <tr>
+            <td>encode</td>
+            <td><span data-lang="zh">字符串</span><span data-lang="en" class="en-hidden">String</span></td>
+            <td><span data-lang="zh"><code>json</code>（默认）返回完整 JSON 对象；<code>text</code> 仅返回纯文本句子内容。</span><span data-lang="en" class="en-hidden"><code>json</code> (default) returns the full JSON object; <code>text</code> returns only the plain-text sentence.</span></td>
+            <td>encode=text</td>
+          </tr>
+          <tr>
+            <td>min_length</td>
+            <td><span data-lang="zh">整数</span><span data-lang="en" class="en-hidden">Integer</span></td>
+            <td><span data-lang="zh">句子最短字符数（含）。与 <code>max_length</code> 至少一个有效时启用过滤，最多随机尝试 10 次，10 次未满足则随机兜底。</span><span data-lang="en" class="en-hidden">Minimum sentence length (inclusive). Filtering is enabled when at least one of <code>min_length</code> / <code>max_length</code> is a valid positive integer. Falls back to a random result after 10 attempts.</span></td>
+            <td>min_length=8</td>
+          </tr>
+          <tr>
+            <td>max_length</td>
+            <td><span data-lang="zh">整数</span><span data-lang="en" class="en-hidden">Integer</span></td>
+            <td><span data-lang="zh">句子最长字符数（含）。过滤行为同 <code>min_length</code>。</span><span data-lang="en" class="en-hidden">Maximum sentence length (inclusive). Same filtering behavior as <code>min_length</code>.</span></td>
+            <td>max_length=20</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 data-lang="zh">分类说明</h2>
+      <h2 data-lang="en" class="en-hidden">Categories</h2>
+
+      <table class="parameter-table">
+        <thead>
+          <tr>
+            <th><span data-lang="zh">key</span><span data-lang="en" class="en-hidden">key</span></th>
+            <th><span data-lang="zh">分类名</span><span data-lang="en" class="en-hidden">Category</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>a</td><td><span data-lang="zh">动画</span><span data-lang="en" class="en-hidden">Anime</span></td></tr>
+          <tr><td>b</td><td><span data-lang="zh">漫画</span><span data-lang="en" class="en-hidden">Manga / Comics</span></td></tr>
+          <tr><td>c</td><td><span data-lang="zh">游戏</span><span data-lang="en" class="en-hidden">Games</span></td></tr>
+          <tr><td>d</td><td><span data-lang="zh">文学</span><span data-lang="en" class="en-hidden">Literature</span></td></tr>
+          <tr><td>e</td><td><span data-lang="zh">原创</span><span data-lang="en" class="en-hidden">Original</span></td></tr>
+          <tr><td>f</td><td><span data-lang="zh">来自网络</span><span data-lang="en" class="en-hidden">From the Internet</span></td></tr>
+          <tr><td>g</td><td><span data-lang="zh">其他</span><span data-lang="en" class="en-hidden">Other</span></td></tr>
+          <tr><td>h</td><td><span data-lang="zh">影视</span><span data-lang="en" class="en-hidden">Film &amp; TV</span></td></tr>
+          <tr><td>i</td><td><span data-lang="zh">诗词</span><span data-lang="en" class="en-hidden">Poetry</span></td></tr>
+          <tr><td>j</td><td><span data-lang="zh">网易云</span><span data-lang="en" class="en-hidden">NetEase Cloud Music</span></td></tr>
+          <tr><td>k</td><td><span data-lang="zh">哲学</span><span data-lang="en" class="en-hidden">Philosophy</span></td></tr>
+          <tr><td>l</td><td><span data-lang="zh">抖机灵</span><span data-lang="en" class="en-hidden">Witty Sayings</span></td></tr>
+        </tbody>
+      </table>
+
+      <h2 data-lang="zh">响应字段（JSON 模式）</h2>
+      <h2 data-lang="en" class="en-hidden">Response Fields (JSON Mode)</h2>
+
+      <table class="parameter-table">
+        <thead>
+          <tr>
+            <th><span data-lang="zh">字段名</span><span data-lang="en" class="en-hidden">Field</span></th>
+            <th><span data-lang="zh">类型</span><span data-lang="en" class="en-hidden">Type</span></th>
+            <th><span data-lang="zh">说明</span><span data-lang="en" class="en-hidden">Description</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>id</td>
+            <td>Number</td>
+            <td><span data-lang="zh">句子 ID</span><span data-lang="en" class="en-hidden">Sentence ID</span></td>
+          </tr>
+          <tr>
+            <td>uuid</td>
+            <td>String</td>
+            <td><span data-lang="zh">句子唯一标识符（UUID）</span><span data-lang="en" class="en-hidden">Unique identifier (UUID)</span></td>
+          </tr>
+          <tr>
+            <td>hitokoto</td>
+            <td>String</td>
+            <td><span data-lang="zh">句子正文</span><span data-lang="en" class="en-hidden">Sentence content</span></td>
+          </tr>
+          <tr>
+            <td>type</td>
+            <td>String</td>
+            <td><span data-lang="zh">分类名称（中文），如"原创"</span><span data-lang="en" class="en-hidden">Category name (Chinese), e.g. "原创"</span></td>
+          </tr>
+          <tr>
+            <td>type_desc</td>
+            <td>String</td>
+            <td><span data-lang="zh">分类名称（中英文），如"Original - 原创"</span><span data-lang="en" class="en-hidden">Category description (bilingual), e.g. "Original - 原创"</span></td>
+          </tr>
+          <tr>
+            <td>from</td>
+            <td>String</td>
+            <td><span data-lang="zh">来源作品</span><span data-lang="en" class="en-hidden">Source work</span></td>
+          </tr>
+          <tr>
+            <td>from_who</td>
+            <td>String | null</td>
+            <td><span data-lang="zh">出处作者或角色，可为 null</span><span data-lang="en" class="en-hidden">Author or character, may be null</span></td>
+          </tr>
+          <tr>
+            <td>creator</td>
+            <td>String</td>
+            <td><span data-lang="zh">句子录入者</span><span data-lang="en" class="en-hidden">Submitter</span></td>
+          </tr>
+          <tr>
+            <td>creator_uid</td>
+            <td>Number</td>
+            <td><span data-lang="zh">录入者 UID</span><span data-lang="en" class="en-hidden">Submitter UID</span></td>
+          </tr>
+          <tr>
+            <td>reviewer</td>
+            <td>Number</td>
+            <td><span data-lang="zh">审核者 ID</span><span data-lang="en" class="en-hidden">Reviewer ID</span></td>
+          </tr>
+          <tr>
+            <td>commit_from</td>
+            <td>String</td>
+            <td><span data-lang="zh">提交来源，如 "web"</span><span data-lang="en" class="en-hidden">Submission source, e.g. "web"</span></td>
+          </tr>
+          <tr>
+            <td>created_at</td>
+            <td>String</td>
+            <td><span data-lang="zh">录入时间（Unix 时间戳字符串）</span><span data-lang="en" class="en-hidden">Submission time (Unix timestamp string)</span></td>
+          </tr>
+          <tr>
+            <td>length</td>
+            <td>Number</td>
+            <td><span data-lang="zh">句子字符数</span><span data-lang="en" class="en-hidden">Character count of the sentence</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 data-lang="zh">错误响应</h2>
+      <h2 data-lang="en" class="en-hidden">Error Responses</h2>
+
+      <table class="parameter-table">
+        <thead>
+          <tr>
+            <th><span data-lang="zh">场景</span><span data-lang="en" class="en-hidden">Scenario</span></th>
+            <th><span data-lang="zh">返回内容</span><span data-lang="en" class="en-hidden">Response</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span data-lang="zh">非允许的 HTTP 方法</span><span data-lang="en" class="en-hidden">Disallowed HTTP method</span></td>
+            <td><code>{"error":"Method Not Allowed","code":405}</code></td>
+          </tr>
+          <tr>
+            <td><span data-lang="zh">数据源拉取或解析失败</span><span data-lang="en" class="en-hidden">Data source fetch or parse failure</span></td>
+            <td><code>{"error":"Internal error","code":502}</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p data-lang="zh"><strong>注意：</strong>所有响应的 HTTP 状态码均为 <code>200</code>，错误码仅体现在响应 JSON 的 <code>code</code> 字段中。</p>
+      <p data-lang="en" class="en-hidden"><strong>Note:</strong> All responses use HTTP status <code>200</code>. Error codes are only reflected in the <code>code</code> field of the JSON body.</p>
+
+      <h2 data-lang="zh">使用示例</h2>
+      <h2 data-lang="en" class="en-hidden">Usage Examples</h2>
+
+      <h3 data-lang="zh">1. 默认随机一言（JSON）</h3>
+      <h3 data-lang="en" class="en-hidden">1. Random Sentence (JSON)</h3>
+      <div class="code-block">https://api.furry.ist/hitokoto</div>
+      <p data-lang="zh">返回示例：</p>
+      <p data-lang="en" class="en-hidden">Response example:</p>
+      <div class="response-example"><pre>{
+  "id": 1121,
+  "uuid": "ffbf8cf7-bbd0-4496-9fff-1974cb22c73f",
+  "hitokoto": "夫君子之行，静以修身，俭以养德，非淡泊无以明志，非宁静无以致远",
+  "type": "原创",
+  "from": "诫子书",
+  "from_who": "诸葛亮",
+  "creator": "505622287",
+  "creator_uid": 0,
+  "reviewer": 0,
+  "commit_from": "web",
+  "created_at": "1482047360",
+  "length": 31,
+  "type_desc": "Original - 原创"
+}</pre></div>
+
+      <h3 data-lang="zh">2. 指定分类（动画）</h3>
+      <h3 data-lang="en" class="en-hidden">2. Filter by Category (Anime)</h3>
+      <div class="code-block">https://api.furry.ist/hitokoto?c=a</div>
+
+      <h3 data-lang="zh">3. 多分类筛选</h3>
+      <h3 data-lang="en" class="en-hidden">3. Multiple Categories</h3>
+      <div class="code-block">https://api.furry.ist/hitokoto?c=a&amp;c=b</div>
+
+      <h3 data-lang="zh">4. 纯文本返回</h3>
+      <h3 data-lang="en" class="en-hidden">4. Plain Text Response</h3>
+      <div class="code-block">https://api.furry.ist/hitokoto?encode=text</div>
+      <p data-lang="zh">直接返回句子内容（<code>text/plain</code>），无 JSON 包装，适合嵌入页面展示。</p>
+      <p data-lang="en" class="en-hidden">Returns the sentence as <code>text/plain</code> with no JSON wrapper — ideal for embedding directly into pages.</p>
+
+      <h3 data-lang="zh">5. 限制句子长度</h3>
+      <h3 data-lang="en" class="en-hidden">5. Filter by Length</h3>
+      <div class="code-block">https://api.furry.ist/hitokoto?c=i&amp;min_length=8&amp;max_length=20</div>
+      <p data-lang="zh">在诗词分类中随机返回一条长度为 8～20 字的句子。最多尝试 10 次，超出后随机兜底。</p>
+      <p data-lang="en" class="en-hidden">Returns a random sentence from the poetry category with 8–20 characters. Falls back to a random result after 10 attempts.</p>
+
+      <h3 data-lang="zh">6. 组合参数</h3>
+      <h3 data-lang="en" class="en-hidden">6. Combined Parameters</h3>
+      <div class="code-block">https://api.furry.ist/hitokoto?c=a&amp;c=b&amp;encode=json</div>
+    </div>
+
+    <!-- 实时演示 -->
+    <div class="example-section">
+      <h3>
+        <svg class="inline-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span data-lang="zh">实时一言演示</span>
+        <span data-lang="en" class="en-hidden">Live Hitokoto Demo</span>
+      </h3>
+
+      <p data-lang="zh">选择分类后点击按钮，随机获取一条一言：</p>
+      <p data-lang="en" class="en-hidden">Choose a category and click the button to fetch a random sentence:</p>
+
+      <div class="hitokoto-controls">
+        <select id="demo-category" aria-label="选择分类">
+          <option value="">全部分类 / All</option>
+          <option value="a">a - 动画 Anime</option>
+          <option value="b">b - 漫画 Manga</option>
+          <option value="c">c - 游戏 Games</option>
+          <option value="d">d - 文学 Literature</option>
+          <option value="e">e - 原创 Original</option>
+          <option value="f">f - 来自网络 Internet</option>
+          <option value="g">g - 其他 Other</option>
+          <option value="h">h - 影视 Film &amp; TV</option>
+          <option value="i">i - 诗词 Poetry</option>
+          <option value="j">j - 网易云 NetEase</option>
+          <option value="k">k - 哲学 Philosophy</option>
+          <option value="l">l - 抖机灵 Witty</option>
+        </select>
+        <button class="base-btn" type="button" onclick="fetchHitokoto()" data-lang="zh">换一句 / Refresh</button>
+        <button class="base-btn en-hidden" type="button" onclick="fetchHitokoto()" data-lang="en">Refresh</button>
+      </div>
+
+      <div class="hitokoto-demo-box" id="hitokoto-box">
+        <div class="hitokoto-text" id="hitokoto-text" data-lang="zh">点击上方按钮获取一言…</div>
+        <div class="hitokoto-text en-hidden" id="hitokoto-text-en" data-lang="en">Click the button above to fetch a sentence…</div>
+        <div class="hitokoto-meta" id="hitokoto-meta"></div>
+      </div>
+    </div>
+
+    <footer>
+      <div>
+        <a target="_blank" rel="noopener noreferrer" href="https://stats.uptimerobot.com/6zqrufirxf" data-lang="zh">服务状态 / Service Stats</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://stats.uptimerobot.com/6zqrufirxf" data-lang="en" class="en-hidden">Service Stats</a><br>
+      </div>
+
+      <div class="footer-contact">
+        <a target="_blank" href="mailto:furryimg@furry.ist" data-lang="zh">联系我邮箱 / Email me</a>
+        <a target="_blank" href="mailto:furryimg@furry.ist" data-lang="en" class="en-hidden">Email me</a><br />
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furry-img.rth1.xyz/" data-lang="zh">联系我 - 外站CN</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furry-img.rth1.xyz/" data-lang="en" class="en-hidden">Contact me - CN Mirror</a><br />
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furryimg.pages.dev/" data-lang="zh">联系我 - 外站Global</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://contact-furryimg.pages.dev/" data-lang="en" class="en-hidden">Contact me - Global Mirror</a>
+      </div>
+    </footer>
+
+    <script src="../../scripts/core.js"></script>
+    <script src="../../scripts/dynamic-bg.js"></script>
+    <script>
+      initLanguageNow();
+
+      async function fetchHitokoto() {
+        const category = document.getElementById('demo-category').value;
+        const url = 'https://api.furry.ist/hitokoto' + (category ? '?c=' + encodeURIComponent(category) : '');
+
+        const textEl = document.getElementById('hitokoto-text');
+        const textEnEl = document.getElementById('hitokoto-text-en');
+        const metaEl = document.getElementById('hitokoto-meta');
+
+        textEl.textContent = '加载中…';
+        textEnEl.textContent = 'Loading…';
+        metaEl.textContent = '';
+
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+
+          if (data.error) {
+            textEl.textContent = '获取失败：' + data.error;
+            textEnEl.textContent = 'Error: ' + data.error;
+            return;
+          }
+
+          textEl.textContent = data.hitokoto || '';
+          textEnEl.textContent = data.hitokoto || '';
+
+          const from = data.from ? '《' + data.from + '》' : '';
+          const who = data.from_who ? ' —— ' + data.from_who : '';
+          const cat = data.type_desc ? ' [' + data.type_desc + ']' : '';
+          metaEl.textContent = (from + who + cat).trim();
+        } catch (e) {
+          textEl.textContent = '请求失败，请稍后再试。';
+          textEnEl.textContent = 'Request failed, please try again later.';
+        }
+      }
+    </script>
+  </body>
+</html>
