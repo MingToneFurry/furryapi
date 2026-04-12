@@ -29,10 +29,20 @@ function switchTab(tab) {
 
 async function parseDouyin(presetUrl) {
   const input = document.getElementById('douyin-url-input');
-  const urlToQuery = presetUrl || input.value.trim();
+  let urlToQuery = presetUrl || input.value.trim();
 
   if (presetUrl) {
     input.value = presetUrl;
+  } else {
+    // If input is not a plain URL, try to extract a douyin share link from share text (口令)
+    if (!/^https?:\/\//i.test(urlToQuery)) {
+      const match = urlToQuery.match(/https?:\/\/[^\s]+v\.douyin\.com\/[^\s]*/i)
+        || urlToQuery.match(/https?:\/\/[^\s]*douyin\.com\/[^\s]*/i);
+      if (match) {
+        urlToQuery = match[0].replace(/[，。、\s]+$/, '');
+        input.value = urlToQuery;
+      }
+    }
   }
 
   const resultArea = document.getElementById('douyin-result-area');
