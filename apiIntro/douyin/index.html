@@ -177,6 +177,29 @@
         margin: 15px 0;
         flex-wrap: wrap;
       }
+      .douyin-clear-btn {
+        padding: 10px 12px;
+        background: none;
+        border: 2px solid var(--mint);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--text-light);
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+        line-height: 1;
+      }
+      .douyin-clear-btn:hover {
+        background: var(--mint);
+        color: white;
+      }
+      .dark-mode .douyin-clear-btn {
+        border-color: var(--mint-dark);
+        color: var(--text-dark);
+      }
+      .dark-mode .douyin-clear-btn:hover {
+        background: var(--mint-dark);
+        color: white;
+      }
       .douyin-query-input input {
         flex: 1;
         min-width: 0;
@@ -433,11 +456,12 @@
         <span data-lang="en" class="en-hidden">Live Parse Demo</span>
       </h3>
 
-      <p data-lang="zh">输入抖音分享链接，点击解析查看视频预览与完整响应数据：</p>
-      <p data-lang="en" class="en-hidden">Enter a Douyin share link and click Parse to see the video preview and full response:</p>
+      <p data-lang="zh">输入抖音分享链接或分享口令，点击解析查看视频预览与完整响应数据：</p>
+      <p data-lang="en" class="en-hidden">Enter a Douyin share link or share text (口令) and click Parse to see the video preview and full response:</p>
 
       <div class="douyin-query-input">
-        <input type="text" id="douyin-url-input" placeholder="https://v.douyin.com/DQyLiuMdIlk/" />
+        <input type="text" id="douyin-url-input" placeholder="https://v.douyin.com/DQyLiuMdIlk/ 或粘贴分享口令" />
+        <button class="douyin-clear-btn" type="button" onclick="document.getElementById('douyin-url-input').value='';document.getElementById('douyin-url-input').focus();" title="清除输入 / Clear" aria-label="清除输入 / Clear">✕</button>
         <button class="base-btn" type="button" onclick="parseDouyin()" data-lang="zh">解析</button>
         <button class="base-btn en-hidden" type="button" onclick="parseDouyin()" data-lang="en">Parse</button>
       </div>
@@ -484,14 +508,14 @@
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M12 16v-4M12 8h.01" stroke="white" stroke-width="2"></path>
         </svg>
-        <strong>提示：</strong>仅支持国内抖音分享链接（如 <code>https://v.douyin.com/xxxxx/</code>），不支持 TikTok 链接。
+        <strong>提示：</strong>仅支持国内抖音分享链接（如 <code>https://v.douyin.com/xxxxx/</code>），不支持 TikTok 链接。支持直接粘贴抖音分享口令，将自动提取链接。
       </p>
       <p data-lang="en" class="query-footer en-hidden">
         <svg class="small-icon-svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M12 16v-4M12 8h.01" stroke="white" stroke-width="2"></path>
         </svg>
-        <strong>Note:</strong> Only Douyin share links (e.g. <code>https://v.douyin.com/xxxxx/</code>) are supported. TikTok links are not supported.
+        <strong>Note:</strong> Only Douyin share links (e.g. <code>https://v.douyin.com/xxxxx/</code>) are supported. TikTok links are not supported. You can also paste Douyin share text directly — the link will be extracted automatically.
       </p>
 
       <div class="query-buttons">
