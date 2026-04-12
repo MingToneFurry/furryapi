@@ -78,7 +78,7 @@ async function parseDouyin(presetUrl) {
   // Cover image
   const coverImg = document.getElementById('douyin-cover-img');
   coverImg.src = d.cover || '';
-  coverImg.alt = d.desc || '封面';
+  coverImg.alt = d.desc || (currentLanguage === 'en' ? 'Cover' : '封面');
 
   // Description
   document.getElementById('douyin-desc').textContent = d.desc || '';
@@ -147,10 +147,11 @@ async function parseDouyin(presetUrl) {
 
   // Meta info
   const metaEl = document.getElementById('douyin-meta');
+  const isEn = typeof currentLanguage !== 'undefined' && currentLanguage === 'en';
   const parts = [];
-  if (d.create_time) parts.push('发布时间：' + d.create_time);
-  if (d.duration_ms) parts.push('时长：' + (d.duration_ms / 1000).toFixed(1) + 's');
-  if (d.aweme_id) parts.push('ID：' + d.aweme_id);
+  if (d.create_time) parts.push((isEn ? 'Published: ' : '发布时间：') + d.create_time);
+  if (d.duration_ms) parts.push((isEn ? 'Duration: ' : '时长：') + (d.duration_ms / 1000).toFixed(1) + 's');
+  if (d.aweme_id) parts.push((isEn ? 'ID: ' : 'ID：') + d.aweme_id);
   metaEl.textContent = parts.join('　');
 
   // Re-apply language state for dynamically added elements
