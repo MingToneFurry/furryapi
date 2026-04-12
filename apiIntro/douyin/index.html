@@ -134,39 +134,19 @@
         gap: 0.3rem;
       }
       .douyin-video-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
+        display: inline-block;
         margin-top: 0.5rem;
         padding: 0.45rem 1rem;
         background: var(--mint);
         color: white;
-        border: none;
         border-radius: 6px;
+        text-decoration: none;
         font-size: 0.9rem;
-        font-family: inherit;
-        cursor: pointer;
         transition: background 0.2s, transform 0.2s;
       }
       .douyin-video-link:hover {
         background: var(--mint-dark);
         transform: scale(1.04);
-      }
-      .douyin-video-player-wrap {
-        display: none;
-        margin-top: 0.75rem;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-      }
-      .douyin-video-player-wrap.open {
-        display: block;
-      }
-      .douyin-video-player-wrap video {
-        width: 100%;
-        max-width: 480px;
-        border-radius: 8px;
-        display: block;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       }
       .douyin-meta {
         font-size: 0.8rem;
@@ -224,20 +204,10 @@
       .dark-mode .douyin-error-msg {
         color: #e74c3c;
       }
-      /* Ensure tables scroll horizontally on narrow screens */
-      .parameter-table {
-        display: block;
+      /* Scrollable wrapper for tables on narrow screens */
+      .table-scroll-wrap {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        white-space: nowrap;
-      }
-      .parameter-table thead, .parameter-table tbody {
-        display: table;
-        width: 100%;
-      }
-      .parameter-table td, .parameter-table th {
-        white-space: normal;
-        min-width: 80px;
       }
     </style>
   </head>
@@ -299,6 +269,7 @@
       <h2 data-lang="zh">查询参数</h2>
       <h2 data-lang="en" class="en-hidden">Query Parameters</h2>
 
+      <div class="table-scroll-wrap">
       <table class="parameter-table">
         <thead>
           <tr>
@@ -317,10 +288,12 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <h2 data-lang="zh">响应字段</h2>
       <h2 data-lang="en" class="en-hidden">Response Fields</h2>
 
+      <div class="table-scroll-wrap">
       <table class="parameter-table">
         <thead>
           <tr>
@@ -397,10 +370,12 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <h2 data-lang="zh">错误响应</h2>
       <h2 data-lang="en" class="en-hidden">Error Responses</h2>
 
+      <div class="table-scroll-wrap">
       <table class="parameter-table">
         <thead>
           <tr>
@@ -427,6 +402,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <h2 data-lang="zh">使用示例</h2>
       <h2 data-lang="en" class="en-hidden">Usage Examples</h2>
@@ -485,17 +461,9 @@
               <div class="douyin-desc" id="douyin-desc"></div>
               <div class="douyin-author" id="douyin-author"></div>
               <div class="douyin-stats" id="douyin-stats"></div>
-              <div id="douyin-video-section" style="display:none;">
-                <button id="douyin-video-toggle-btn" class="douyin-video-link" type="button" onclick="toggleVideoPlayer()">
-                  <span>▶</span>
-                  <span data-lang="zh">点击播放视频</span>
-                  <span data-lang="en" class="en-hidden">Click to Play Video</span>
-                </button>
-                <div id="douyin-video-player-wrap" class="douyin-video-player-wrap">
-                  <video id="douyin-video-player" controls playsinline preload="none">
-                    <source id="douyin-video-source" src="" type="video/mp4">
-                  </video>
-                </div>
+              <div>
+                <a id="douyin-video-link" class="douyin-video-link" href="#" target="_blank" rel="noopener noreferrer" style="display:none;" data-lang="zh">▶ 播放视频</a>
+                <a id="douyin-video-link-en" class="douyin-video-link en-hidden" href="#" target="_blank" rel="noopener noreferrer" style="display:none;" data-lang="en">▶ Play Video</a>
               </div>
               <div class="douyin-image-grid" id="douyin-image-grid"></div>
               <div class="douyin-meta" id="douyin-meta"></div>

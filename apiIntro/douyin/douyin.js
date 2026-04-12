@@ -1,18 +1,5 @@
 let currentTab = 'preview';
 
-function toggleVideoPlayer() {
-  const wrap = document.getElementById('douyin-video-player-wrap');
-  const btn = document.getElementById('douyin-video-toggle-btn');
-  const isOpen = wrap.classList.toggle('open');
-  // Update button icon
-  const icon = btn.querySelector('span:first-child');
-  if (icon) icon.textContent = isOpen ? '▼' : '▶';
-  if (!isOpen) {
-    const player = document.getElementById('douyin-video-player');
-    if (player) player.pause();
-  }
-}
-
 function switchTab(tab) {
   currentTab = tab;
 
@@ -132,22 +119,17 @@ async function parseDouyin(presetUrl) {
     statsEl.appendChild(item);
   });
 
-  // Video player (inline, expandable)
-  const videoSection = document.getElementById('douyin-video-section');
-  const videoSource = document.getElementById('douyin-video-source');
-  const videoPlayer = document.getElementById('douyin-video-player');
-  const videoPlayerWrap = document.getElementById('douyin-video-player-wrap');
+  // Video link
+  const videoLink = document.getElementById('douyin-video-link');
+  const videoLinkEn = document.getElementById('douyin-video-link-en');
   if (d.type === 'video' && d.video_url) {
-    videoSource.src = d.video_url;
-    videoPlayer.load();
-    videoSection.style.display = 'block';
-    // Collapse player on new parse
-    videoPlayerWrap.classList.remove('open');
-    const toggleIcon = document.querySelector('#douyin-video-toggle-btn span:first-child');
-    if (toggleIcon) toggleIcon.textContent = '▶';
+    videoLink.href = d.video_url;
+    videoLink.style.display = 'inline-block';
+    videoLinkEn.href = d.video_url;
+    videoLinkEn.style.display = 'inline-block';
   } else {
-    videoSection.style.display = 'none';
-    videoSource.src = '';
+    videoLink.style.display = 'none';
+    videoLinkEn.style.display = 'none';
   }
 
   // Image grid (for image posts)
