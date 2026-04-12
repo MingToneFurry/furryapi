@@ -40,7 +40,7 @@ async function parseDouyin(presetUrl) {
         || urlToQuery.match(/https?:\/\/[^\s]*douyin\.com\/[^\s]*/i);
       if (match) {
         urlToQuery = match[0].replace(/[，。、\s]+$/, '');
-        input.value = urlToQuery;
+        // Do not overwrite the input — keep the user's original share text visible
       }
     }
   }

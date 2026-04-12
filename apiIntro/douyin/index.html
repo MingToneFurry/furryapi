@@ -177,6 +177,29 @@
         margin: 15px 0;
         flex-wrap: wrap;
       }
+      .douyin-clear-btn {
+        padding: 10px 12px;
+        background: none;
+        border: 2px solid var(--mint);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--text-light);
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+        line-height: 1;
+      }
+      .douyin-clear-btn:hover {
+        background: var(--mint);
+        color: white;
+      }
+      .dark-mode .douyin-clear-btn {
+        border-color: var(--mint-dark);
+        color: var(--text-dark);
+      }
+      .dark-mode .douyin-clear-btn:hover {
+        background: var(--mint-dark);
+        color: white;
+      }
       .douyin-query-input input {
         flex: 1;
         min-width: 0;
@@ -438,6 +461,7 @@
 
       <div class="douyin-query-input">
         <input type="text" id="douyin-url-input" placeholder="https://v.douyin.com/DQyLiuMdIlk/ 或粘贴分享口令" />
+        <button class="douyin-clear-btn" type="button" onclick="document.getElementById('douyin-url-input').value='';document.getElementById('douyin-url-input').focus();" title="清除输入 / Clear" aria-label="清除输入 / Clear">✕</button>
         <button class="base-btn" type="button" onclick="parseDouyin()" data-lang="zh">解析</button>
         <button class="base-btn en-hidden" type="button" onclick="parseDouyin()" data-lang="en">Parse</button>
       </div>
