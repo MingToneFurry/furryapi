@@ -95,10 +95,35 @@ header .base-btn {
   color: var(--text-light);
   flex-shrink: 1;
   min-width: auto;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+body.has-dynamic-bg header .base-btn {
+  background-color: rgba(62, 180, 137, 0);
+  color: rgba(28, 41, 37, 0.88);
+}
+
+header .base-btn:hover,
+header .base-btn:focus-visible {
+  background-color: rgba(62, 180, 137, 0.12);
+  color: var(--mint-dark);
+  transform: translateY(-1px);
+}
+
+header .base-btn:active {
+  background-color: rgba(62, 180, 137, 0.16);
+  transform: translateY(0);
 }
 
 body.dark-mode header .base-btn {
-  color: var(--text-dark);
+  background-color: rgba(62, 180, 137, 0);
+  color: rgba(245, 250, 248, 0.88);
+}
+
+body.dark-mode header .base-btn:hover,
+body.dark-mode header .base-btn:focus-visible {
+  background-color: rgba(62, 180, 137, 0.14);
+  color: #f3fff9;
 }
 
 header .header-right {
