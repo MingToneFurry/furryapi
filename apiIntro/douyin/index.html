@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="抖音视频解析API - 解析国内抖音分享链接，获取视频信息、封面和播放地址（不支持TikTok）">
-    <meta name="keywords" content="抖音解析,抖音API,视频解析,douyin,免费API,免费接口,API接口,furryapi">
+    <meta name="description" content="抖音内容解析API - 解析国内抖音分享或详情链接，获取视频、图集、实况图、作者、音乐和互动数据（不支持TikTok）">
+    <meta name="keywords" content="抖音解析,抖音API,视频解析,图集解析,实况图,douyin,免费API,免费接口,API接口,furryapi">
     <script src="../../scripts/domain-redirect.js" data-target-host="api.furry.ist" data-allowed-hosts="sni-api.furry.ist,api.furry.ist,web.archive.org,localhost,127.0.0.1,*.furryapi.pages.dev"></script>
     <link rel="icon" type="image/png" sizes="40x40"  href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=1">
     <link rel="icon" type="image/png" sizes="100x100" href="https://q.qlogo.cn/headimg_dl?dst_uin=2244347713&spec=3">
@@ -15,7 +15,7 @@
     <link rel="dns-prefetch" href="//api.furry.ist">
     <link rel="stylesheet" href="../../styles/common.css">
     <link rel="stylesheet" href="../../styles/api-docs.css">
-    <title>抖音视频解析API - API文档</title>
+    <title>抖音内容解析API - API文档</title>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="c46be53b-8c5c-4ad9-82d2-f39177a9b4a6"></script>
     <style>
       .tab-bar {
@@ -242,8 +242,8 @@
             <polygon points="23 7 16 12 23 17 23 7"></polygon>
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
           </svg>
-          <span data-lang="zh">抖音视频解析API</span>
-          <span data-lang="en" class="en-hidden">Douyin Video Parse API</span>
+          <span data-lang="zh">抖音内容解析API</span>
+          <span data-lang="en" class="en-hidden">Douyin Content Parse API</span>
         </h1>
       </div>
       <div class="header-right">
@@ -284,8 +284,8 @@
         <span data-lang="en" class="en-hidden">Live Parse Demo</span>
       </h3>
 
-      <p data-lang="zh">输入抖音分享链接或分享口令，点击解析查看视频预览与完整响应数据：</p>
-      <p data-lang="en" class="en-hidden">Enter a Douyin share link or share text (口令) and click Parse to see the video preview and full response:</p>
+      <p data-lang="zh">输入抖音分享链接或分享口令，点击解析查看内容预览与完整响应数据：</p>
+      <p data-lang="en" class="en-hidden">Enter a Douyin share link or share text (口令) and click Parse to see the content preview and full response:</p>
 
       <div class="douyin-query-input">
         <input type="text" id="douyin-url-input" placeholder="https://v.douyin.com/DQyLiuMdIlk/ 或粘贴分享口令" />
@@ -356,13 +356,13 @@
       <h2 data-lang="zh">API 简介</h2>
       <h2 data-lang="en" class="en-hidden">API Overview</h2>
 
-      <p data-lang="zh">解析国内抖音视频分享链接，返回视频标题、封面、播放地址、作者信息及互动数据。<strong>仅支持国内抖音，不支持 TikTok。</strong></p>
-      <p data-lang="en" class="en-hidden">Parses Douyin (Chinese TikTok) video share links and returns video title, cover, play URL, author info, and interaction stats. <strong>Supports Douyin only — TikTok is not supported.</strong></p>
+      <p data-lang="zh">解析国内抖音分享链接或详情链接，返回内容类型、标题/文案、封面、视频播放地址与备选地址、图集/实况图、作者、音乐及互动数据。<strong>仅支持国内抖音，不支持 TikTok。</strong></p>
+      <p data-lang="en" class="en-hidden">Parses Douyin share or detail links and returns content type, title/caption, cover, video URL and backups, image/live-photo data, author, music, and interaction stats. <strong>Supports Douyin only — TikTok is not supported.</strong></p>
 
       <h3 data-lang="zh">支持的 HTTP 方法</h3>
       <h3 data-lang="en" class="en-hidden">Supported HTTP Methods</h3>
-      <p data-lang="zh">支持 <code>GET</code>。</p>
-      <p data-lang="en" class="en-hidden">Supports <code>GET</code>.</p>
+      <p data-lang="zh">支持 <code>GET</code>、<code>HEAD</code> 和 <code>OPTIONS</code>。<code>GET</code> 返回 JSON；<code>HEAD</code> 只返回相同状态与响应头。</p>
+      <p data-lang="en" class="en-hidden">Supports <code>GET</code>, <code>HEAD</code>, and <code>OPTIONS</code>. <code>GET</code> returns JSON; <code>HEAD</code> returns the same status and headers without a body.</p>
 
       <h2 data-lang="zh">查询参数</h2>
       <h2 data-lang="en" class="en-hidden">Query Parameters</h2>
@@ -382,7 +382,7 @@
             <td>url</td>
             <td>String</td>
             <td><span data-lang="zh">是</span><span data-lang="en" class="en-hidden">Yes</span></td>
-            <td><span data-lang="zh">抖音视频分享链接，如 <code>https://v.douyin.com/DQyLiuMdIlk/</code></span><span data-lang="en" class="en-hidden">Douyin video share URL, e.g. <code>https://v.douyin.com/DQyLiuMdIlk/</code></span></td>
+            <td><span data-lang="zh">抖音分享或详情链接，仅允许 <code>douyin.com</code> 与 <code>iesdouyin.com</code> 域名；支持 <code>v.douyin.com</code> 短链。</span><span data-lang="en" class="en-hidden">Douyin share or detail URL. Only <code>douyin.com</code> and <code>iesdouyin.com</code> hosts are allowed; <code>v.douyin.com</code> short links are supported.</span></td>
           </tr>
         </tbody>
       </table>
@@ -409,66 +409,94 @@
           <tr>
             <td>data</td>
             <td>Object</td>
-            <td><span data-lang="zh">视频数据对象（仅 ok=true 时存在）</span><span data-lang="en" class="en-hidden">Video data object (only present when ok=true)</span></td>
-          </tr>
-          <tr>
-            <td>data.aweme_id</td>
-            <td>String</td>
-            <td><span data-lang="zh">视频唯一 ID</span><span data-lang="en" class="en-hidden">Unique video ID</span></td>
-          </tr>
-          <tr>
-            <td>data.desc</td>
-            <td>String</td>
-            <td><span data-lang="zh">视频标题 / 文案</span><span data-lang="en" class="en-hidden">Video description / caption</span></td>
-          </tr>
-          <tr>
-            <td>data.author</td>
-            <td>Object</td>
-            <td><span data-lang="zh">作者信息，含 <code>nickname</code>（昵称）和 <code>signature</code>（个人简介）</span><span data-lang="en" class="en-hidden">Author info including <code>nickname</code> and <code>signature</code></span></td>
-          </tr>
-          <tr>
-            <td>data.cover</td>
-            <td>String</td>
-            <td><span data-lang="zh">视频封面图片 URL</span><span data-lang="en" class="en-hidden">Video cover image URL</span></td>
-          </tr>
-          <tr>
-            <td>data.duration_ms</td>
-            <td>Number</td>
-            <td><span data-lang="zh">视频时长（毫秒）</span><span data-lang="en" class="en-hidden">Video duration in milliseconds</span></td>
-          </tr>
-          <tr>
-            <td>data.create_time</td>
-            <td>String</td>
-            <td><span data-lang="zh">视频发布时间</span><span data-lang="en" class="en-hidden">Video publish time</span></td>
-          </tr>
-          <tr>
-            <td>data.source_url</td>
-            <td>String</td>
-            <td><span data-lang="zh">原始分享链接</span><span data-lang="en" class="en-hidden">Original share URL</span></td>
+            <td><span data-lang="zh">内容数据对象（仅 ok=true 时存在）</span><span data-lang="en" class="en-hidden">Content data object (only present when ok=true)</span></td>
           </tr>
           <tr>
             <td>data.type</td>
             <td>String</td>
-            <td><span data-lang="zh">内容类型，<code>video</code> 或 <code>image</code></span><span data-lang="en" class="en-hidden">Content type: <code>video</code> or <code>image</code></span></td>
+            <td><span data-lang="zh">内容类型：<code>video</code>、<code>image</code> 或 <code>live</code>。</span><span data-lang="en" class="en-hidden">Content type: <code>video</code>, <code>image</code>, or <code>live</code>.</span></td>
           </tr>
           <tr>
-            <td>data.video_url</td>
+            <td>data.title / data.desc</td>
             <td>String</td>
-            <td><span data-lang="zh">视频播放地址（type=video 时有效）</span><span data-lang="en" class="en-hidden">Video play URL (valid when type=video)</span></td>
+            <td><span data-lang="zh">标题或正文文案。</span><span data-lang="en" class="en-hidden">Title or caption text.</span></td>
           </tr>
           <tr>
-            <td>data.image_url_list</td>
+            <td>data.author</td>
+            <td>Object</td>
+            <td><span data-lang="zh">作者信息，包含 <code>name</code>、<code>id</code>、<code>avatar</code>；兼容字段 <code>nickname</code> 仍会保留。</span><span data-lang="en" class="en-hidden">Author info with <code>name</code>, <code>id</code>, and <code>avatar</code>; legacy <code>nickname</code> is still preserved.</span></td>
+          </tr>
+          <tr>
+            <td>data.cover</td>
+            <td>String | null</td>
+            <td><span data-lang="zh">封面图片 URL；图集内容会回退到第一张图片。</span><span data-lang="en" class="en-hidden">Cover image URL; image posts fall back to the first image.</span></td>
+          </tr>
+          <tr>
+            <td>data.url / data.video_url</td>
+            <td>String | null</td>
+            <td><span data-lang="zh">视频主播放地址，仅 <code>type=video</code> 时返回；<code>video_url</code> 是兼容旧调用方的字段。</span><span data-lang="en" class="en-hidden">Primary video play URL, returned only for <code>type=video</code>; <code>video_url</code> is kept for legacy callers.</span></td>
+          </tr>
+          <tr>
+            <td>data.video_backup</td>
             <td>Array&lt;String&gt;</td>
-            <td><span data-lang="zh">图集图片列表（type=image 时有值）</span><span data-lang="en" class="en-hidden">Image list for image posts (populated when type=image)</span></td>
+            <td><span data-lang="zh">视频备选播放地址，按接口选择顺序排列。</span><span data-lang="en" class="en-hidden">Backup video URLs ordered by the parser's selection preference.</span></td>
+          </tr>
+          <tr>
+            <td>data.images / data.image_url_list</td>
+            <td>Array&lt;String&gt;</td>
+            <td><span data-lang="zh">图集或实况图的默认图片地址；<code>image_url_list</code> 是兼容字段。</span><span data-lang="en" class="en-hidden">Default image URLs for image or live-photo posts; <code>image_url_list</code> is the legacy alias.</span></td>
+          </tr>
+          <tr>
+            <td>data.image_variants</td>
+            <td>Array&lt;Object&gt;</td>
+            <td><span data-lang="zh">图片候选信息，可能包含无水印地址、水印高分辨率地址、宽高等。</span><span data-lang="en" class="en-hidden">Image candidate details, possibly including no-watermark URL, watermarked high-resolution URL, width, and height.</span></td>
+          </tr>
+          <tr>
+            <td>data.live_photo</td>
+            <td>Array&lt;Object&gt;</td>
+            <td><span data-lang="zh">实况图数据，每项包含 <code>image</code> 与对应 <code>video</code>。</span><span data-lang="en" class="en-hidden">Live-photo data; each item contains an <code>image</code> and matching <code>video</code>.</span></td>
+          </tr>
+          <tr>
+            <td>data.music</td>
+            <td>Object</td>
+            <td><span data-lang="zh">音乐信息，包含标题、作者、播放地址和封面。</span><span data-lang="en" class="en-hidden">Music metadata including title, author, play URL, and cover.</span></td>
+          </tr>
+          <tr>
+            <td>data.aweme_id</td>
+            <td>String | null</td>
+            <td><span data-lang="zh">作品唯一 ID。</span><span data-lang="en" class="en-hidden">Unique aweme/item ID.</span></td>
+          </tr>
+          <tr>
+            <td>data.duration / data.duration_ms</td>
+            <td>Number</td>
+            <td><span data-lang="zh">时长，单位为毫秒。</span><span data-lang="en" class="en-hidden">Duration in milliseconds.</span></td>
+          </tr>
+          <tr>
+            <td>data.create_time</td>
+            <td>String | null</td>
+            <td><span data-lang="zh">发布时间，格式为 <code>YYYY-MM-DD HH:mm:ss</code>。</span><span data-lang="en" class="en-hidden">Publish time in <code>YYYY-MM-DD HH:mm:ss</code> format.</span></td>
+          </tr>
+          <tr>
+            <td>data.source_url</td>
+            <td>String</td>
+            <td><span data-lang="zh">本次传入的原始链接。</span><span data-lang="en" class="en-hidden">Original URL passed to this request.</span></td>
           </tr>
           <tr>
             <td>data.statistics</td>
             <td>Object</td>
-            <td><span data-lang="zh">互动数据，含点赞、评论、分享、收藏、播放数量</span><span data-lang="en" class="en-hidden">Interaction stats including likes, comments, shares, collects, and plays</span></td>
+            <td><span data-lang="zh">互动数据，包含 <code>comment_count</code>、<code>digg_count</code>、<code>play_count</code>、<code>share_count</code>、<code>collect_count</code>。</span><span data-lang="en" class="en-hidden">Interaction stats with <code>comment_count</code>, <code>digg_count</code>, <code>play_count</code>, <code>share_count</code>, and <code>collect_count</code>.</span></td>
+          </tr>
+          <tr>
+            <td>data.extra</td>
+            <td>Object</td>
+            <td><span data-lang="zh">扩展信息，包含原始统计、话题、视频标签、作者扩展信息等。</span><span data-lang="en" class="en-hidden">Extended metadata including raw stats, hashtags, video tags, and author extras.</span></td>
           </tr>
         </tbody>
       </table>
       </div>
+
+      <p data-lang="zh">说明：当可访问的抖音数据只暴露 <code>play_count: 0</code> 时，接口会将公开播放数返回为 <code>null</code>，原始上游统计保存在 <code>data.extra.raw_statistics</code>。</p>
+      <p data-lang="en" class="en-hidden">Note: when the accessible Douyin data only exposes <code>play_count: 0</code>, the public play count is returned as <code>null</code>; raw upstream stats are preserved in <code>data.extra.raw_statistics</code>.</p>
 
       <h2 data-lang="zh">错误响应</h2>
       <h2 data-lang="en" class="en-hidden">Error Responses</h2>
@@ -490,13 +518,43 @@
           </tr>
           <tr>
             <td>INVALID_URL</td>
-            <td><span data-lang="zh">url 格式无效或非抖音链接</span><span data-lang="en" class="en-hidden">Invalid URL or non-Douyin link</span></td>
+            <td><span data-lang="zh">url 格式无效</span><span data-lang="en" class="en-hidden">Invalid URL format</span></td>
             <td><code>{"ok":false,"code":"INVALID_URL","message":"Invalid url"}</code></td>
           </tr>
           <tr>
-            <td>PARSE_STATS_FAILED</td>
-            <td><span data-lang="zh">解析响应时未找到统计数据</span><span data-lang="en" class="en-hidden">No statistics found in the parsed response</span></td>
-            <td><code>{"ok":false,"code":"PARSE_STATS_FAILED","message":"No statistics found in response"}</code></td>
+            <td>UNSUPPORTED_HOST</td>
+            <td><span data-lang="zh">url 不是允许的抖音域名</span><span data-lang="en" class="en-hidden">URL host is not an allowed Douyin host</span></td>
+            <td><code>{"ok":false,"code":"UNSUPPORTED_HOST","message":"Only Douyin URLs are allowed"}</code></td>
+          </tr>
+          <tr>
+            <td>METHOD_NOT_ALLOWED</td>
+            <td><span data-lang="zh">使用了非 GET/HEAD/OPTIONS 方法</span><span data-lang="en" class="en-hidden">A method other than GET/HEAD/OPTIONS was used</span></td>
+            <td><code>{"ok":false,"code":"METHOD_NOT_ALLOWED","message":"Only GET/HEAD is supported"}</code></td>
+          </tr>
+          <tr>
+            <td>UPSTREAM_HTTP_ERROR</td>
+            <td><span data-lang="zh">抖音上游返回非成功状态</span><span data-lang="en" class="en-hidden">Douyin upstream returned a non-success status</span></td>
+            <td><code>{"ok":false,"code":"UPSTREAM_HTTP_ERROR","message":"Upstream status 403"}</code></td>
+          </tr>
+          <tr>
+            <td>UPSTREAM_TIMEOUT</td>
+            <td><span data-lang="zh">请求抖音上游超时</span><span data-lang="en" class="en-hidden">Douyin upstream request timed out</span></td>
+            <td><code>{"ok":false,"code":"UPSTREAM_TIMEOUT","message":"Upstream request timeout"}</code></td>
+          </tr>
+          <tr>
+            <td>UPSTREAM_FETCH_FAILED</td>
+            <td><span data-lang="zh">请求抖音上游失败</span><span data-lang="en" class="en-hidden">Douyin upstream request failed</span></td>
+            <td><code>{"ok":false,"code":"UPSTREAM_FETCH_FAILED","message":"Fetch failed"}</code></td>
+          </tr>
+          <tr>
+            <td>PARSE_DATA_FAILED</td>
+            <td><span data-lang="zh">响应中未找到可支持的抖音数据</span><span data-lang="en" class="en-hidden">No supported Douyin data was found in the response</span></td>
+            <td><code>{"ok":false,"code":"PARSE_DATA_FAILED","message":"No supported Douyin data found in response"}</code></td>
+          </tr>
+          <tr>
+            <td>INTERNAL_ERROR</td>
+            <td><span data-lang="zh">服务内部错误</span><span data-lang="en" class="en-hidden">Internal service error</span></td>
+            <td><code>{"ok":false,"code":"INTERNAL_ERROR","message":"Unknown error"}</code></td>
           </tr>
         </tbody>
       </table>
@@ -505,13 +563,70 @@
       <h2 data-lang="zh">使用示例</h2>
       <h2 data-lang="en" class="en-hidden">Usage Examples</h2>
 
-      <h3 data-lang="zh">1. 解析抖音视频链接</h3>
-      <h3 data-lang="en" class="en-hidden">1. Parse a Douyin video link</h3>
-      <div class="code-block">https://api.furry.ist/douyin?url=https://v.douyin.com/DQyLiuMdIlk/</div>
+      <h3 data-lang="zh">1. 解析抖音内容链接</h3>
+      <h3 data-lang="en" class="en-hidden">1. Parse a Douyin content link</h3>
+      <div class="code-block">https://api.furry.ist/douyin?url=https%3A%2F%2Fv.douyin.com%2Fxxxxxx%2F</div>
 
       <p data-lang="zh">成功返回示例：</p>
       <p data-lang="en" class="en-hidden">Successful response example:</p>
-      <div class="response-example"><pre>{"ok":true,"data":{"aweme_id":"7586536606472277274","desc":"蝴蝶龙龙给你送来小花花～ 画师：k_szk\n#furry","nickname":"果糖含量","signature":"俺是本体！俺真的是本体！\n果糖切片小亲友：@赤凌寒霜，直播切片可以看他噢～\n近期行程：兽潮兽聚、毛了个毛","author":{"nickname":"果糖含量","signature":"俺是本体！俺真的是本体！\n果糖切片小亲友：@赤凌寒霜，直播切片可以看他噢～\n近期行程：兽潮兽聚、毛了个毛"},"cover":"https://p26-sign.douyinpic.com/...","duration_ms":102,"duration":0,"create_time":"2025-12-22 04:36:55","source_url":"https://v.douyin.com/DQyLiuMdIlk/","statistics":{"comment_count":388,"digg_count":19171,"play_count":0,"share_count":1359,"collect_count":3487},"comment_count":388,"digg_count":19171,"play_count":0,"share_count":1359,"collect_count":3487,"type":"video","video_url":"https://www.iesdouyin.com/aweme/v1/play/?video_id=...","image_url_list":[]}}</pre></div>
+      <div class="response-example"><pre>{
+  "ok": true,
+  "data": {
+    "type": "video",
+    "title": "example title",
+    "desc": "example title",
+    "author": {
+      "name": "author name",
+      "id": 123456789,
+      "avatar": "https://example.com/avatar.jpg"
+    },
+    "cover": "https://example.com/cover.jpg",
+    "url": "https://example.com/video.mp4",
+    "quality": "720p",
+    "duration": 12000,
+    "video_backup": ["https://example.com/video.mp4"],
+    "images": [],
+    "image_variants": [],
+    "live_photo": [],
+    "music": {
+      "title": "music title",
+      "author": "music author",
+      "url": "https://example.com/music.mp3",
+      "cover": "https://example.com/music-cover.jpg"
+    },
+    "extra": {
+      "aweme_id": "123456789",
+      "share_url": "https://v.douyin.com/xxxxxx/",
+      "statistics": {
+        "comment_count": 1,
+        "digg_count": 2,
+        "play_count": null,
+        "share_count": 4,
+        "collect_count": 5
+      },
+      "raw_statistics": {}
+    },
+    "aweme_id": "123456789",
+    "nickname": "author name",
+    "duration_ms": 12000,
+    "create_time": "2024-03-10 00:00:00",
+    "source_url": "https://v.douyin.com/xxxxxx/",
+    "statistics": {
+      "comment_count": 1,
+      "digg_count": 2,
+      "play_count": null,
+      "share_count": 4,
+      "collect_count": 5
+    },
+    "comment_count": 1,
+    "digg_count": 2,
+    "play_count": null,
+    "share_count": 4,
+    "collect_count": 5,
+    "video_url": "https://example.com/video.mp4",
+    "image_url_list": []
+  }
+}</pre></div>
 
       <h3 data-lang="zh">2. 在 JavaScript 中调用</h3>
       <h3 data-lang="en" class="en-hidden">2. Call from JavaScript</h3>

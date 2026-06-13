@@ -95,8 +95,8 @@ async function parseDouyin(presetUrl) {
 
   // Author
   const authorEl = document.getElementById('douyin-author');
-  const nickname = (d.author && d.author.nickname) || d.nickname || '';
-  const signature = (d.author && d.author.signature) || d.signature || '';
+  const nickname = (d.author && (d.author.name || d.author.nickname)) || d.nickname || '';
+  const signature = (d.author && d.author.signature) || d.signature || (d.extra && d.extra.author_extra && d.extra.author_extra.signature) || '';
   authorEl.innerHTML = '';
   if (nickname) {
     const nameSpan = document.createElement('strong');
@@ -132,10 +132,11 @@ async function parseDouyin(presetUrl) {
   // Video link
   const videoLink = document.getElementById('douyin-video-link');
   const videoLinkEn = document.getElementById('douyin-video-link-en');
-  if (d.type === 'video' && d.video_url) {
-    videoLink.href = d.video_url;
+  const videoUrl = d.video_url || d.url || (Array.isArray(d.video_backup) ? d.video_backup[0] : '');
+  if (d.type === 'video' && videoUrl) {
+    videoLink.href = videoUrl;
     videoLink.style.display = 'inline-block';
-    videoLinkEn.href = d.video_url;
+    videoLinkEn.href = videoUrl;
     videoLinkEn.style.display = 'inline-block';
   } else {
     videoLink.style.display = 'none';
@@ -145,8 +146,13 @@ async function parseDouyin(presetUrl) {
   // Image grid (for image posts)
   const imageGrid = document.getElementById('douyin-image-grid');
   imageGrid.innerHTML = '';
-  if (d.type === 'image' && Array.isArray(d.image_url_list) && d.image_url_list.length > 0) {
-    d.image_url_list.forEach(imgUrl => {
+  const imageUrls = Array.isArray(d.image_url_list) && d.image_url_list.length > 0
+    ? d.image_url_list
+    : (Array.isArray(d.images) ? d.images : []);
+  const livePhotoImages = Array.isArray(d.live_photo) ? d.live_photo.map(item => item && item.image).filter(Boolean) : [];
+  const previewImages = Array.from(new Set(imageUrls.concat(livePhotoImages)));
+  if ((d.type === 'image' || d.type === 'live') && previewImages.length > 0) {
+    previewImages.forEach(imgUrl => {
       const img = document.createElement('img');
       img.src = imgUrl;
       img.alt = '图集图片';
