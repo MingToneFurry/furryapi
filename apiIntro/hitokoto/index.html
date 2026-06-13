@@ -113,16 +113,52 @@
       </div>
     </header>
 
+    <!-- 实时演示 -->
+    <div class="example-section live-demo-section">
+      <h3>
+        <svg class="inline-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span data-lang="zh">实时一言演示</span>
+        <span data-lang="en" class="en-hidden">Live Hitokoto Demo</span>
+      </h3>
+
+      <p data-lang="zh">选择分类后点击按钮，随机获取一条一言：</p>
+      <p data-lang="en" class="en-hidden">Choose a category and click the button to fetch a random sentence:</p>
+
+      <div class="hitokoto-controls">
+        <select id="demo-category" aria-label="选择分类">
+          <option value="">全部分类 / All</option>
+          <option value="a">a - 动画 Anime</option>
+          <option value="b">b - 漫画 Manga</option>
+          <option value="c">c - 游戏 Games</option>
+          <option value="d">d - 文学 Literature</option>
+          <option value="e">e - 原创 Original</option>
+          <option value="f">f - 来自网络 Internet</option>
+          <option value="g">g - 其他 Other</option>
+          <option value="h">h - 影视 Film &amp; TV</option>
+          <option value="i">i - 诗词 Poetry</option>
+          <option value="j">j - 网易云 NetEase</option>
+          <option value="k">k - 哲学 Philosophy</option>
+          <option value="l">l - 抖机灵 Witty</option>
+        </select>
+        <button class="base-btn" type="button" onclick="fetchHitokoto()" data-lang="zh">换一句 / Refresh</button>
+        <button class="base-btn en-hidden" type="button" onclick="fetchHitokoto()" data-lang="en">Refresh</button>
+      </div>
+
+      <div class="hitokoto-demo-box" id="hitokoto-box">
+        <div class="hitokoto-text" id="hitokoto-text" data-lang="zh">点击上方按钮获取一言…</div>
+        <div class="hitokoto-text en-hidden" id="hitokoto-text-en" data-lang="en">Click the button above to fetch a sentence…</div>
+        <div class="hitokoto-meta" id="hitokoto-meta"></div>
+      </div>
+    </div>
+
     <div class="api-section">
       <h2 data-lang="zh">API 简介</h2>
       <h2 data-lang="en" class="en-hidden">API Overview</h2>
 
       <p data-lang="zh">一言接口随机返回一条句子，来源涵盖动画、漫画、游戏、文学、诗词等多个分类。支持按分类筛选、长度过滤，并可选择 JSON 或纯文本格式返回。无需认证，直接调用即可。</p>
       <p data-lang="en" class="en-hidden">The Hitokoto API returns a random sentence from various categories including anime, manga, games, literature, and poetry. Supports category filtering, length filtering, and JSON or plain-text response formats. No authentication required.</p>
-
-      <h3 data-lang="zh">基础地址</h3>
-      <h3 data-lang="en" class="en-hidden">Base URL</h3>
-      <div class="code-block">https://api.furry.ist/hitokoto</div>
 
       <h3 data-lang="zh">支持的 HTTP 方法</h3>
       <h3 data-lang="en" class="en-hidden">Supported HTTP Methods</h3>
@@ -347,46 +383,6 @@
       <h3 data-lang="zh">6. 组合参数</h3>
       <h3 data-lang="en" class="en-hidden">6. Combined Parameters</h3>
       <div class="code-block">https://api.furry.ist/hitokoto?c=a&amp;c=b&amp;encode=json</div>
-    </div>
-
-    <!-- 实时演示 -->
-    <div class="example-section">
-      <h3>
-        <svg class="inline-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-        <span data-lang="zh">实时一言演示</span>
-        <span data-lang="en" class="en-hidden">Live Hitokoto Demo</span>
-      </h3>
-
-      <p data-lang="zh">选择分类后点击按钮，随机获取一条一言：</p>
-      <p data-lang="en" class="en-hidden">Choose a category and click the button to fetch a random sentence:</p>
-
-      <div class="hitokoto-controls">
-        <select id="demo-category" aria-label="选择分类">
-          <option value="">全部分类 / All</option>
-          <option value="a">a - 动画 Anime</option>
-          <option value="b">b - 漫画 Manga</option>
-          <option value="c">c - 游戏 Games</option>
-          <option value="d">d - 文学 Literature</option>
-          <option value="e">e - 原创 Original</option>
-          <option value="f">f - 来自网络 Internet</option>
-          <option value="g">g - 其他 Other</option>
-          <option value="h">h - 影视 Film &amp; TV</option>
-          <option value="i">i - 诗词 Poetry</option>
-          <option value="j">j - 网易云 NetEase</option>
-          <option value="k">k - 哲学 Philosophy</option>
-          <option value="l">l - 抖机灵 Witty</option>
-        </select>
-        <button class="base-btn" type="button" onclick="fetchHitokoto()" data-lang="zh">换一句 / Refresh</button>
-        <button class="base-btn en-hidden" type="button" onclick="fetchHitokoto()" data-lang="en">Refresh</button>
-      </div>
-
-      <div class="hitokoto-demo-box" id="hitokoto-box">
-        <div class="hitokoto-text" id="hitokoto-text" data-lang="zh">点击上方按钮获取一言…</div>
-        <div class="hitokoto-text en-hidden" id="hitokoto-text-en" data-lang="en">Click the button above to fetch a sentence…</div>
-        <div class="hitokoto-meta" id="hitokoto-meta"></div>
-      </div>
     </div>
 
     <footer>

@@ -20,7 +20,7 @@
     <title>API 文档 - FurryAPI</title>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="c46be53b-8c5c-4ad9-82d2-f39177a9b4a6"></script>
   </head>
-  <body class="has-dynamic-bg">
+  <body class="api-intro-page has-dynamic-bg">
     <header>
       <div class="header-left">
         <h1 id="main-title" data-lang="zh">API 文档中心</h1>
@@ -50,6 +50,14 @@
       </div>
     </header>
 
+    <section class="api-overview">
+      <div class="api-overview-kicker">FurryAPI Docs</div>
+      <h1 data-lang="zh">API 文档中心</h1>
+      <h1 data-lang="en" class="en-hidden">API Docs</h1>
+      <p data-lang="zh">随机图片、IP 查询、一言与 IP 计算器。</p>
+      <p data-lang="en" class="en-hidden">Random images, IP lookup, Hitokoto, and IP calculator.</p>
+    </section>
+
     <div class="api-list">
       <!-- 图片API卡片 -->
       <div class="api-card">
@@ -69,9 +77,6 @@
         <div class="description en-hidden" data-lang="en">
           Get random furry images with multiple return formats and image modes. Supports both JSON response and direct image file return.
         </div>
-
-        <div class="endpoint" data-lang="zh">基础地址 / Base URL: https://api.furry.ist/furry-img/</div>
-        <div class="endpoint en-hidden" data-lang="en">Base URL: https://api.furry.ist/furry-img/</div>
 
         <div class="btn-wrapper">
           <a href="image-api/" class="api-link-btn" data-lang="zh">查看详细文档</a>
@@ -98,9 +103,6 @@
           Query IP address information using `ipapi`, `ipinfo`, or `bilibili`, and choose the data source via the `?db=` parameter.
         </div>
 
-        <div class="endpoint" data-lang="zh">基础地址 / Base URL: https://sni-api.furry.ist/ipapi</div>
-        <div class="endpoint en-hidden" data-lang="en">Base URL: https://sni-api.furry.ist/ipapi</div>
-
         <div class="btn-wrapper">
           <a href="ip-api/" class="api-link-btn" data-lang="zh">查看详细文档</a>
           <a href="ip-api/" class="api-link-btn en-hidden" data-lang="en">View Details</a>
@@ -123,9 +125,6 @@
         <div class="description en-hidden" data-lang="en">
           Returns a random sentence from categories including anime, manga, games, literature, and poetry. Supports category filtering, length filtering, and JSON or plain-text output.
         </div>
-
-        <div class="endpoint" data-lang="zh">基础地址 / Base URL: https://api.furry.ist/hitokoto</div>
-        <div class="endpoint en-hidden" data-lang="en">Base URL: https://api.furry.ist/hitokoto</div>
 
         <div class="btn-wrapper">
           <a href="hitokoto/" class="api-link-btn" data-lang="zh">查看详细文档</a>
@@ -151,9 +150,6 @@
           Parses Douyin (Chinese TikTok) video share links and returns video title, cover, play URL, author info, and stats. Douyin only — TikTok not supported.
         </div>
 
-        <div class="endpoint" data-lang="zh">基础地址 / Base URL: https://api.furry.ist/douyin</div>
-        <div class="endpoint en-hidden" data-lang="en">Base URL: https://api.furry.ist/douyin</div>
-
         <div class="btn-wrapper">
           <a href="douyin/" class="api-link-btn" data-lang="zh">查看详细文档</a>
           <a href="douyin/" class="api-link-btn en-hidden" data-lang="en">View Details</a>
@@ -177,9 +173,6 @@
         <div class="description en-hidden" data-lang="en">
           Provides full IP calculation features including network/broadcast calculation, subnet mask & CIDR conversion, multi-format IP conversion, and host-count to mask planning.
         </div>
-
-        <div class="endpoint" data-lang="zh">工具入口: /apiIntro/ip-calc/</div>
-        <div class="endpoint en-hidden" data-lang="en">Tool URL: /apiIntro/ip-calc/</div>
 
         <div class="btn-wrapper">
           <a href="ip-calc/" class="api-link-btn" data-lang="zh">打开IP计算器</a>
