@@ -53,3 +53,13 @@
 
 /*.eot
   Cache-Control: public, max-age=3600, s-maxage=2592000
+
+# The thank-list page changes independently of the rest of the static site.
+/thank/
+  Cache-Control: no-store
+
+/thank/index.html
+  Cache-Control: no-store
+
+/thank/name.js
+  Cache-Control: no-store
