@@ -64,3 +64,16 @@
 
 - 已下线 Swagger UI 前端入口
 - 已停止维护 `SwaggerDocs/` 文档方案
+
+## 友情链接
+
+友链数据在 `friends.json`，头像不从对方站点实时加载，而是由脚本拉取后存到本站 `assets/friends/`：
+
+```bash
+node generate-friends.js
+```
+
+- 脚本会拉取 `avatar`，按文件内容识别格式，保存为 `assets/friends/<slug>.<内容哈希>.<扩展名>`，并重写 `index.html` 中 `<!-- friends:start -->` 与 `<!-- friends:end -->` 之间的内容。
+- 拉取失败时保留上一次成功的头像；从未成功过则使用 `default.svg` 占位。脚本结束时会输出每个友链的状态表。
+- 部分站点屏蔽海外访问，因此请在国内网络环境下本地运行，并把 `assets/friends/` 与 `index.html` 一起提交。需要代理时（Node 24+）：`NODE_USE_ENV_PROXY=1 HTTPS_PROXY=http://127.0.0.1:7890 node generate-friends.js`。
+- 对方站点完全拉不到时，先在对应条目里写 `"avatarFile": "文件名"`，再把图片放进 `assets/friends/` 并运行脚本（顺序反过来的话，脚本会把未登记的文件当作多余文件删掉）。

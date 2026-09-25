@@ -63,3 +63,7 @@
 
 /thank/name.js
   Cache-Control: no-store
+
+# 友链头像（generate-friends.js 生成）：sandbox 防止直接打开的 SVG 在本站执行脚本
+/assets/friends/*
+  Content-Security-Policy: default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox
