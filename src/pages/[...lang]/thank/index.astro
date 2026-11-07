@@ -86,7 +86,7 @@ const strings = uiSubset(lang, ['credits.count']);
     overflow-wrap: break-word;
   }
 
-  /* 筛选：输入框沿用文档试用面板的样式，计数放在右边，窄屏时换到下一行 */
+  /* 筛选：输入框用全站共用的 .input，最宽 420px；计数放在右边，窄屏时换到下一行 */
   .tools {
     display: flex;
     flex-wrap: wrap;
@@ -97,21 +97,6 @@ const strings = uiSubset(lang, ['credits.count']);
   .input {
     flex: 0 1 420px;
     min-width: 0;
-    height: 40px;
-    padding: 0 12px;
-    border: 1px solid var(--line-2);
-    border-radius: 10px;
-    background: var(--stage);
-    font-family: var(--font-mono);
-    font-size: 13.5px;
-    color: var(--bone);
-  }
-  .input::placeholder {
-    color: var(--text-4);
-  }
-  .input:focus {
-    border-color: var(--champagne);
-    outline: none;
   }
   .count {
     font-family: var(--font-mono);

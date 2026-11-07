@@ -27,7 +27,7 @@ export type CalcError =
 /** 计算结果：ok 为 true 时带回各字段，否则带回错误码 */
 export type CalcResult<T> = ({ ok: true } & T) | { ok: false; error: CalcError };
 
-/** 错误文案：zh 沿用旧站措辞，中文与拉丁字母、数字之间加一个空格；en 为英文译文 */
+/** 错误文案：zh 大体沿用旧站措辞（术语和页面上的标签统一），中文与拉丁字母、数字之间加一个空格；en 为英文译文 */
 export const CALC_ERRORS: Record<CalcError, { zh: string; en: string }> = {
   NETWORK_RANGE_INVALID: {
     zh: '输入无效：请检查 IP 与 CIDR 位数。',
@@ -62,7 +62,7 @@ export const CALC_ERRORS: Record<CalcError, { zh: string; en: string }> = {
     en: 'Invalid input: enter an 8-digit hexadecimal number (the 0x prefix is optional).',
   },
   CLASSFUL_IP_INVALID: {
-    zh: '输入无效：请填写正确的 TCP/IP 地址。',
+    zh: '输入无效：请填写正确的 IPv4 地址。',
     en: 'Invalid input: enter a valid IPv4 address.',
   },
   NET_TYPE_UNKNOWN: {
@@ -102,11 +102,11 @@ export const CALC_ERRORS: Record<CalcError, { zh: string; en: string }> = {
     en: 'Invalid input: the mask must be contiguous bits.',
   },
   MASK_CONVERTER_BITS_INVALID: {
-    zh: '输入无效：位元数需在 0-32 之间。',
+    zh: '输入无效：位数需在 0-32 之间。',
     en: 'Invalid input: the prefix length must be between 0 and 32.',
   },
   MASK_CONVERTER_EMPTY: {
-    zh: '请填写点分十进制掩码或位元数之一。',
+    zh: '请填写点分十进制掩码或位数之一。',
     en: 'Enter a dotted-decimal mask or a prefix length.',
   },
 };
@@ -370,18 +370,23 @@ export type RequiredToMaskValues = {
   total: number;
 };
 
-/** 按需要的可用地址数选出最小的网段，即从 /32 往 /0 扫描，第一个够用的位数 */
+/** 能放下 count 个可用地址的最小网段：从 /32 往 /0 扫描，第一个够用的位数；放不下时返回 null */
+function fitBits(count: number): number | null {
+  for (let bits = 32; bits >= 0; bits--) {
+    if (hostStats(bits).usable >= count) return bits;
+  }
+  return null;
+}
+
+/** 按需要的可用地址数选出最小的网段 */
 export function requiredToMask(required: string): CalcResult<RequiredToMaskValues> {
   const count = isBlank(required) ? 0 : Number(required);
   if (!Number.isInteger(count) || count <= 0) return fail('REQUIRED_INVALID');
 
-  for (let bits = 32; bits >= 0; bits--) {
-    const { total, usable } = hostStats(bits);
-    if (usable >= count) {
-      return { ok: true, cidr: bits, dotted: toIPv4(prefixMask(bits)), usable, total };
-    }
-  }
-  return fail('REQUIRED_TOO_LARGE');
+  const bits = fitBits(count);
+  if (bits === null) return fail('REQUIRED_TOO_LARGE');
+  const { total, usable } = hostStats(bits);
+  return { ok: true, cidr: bits, dotted: toIPv4(prefixMask(bits)), usable, total };
 }
 
 /** 掩码取反得到通配符掩码 */
@@ -414,13 +419,13 @@ export function maskHostCount(cidr: string): CalcResult<{ usable: number; total:
   return { ok: true, usable, total, dotted: toIPv4(mask) };
 }
 
-/** 掩码的两种输入：点分或位元数，空字符串表示未填写 */
+/** 掩码的两种输入：点分或位数，空字符串表示未填写 */
 export type MaskConverterInput = { dotted: string; bits: string };
 
 /** 掩码互转的各字段 */
 export type MaskConverterValues = { dotted: string; cidr: number; hex: string };
 
-/** 掩码与位元数互转；点分非空时只看点分，否则看位元数 */
+/** 掩码与位数互转；点分非空时只看点分，否则看位数 */
 export function maskConverter(input: MaskConverterInput): CalcResult<MaskConverterValues> {
   const dottedText = input.dotted.trim();
   const bitsText = input.bits.trim();
@@ -447,16 +452,17 @@ export function maskConverter(input: MaskConverterInput): CalcResult<MaskConvert
 /** 分类子网的原始输入：IP、网络类型（default 表示按首字节推断）、子网数与每网主机数 */
 export type ClassfulInput = { ip: string; netType: string; subnets: string; hosts: string };
 
-/** 分类子网的各字段 */
+/** 分类子网的各字段；usable 和 total 是每个子网的可用地址数和地址总数（含网络地址和广播地址） */
 export type ClassfulValues = {
   netType: string;
   mask: string;
   cidr: number;
   subnetCount: number;
-  hostsPerNetwork: number;
+  usable: number;
+  total: number;
 };
 
-/** 按 A/B/C 类划分子网：子网数量为正整数时优先，否则按每网主机数推算 */
+/** 按 A/B/C 类划分子网：子网数量为正整数时优先，否则按每网主机数推算。主机数按可用地址算，和 requiredToMask 一致 */
 export function classful(input: ClassfulInput): CalcResult<ClassfulValues> {
   const ipValue = parseIPv4(input.ip);
   if (ipValue === null) return fail('CLASSFUL_IP_INVALID');
@@ -477,20 +483,23 @@ export function classful(input: ClassfulInput): CalcResult<ClassfulValues> {
     if (cidr > 32) return fail('SUBNETS_TOO_LARGE');
     subnetCount = Math.pow(2, subnetBits);
   } else if (Number.isInteger(hostsValue) && hostsValue > 0) {
-    cidr = 32 - Math.ceil(Math.log2(hostsValue));
-    if (cidr < baseBits || cidr > 32) return fail('HOSTS_MISMATCH');
+    // 放下这么多主机的最小网段比这一类的网络还大时，说明主机数和网络类型不匹配
+    const bits = fitBits(hostsValue);
+    if (bits === null || bits < baseBits) return fail('HOSTS_MISMATCH');
+    cidr = bits;
     subnetCount = Math.pow(2, cidr - baseBits);
   } else {
     return fail('CLASSFUL_COUNT_MISSING');
   }
 
-  const { total } = hostStats(cidr);
+  const { total, usable } = hostStats(cidr);
   return {
     ok: true,
     netType,
     mask: toIPv4(prefixMask(cidr)),
     cidr,
     subnetCount,
-    hostsPerNetwork: total,
+    usable,
+    total,
   };
 }

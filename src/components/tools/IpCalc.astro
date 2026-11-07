@@ -137,6 +137,7 @@ const calcs: Calc[] = [
       { key: 'mask', label: 'calc.mask' },
       { key: 'cidr', label: 'calc.cidr' },
       { key: 'subnets', label: 'calc.subnetCount' },
+      { key: 'usable', label: 'calc.usablePerNetwork' },
       { key: 'hostsTotal', label: 'calc.hostsTotal' },
     ],
   },
@@ -408,67 +409,7 @@ const cards = calcs.map((c) => {
     color: var(--text-4);
   }
 
-  /* 和在线试用的输入框一致：40px 高，mono 字体；聚焦时用香槟色描边 */
-  .input {
-    width: 100%;
-    height: 40px;
-    padding: 0 12px;
-    border: 1px solid var(--line-2);
-    border-radius: 10px;
-    background: var(--stage);
-    font-family: var(--font-mono);
-    font-size: 14px;
-    color: var(--bone);
-  }
-  .input::placeholder {
-    color: var(--text-4);
-  }
-  .input:focus {
-    outline: none;
-    border-color: var(--champagne);
-  }
-
-  /* 分段选择：和在线试用的 .seg 一致 */
-  .seg {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 4px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--stage);
-  }
-  .seg label {
-    position: relative;
-    flex: 1 1 auto;
-  }
-  .seg span {
-    display: block;
-    padding: 7px 12px;
-    border-radius: 7px;
-    font-size: 13.5px;
-    line-height: 1.4;
-    text-align: center;
-    white-space: nowrap;
-    color: var(--text-3);
-    cursor: pointer;
-    transition:
-      background 0.2s,
-      color 0.2s;
-  }
-  .seg input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .seg input:checked + span {
-    background: var(--surface-3);
-    color: var(--bone);
-  }
-  .seg input:focus-visible + span {
-    outline: 2px solid var(--champagne);
-    outline-offset: 1px;
-  }
+  /* 输入框 .input 和分段选择 .seg 用全站共用的样式（global.css） */
 
   /* 结果：标签在上，等宽的值和复制按钮在下，行与行之间是细线 */
   .out {

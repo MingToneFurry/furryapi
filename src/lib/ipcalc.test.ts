@@ -423,7 +423,7 @@ test('requiredToMask：超过 IPv4 可用地址数的需求报 REQUIRED_TOO_LARG
   assert.deepStrictEqual(requiredToMask('1e20'), { ok: false, error: 'REQUIRED_TOO_LARGE' });
 });
 
-test('maskConverter：点分十进制优先，位元数只在点分为空时使用', () => {
+test('maskConverter：点分十进制优先，位数只在点分为空时使用', () => {
   const slash24 = { ok: true, dotted: '255.255.255.0', cidr: 24, hex: '0xFFFFFF00' };
   assert.deepStrictEqual(maskConverter({ dotted: '255.255.255.0', bits: 'abc' }), slash24);
   assert.deepStrictEqual(maskConverter({ dotted: '', bits: '24' }), slash24);
@@ -474,7 +474,8 @@ test('classful：默认按首字节推断 A 类，子网数量优先', () => {
     mask: '255.192.0.0',
     cidr: 10,
     subnetCount: 4,
-    hostsPerNetwork: 4194304,
+    usable: 4194302,
+    total: 4194304,
   });
   assert.deepStrictEqual(classful({ ip: '10.0.0.1', netType: 'A', subnets: '4', hosts: '28' }), {
     ok: true,
@@ -482,7 +483,8 @@ test('classful：默认按首字节推断 A 类，子网数量优先', () => {
     mask: '255.192.0.0',
     cidr: 10,
     subnetCount: 4,
-    hostsPerNetwork: 4194304,
+    usable: 4194302,
+    total: 4194304,
   });
 });
 
@@ -493,7 +495,8 @@ test('classful：默认推断 C 类后按每网主机数推算', () => {
     mask: '255.255.255.224',
     cidr: 27,
     subnetCount: 8,
-    hostsPerNetwork: 32,
+    usable: 30,
+    total: 32,
   });
 });
 
@@ -504,7 +507,8 @@ test('classful：默认推断 B 类，子网数为 2', () => {
     mask: '255.255.128.0',
     cidr: 17,
     subnetCount: 2,
-    hostsPerNetwork: 32768,
+    usable: 32766,
+    total: 32768,
   });
 });
 
@@ -515,7 +519,8 @@ test('classful：手动指定 B 类时忽略首字节推断', () => {
     mask: '255.255.192.0',
     cidr: 18,
     subnetCount: 4,
-    hostsPerNetwork: 16384,
+    usable: 16382,
+    total: 16384,
   });
 });
 
@@ -527,7 +532,8 @@ test('classful：子网数与主机数的各种回落与错误分支', () => {
     mask: '255.255.255.254',
     cidr: 31,
     subnetCount: 8388608,
-    hostsPerNetwork: 2,
+    usable: 2,
+    total: 2,
   });
   assert.deepStrictEqual(classful({ ip: '10.0.0.1', netType: 'A', subnets: '2.5', hosts: '28' }), {
     ok: true,
@@ -535,7 +541,8 @@ test('classful：子网数与主机数的各种回落与错误分支', () => {
     mask: '255.255.255.224',
     cidr: 27,
     subnetCount: 524288,
-    hostsPerNetwork: 32,
+    usable: 30,
+    total: 32,
   });
   assert.deepStrictEqual(classful({ ip: '10.0.0.1', netType: 'A', subnets: '-1', hosts: '28' }), {
     ok: true,
@@ -543,7 +550,8 @@ test('classful：子网数与主机数的各种回落与错误分支', () => {
     mask: '255.255.255.224',
     cidr: 27,
     subnetCount: 524288,
-    hostsPerNetwork: 32,
+    usable: 30,
+    total: 32,
   });
   // 两个都为空、都无效时报数量缺失
   assert.deepStrictEqual(classful({ ip: '172.16.0.1', netType: 'default', subnets: '', hosts: '' }), {
@@ -566,23 +574,43 @@ test('classful：子网数与主机数的各种回落与错误分支', () => {
   });
 });
 
-test('classful：C 类主机数恰好为 256 时仍合法，主机数为 1 时为 /32', () => {
-  assert.deepStrictEqual(classful({ ip: '10.0.0.1', netType: 'C', subnets: '', hosts: '256' }), {
+test('classful：C 类每网最多 254 台主机，255 台放不下；主机数为 1 时为 /32', () => {
+  assert.deepStrictEqual(classful({ ip: '10.0.0.1', netType: 'C', subnets: '', hosts: '254' }), {
     ok: true,
     netType: 'C',
     mask: '255.255.255.0',
     cidr: 24,
     subnetCount: 1,
-    hostsPerNetwork: 256,
+    usable: 254,
+    total: 256,
   });
+  for (const hosts of ['255', '256']) {
+    assert.deepStrictEqual(classful({ ip: '10.0.0.1', netType: 'C', subnets: '', hosts }), {
+      ok: false,
+      error: 'HOSTS_MISMATCH',
+    }, hosts);
+  }
   assert.deepStrictEqual(classful({ ip: '10.0.0.1', netType: 'C', subnets: '', hosts: '1' }), {
     ok: true,
     netType: 'C',
     mask: '255.255.255.255',
     cidr: 32,
     subnetCount: 256,
-    hostsPerNetwork: 1,
+    usable: 1,
+    total: 1,
   });
+});
+
+test('classful：每网主机数和 requiredToMask 用同一个规则，选出的网段一致', () => {
+  for (const hosts of [1, 2, 3, 28, 50, 62, 63, 64, 254, 255, 1000, 65534, 65535]) {
+    const a = classful({ ip: '10.0.0.1', netType: 'A', subnets: '', hosts: String(hosts) });
+    const b = requiredToMask(String(hosts));
+    assert.ok(a.ok && b.ok, String(hosts));
+    if (a.ok && b.ok) {
+      assert.strictEqual(a.cidr, b.cidr, `hosts=${hosts}`);
+      assert.ok(a.usable >= hosts, `hosts=${hosts}`);
+    }
+  }
 });
 
 test('classful：无法识别的网络类型与 IP 错误', () => {
@@ -626,37 +654,44 @@ test('子网数：2 的幂附近取最小的 2 的幂（2^k-1、2^k、2^k+1）�
     [1024, 18, '255.255.192.0', 1024, 16384],
     [1025, 19, '255.255.224.0', 2048, 8192],
   ];
-  for (const [subnets, cidr, mask, subnetCount, hostsPerNetwork] of table) {
+  for (const [subnets, cidr, mask, subnetCount, total] of table) {
+    // 这些网段都不小于 /30，可用地址数是总数减 2
     assert.deepStrictEqual(
       classful({ ip: '10.0.0.1', netType: 'A', subnets: String(subnets), hosts: '' }),
-      { ok: true, netType: 'A', mask, cidr, subnetCount, hostsPerNetwork },
+      { ok: true, netType: 'A', mask, cidr, subnetCount, usable: total - 2, total },
       `subnets=${subnets}`,
     );
   }
 });
 
-test('主机数：2 的幂附近取最小的 2 的幂（2^k-1、2^k、2^k+1），以 A 类为基准', () => {
-  // [每网主机数, CIDR, 子网掩码, 每网地址总数, 子网总数]
-  const table: [number, number, string, number, number][] = [
-    [1, 32, '255.255.255.255', 1, 16777216],
-    [2, 31, '255.255.255.254', 2, 8388608],
-    [3, 30, '255.255.255.252', 4, 4194304],
-    [4, 30, '255.255.255.252', 4, 4194304],
-    [5, 29, '255.255.255.248', 8, 2097152],
-    [255, 24, '255.255.255.0', 256, 65536],
-    [256, 24, '255.255.255.0', 256, 65536],
-    [257, 23, '255.255.254.0', 512, 32768],
-    [65535, 16, '255.255.0.0', 65536, 256],
-    [65536, 16, '255.255.0.0', 65536, 256],
-    [65537, 15, '255.254.0.0', 131072, 128],
+test('主机数：按可用地址取能放下的最小网段（/31、/32 按常规约定），以 A 类为基准', () => {
+  // [每网主机数, CIDR, 子网掩码, 每网可用地址数, 每网地址总数, 子网总数]
+  const table: [number, number, string, number, number, number][] = [
+    [1, 32, '255.255.255.255', 1, 1, 16777216],
+    [2, 31, '255.255.255.254', 2, 2, 8388608],
+    [3, 29, '255.255.255.248', 6, 8, 2097152],
+    [6, 29, '255.255.255.248', 6, 8, 2097152],
+    [7, 28, '255.255.255.240', 14, 16, 1048576],
+    [62, 26, '255.255.255.192', 62, 64, 262144],
+    [63, 25, '255.255.255.128', 126, 128, 131072],
+    [64, 25, '255.255.255.128', 126, 128, 131072],
+    [254, 24, '255.255.255.0', 254, 256, 65536],
+    [255, 23, '255.255.254.0', 510, 512, 32768],
+    [65534, 16, '255.255.0.0', 65534, 65536, 256],
+    [65535, 15, '255.254.0.0', 131070, 131072, 128],
   ];
-  for (const [hosts, cidr, mask, hostsPerNetwork, subnetCount] of table) {
+  for (const [hosts, cidr, mask, usable, total, subnetCount] of table) {
     assert.deepStrictEqual(
       classful({ ip: '10.0.0.1', netType: 'A', subnets: '', hosts: String(hosts) }),
-      { ok: true, netType: 'A', mask, cidr, subnetCount, hostsPerNetwork },
+      { ok: true, netType: 'A', mask, cidr, subnetCount, usable, total },
       `hosts=${hosts}`,
     );
   }
+  // A 类每网最多 16777214 台主机
+  assert.deepStrictEqual(classful({ ip: '10.0.0.1', netType: 'A', subnets: '', hosts: '16777215' }), {
+    ok: false,
+    error: 'HOSTS_MISMATCH',
+  });
 });
 
 test('CALC_ERRORS：错误码集合固定，文案非空，中文与拉丁字母之间只有一个空格', () => {

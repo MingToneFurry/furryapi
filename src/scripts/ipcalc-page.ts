@@ -88,7 +88,8 @@ export const calcs = {
         mask: r.mask,
         cidr: slash(r.cidr),
         subnets: num(r.subnetCount),
-        hostsTotal: num(r.hostsPerNetwork),
+        usable: num(r.usable),
+        hostsTotal: num(r.total),
       },
     };
   },
