@@ -1,0 +1,31 @@
+---
+// 文档总览：全部接口和工具的列表
+import Base from '../../../layouts/Base.astro';
+import ApiIndex from '../../../components/ApiIndex.astro';
+import { catalog } from '../../../apis';
+import { langParams, t, type Lang } from '../../../i18n';
+
+export const getStaticPaths = () => langParams();
+
+const { lang } = Astro.props as { lang: Lang };
+---
+
+<Base lang={lang} title={`${t(lang, 'docs.title')} - FurryAPI`} description={t(lang, 'docs.lead')} path="/apiIntro/">
+  <section class="section wrap docs-index" aria-labelledby="docs-title">
+    <header class="section-head">
+      <p class="eyebrow">{t(lang, 'apis.eyebrow')} · {catalog.length}</p>
+      <h1 id="docs-title">{t(lang, 'docs.title')}</h1>
+      <p class="lede">{t(lang, 'docs.lead')}</p>
+    </header>
+    <ApiIndex lang={lang} />
+  </section>
+</Base>
+
+<style>
+  .docs-index {
+    padding-top: clamp(64px, 8vw, 112px);
+  }
+  h1 {
+    font-size: clamp(36px, 4.4vw, 60px);
+  }
+</style>

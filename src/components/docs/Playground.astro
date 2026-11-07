@@ -1,0 +1,395 @@
+---
+// 在线试用：按接口登记表里的参数生成表单，实时拼出请求地址，发送后显示预览和原始响应
+import Icon from '../Icon.astro';
+import CopyButton from '../CopyButton.astro';
+import { pick, t, uiSubset, type Lang } from '../../i18n';
+import type { ApiDoc } from '../../apis/types';
+
+interface Props {
+  lang: Lang;
+  doc: ApiDoc;
+}
+
+const { lang, doc } = Astro.props;
+const strings = uiSubset(lang, ['pg.send', 'pg.sending', 'pg.networkError', 'pg.status', 'pg.time', 'pg.loaded', 'pg.imageFailed', 'hero.no', 'hero.large', 'hero.box', 'hero.original', 'lightbox.zoom']);
+// 示例里的路径参数默认值，例如 IP 查询的 ip
+const presets = doc.playground.presets ?? [];
+---
+
+<div class="pg" data-pg data-base={doc.base} data-preview={doc.playground.preview ?? ''} data-strings={JSON.stringify(strings)}>
+  <div class="pg-head">
+    <h2 class="title" data-display>{t(lang, 'docs.playground')}</h2>
+    <span class="state" data-state></span>
+  </div>
+
+  <form class="form" data-form novalidate>
+    {
+      doc.params.map((p) => {
+        const id = `pg-${doc.slug}-${p.name}`;
+        if (p.type === 'enum' && p.options && !p.multiple) {
+          // 没有默认值又可以不填的参数（例如 IP 查询的 db），加一个“不填”选项
+          const options = p.default === undefined && !p.required ? [{ value: '', label: { zh: t('zh', 'pg.omit'), en: t('en', 'pg.omit') } }, ...p.options] : p.options;
+          const selected = p.default ?? options[0].value;
+          return (
+            <fieldset class="field">
+              <legend>
+                <code>{p.name}</code>
+              </legend>
+              <div class="seg">
+                {options.map((o) => (
+                  <label>
+                    <input type="radio" name={p.name} value={o.value} checked={o.value === selected} data-default={p.default ?? ''} />
+                    <span>{pick(o.label, lang)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          );
+        }
+        if (p.type === 'enum' && p.options && p.multiple) {
+          return (
+            <fieldset class="field">
+              <legend>
+                <code>{p.name}</code> <span class="hint">{t(lang, 'pg.any')}</span>
+              </legend>
+              <div class="chips">
+                {p.options.map((o) => (
+                  <label>
+                    <input type="checkbox" name={p.name} value={o.value} />
+                    <span>{pick(o.label, lang)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          );
+        }
+        return (
+          <div class="field">
+            <label for={id}>
+              <code>{p.name}</code>
+              {!p.required && <span class="hint">{t(lang, 'pg.optional')}</span>}
+            </label>
+            <input
+              id={id}
+              class="input"
+              name={p.name}
+              type={p.type === 'integer' ? 'number' : 'text'}
+              inputmode={p.type === 'integer' ? 'numeric' : undefined}
+              placeholder={p.placeholder ?? p.example?.split('=').pop() ?? ''}
+              data-in={p.in ?? 'query'}
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+        );
+      })
+    }
+
+    {
+      presets.length > 0 && (
+        <div class="presets">
+          <span class="hint">{t(lang, 'pg.presets')}</span>
+          {presets.map((pr) => (
+            <button type="button" class="preset" data-preset={JSON.stringify(pr.values)}>
+              {pick(pr.label, lang)}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="url">
+      <span class="method">GET</span>
+      <code data-url>{doc.base}</code>
+      <CopyButton lang={lang} text={doc.base} label={t(lang, 'pg.url')} />
+    </div>
+
+    <button type="submit" class="btn btn-solid send" data-send>
+      <span data-send-label>{t(lang, 'pg.send')}</span>
+      <Icon name="send" />
+    </button>
+  </form>
+
+  <div class="out" data-out>
+    <p class="empty" data-empty>{t(lang, 'pg.empty')}</p>
+    <div class="preview" data-preview-area hidden></div>
+    <details class="raw" data-raw-wrap hidden>
+      <summary>{t(lang, 'pg.raw')}</summary>
+      <pre data-raw></pre>
+    </details>
+  </div>
+</div>
+
+<script>
+  import { initPlayground } from '../../scripts/playground';
+  document.querySelectorAll<HTMLElement>('[data-pg]').forEach(initPlayground);
+</script>
+
+<style>
+  .pg {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--stage-raise);
+    overflow: hidden;
+  }
+  .pg-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .title {
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .state {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .state :global(.dot) {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: var(--ok);
+    vertical-align: 1px;
+  }
+  .state :global(.dot.bad) {
+    background: var(--err);
+  }
+
+  .form {
+    display: grid;
+    gap: 18px;
+    padding: 20px;
+  }
+  .field {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  legend,
+  .field > label {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 8px;
+    padding: 0;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .field code {
+    color: var(--bone);
+  }
+  .hint {
+    font-size: 12px;
+    color: var(--text-4);
+  }
+
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--stage);
+  }
+  .seg label {
+    flex: 1 1 auto;
+  }
+  .seg span,
+  .chips span {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    text-align: center;
+    color: var(--text-3);
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+  .seg input,
+  .chips input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .seg input:checked + span {
+    background: var(--surface-3);
+    color: var(--bone);
+  }
+  .seg input:focus-visible + span,
+  .chips input:focus-visible + span {
+    outline: 2px solid var(--champagne);
+    outline-offset: 1px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chips span {
+    padding: 5px 11px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-size: 13px;
+  }
+  .chips input:checked + span {
+    border-color: var(--champagne);
+    color: var(--bone);
+  }
+
+  .input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: var(--stage);
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--bone);
+  }
+  .input::placeholder {
+    color: var(--text-4);
+  }
+  .input:focus {
+    border-color: var(--line-3);
+    outline: none;
+  }
+
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .preset {
+    padding: 4px 10px;
+    border: 1px dashed var(--line-2);
+    border-radius: 999px;
+    font-size: 12.5px;
+    color: var(--text-3);
+  }
+  .preset:hover {
+    color: var(--bone);
+    border-color: var(--line-3);
+  }
+
+  .url {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 6px 8px 12px;
+    border-radius: 10px;
+    background: var(--surface);
+    font-size: 12.5px;
+  }
+  .url code {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--text-2);
+  }
+  .method {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--champagne);
+  }
+  .send {
+    width: 100%;
+  }
+
+  .out {
+    border-top: 1px solid var(--line);
+  }
+  .empty {
+    padding: 28px 20px;
+    font-size: 14px;
+    color: var(--text-4);
+  }
+  .preview {
+    padding: 20px;
+  }
+  .preview :global(.zoom) {
+    display: block;
+    width: 100%;
+    cursor: zoom-in;
+  }
+  .preview :global(.zoom:hover img) {
+    filter: brightness(1.08);
+  }
+  .preview :global(img) {
+    width: 100%;
+    height: auto;
+    max-height: 420px;
+    object-fit: contain;
+    background: var(--stage);
+    animation: develop 1.2s var(--ease-out) both;
+  }
+  .preview :global(.cap) {
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .preview :global(.cap a) {
+    color: var(--text-2);
+  }
+  .preview :global(blockquote) {
+    color: var(--bone);
+    font-size: 18px;
+    line-height: 1.7;
+  }
+  .preview :global(.kv) {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+    font-size: 13.5px;
+  }
+  .preview :global(.kv dt) {
+    font-family: var(--font-mono);
+    color: var(--text-4);
+  }
+  .preview :global(.kv dd) {
+    margin: 0;
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+  .preview :global(.err) {
+    color: var(--err);
+    font-size: 14px;
+  }
+
+  .raw {
+    border-top: 1px solid var(--line);
+  }
+  .raw summary {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .raw pre {
+    max-height: 360px;
+    overflow: auto;
+    padding: 0 20px 20px;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--text-2);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+</style>

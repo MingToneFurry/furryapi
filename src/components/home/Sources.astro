@@ -1,0 +1,65 @@
+---
+// 图片来源：照片都是这些 X 创作者公开发布的作品，首页列出一部分，完整名单在 /thank/
+import { creators, profileUrl } from '../../lib/sources';
+import { href, t, type Lang } from '../../i18n';
+import { num } from '../../lib/format';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const list = creators();
+const shown = list.slice(0, 48);
+---
+
+<section class="section wrap sources" aria-labelledby="sources-title">
+  <header class="section-head">
+    <p class="eyebrow">{t(lang, 'sources.eyebrow')}</p>
+    <h2 id="sources-title">{t(lang, 'sources.title', { n: num(list.length) })}</h2>
+    <p class="lede">{t(lang, 'sources.lead')}</p>
+  </header>
+
+  <ul class="names" role="list">
+    {
+      shown.map((c) => (
+        <li>
+          <a href={profileUrl(c)} target="_blank" rel="noopener noreferrer" title={`@${c.screen_name}`}>
+            {c.name}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="all"><a class="more" href={href(lang, '/thank/')}>{t(lang, 'sources.all', { n: num(list.length) })}</a></p>
+</section>
+
+<style>
+  .names {
+    columns: 4 13rem;
+    column-gap: 40px;
+    border-top: 1px solid var(--line);
+  }
+  li {
+    break-inside: avoid;
+    border-bottom: 1px solid var(--line);
+  }
+  a {
+    display: block;
+    padding: 11px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--text-3);
+    font-size: 14.5px;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  a:hover {
+    color: var(--bone);
+  }
+  .all {
+    margin-top: 36px;
+  }
+</style>

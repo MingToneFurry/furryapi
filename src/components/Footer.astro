@@ -1,6 +1,7 @@
 ---
 import fs from 'node:fs';
 import path from 'node:path';
+import Icon from './Icon.astro';
 import { href, pick, t, type Lang } from '../i18n';
 import { catalog, docPath } from '../apis';
 import friends from '../data/friends.json';
@@ -19,139 +20,159 @@ const avatarOf = (f: { slug: string; avatarFile?: string }) =>
   `/assets/friends/${f.avatarFile ?? avatarFiles.find((n) => n.startsWith(`${f.slug}.`)) ?? 'default.svg'}`;
 ---
 
-<footer class="site-footer wrap">
-  <div class="cols">
-    <div class="about">
-      <a class="wordmark serif" href={href(lang, '/')}>FurryAPI</a>
-      <p>{t(lang, 'footer.about')}</p>
+<footer class="site-footer">
+  <div class="wrap-wide">
+    <div class="cols">
+      <div class="about">
+        <a class="brand" href={href(lang, '/')}><Icon name="paw" class="paw" />FurryAPI</a>
+        <p>{t(lang, 'footer.about')}</p>
+      </div>
+
+      <nav aria-labelledby="f-apis">
+        <h2 id="f-apis">{t(lang, 'footer.apis')}</h2>
+        <ul role="list">
+          {catalog.map((e) => <li><a href={href(lang, docPath(e))}>{pick(e.name, lang)}</a></li>)}
+        </ul>
+      </nav>
+
+      <nav aria-labelledby="f-site">
+        <h2 id="f-site">{t(lang, 'footer.site')}</h2>
+        <ul role="list">
+          <li><a href={href(lang, '/apiIntro/')}>{t(lang, 'nav.docs')}</a></li>
+          <li><a href={href(lang, '/#gallery')}>{t(lang, 'nav.gallery')}</a></li>
+          <li><a href={href(lang, '/thank/')}>{t(lang, 'nav.sources')}</a></li>
+          <li><a href={STATUS_URL} target="_blank" rel="noopener noreferrer">{t(lang, 'nav.status')}</a></li>
+          <li><a href="/sitemap.xml">{t(lang, 'footer.sitemap')}</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h2 id="f-contact">{t(lang, 'footer.contact')}</h2>
+        <ul role="list" aria-labelledby="f-contact">
+          <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
+          <li><a href={CONTACT_CN} target="_blank" rel="noopener noreferrer">{t(lang, 'footer.contactCn')}</a></li>
+          <li><a href={CONTACT_GLOBAL} target="_blank" rel="noopener noreferrer">{t(lang, 'footer.contactGlobal')}</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 id="f-friends">{t(lang, 'footer.friends')}</h2>
+        <ul role="list" class="friends" aria-labelledby="f-friends">
+          {
+            friends.map((f) => (
+              <li>
+                <a href={f.url} target="_blank" rel="noopener noreferrer" title={f.title}>
+                  <img src={avatarOf(f)} alt="" width="20" height="20" loading="lazy" decoding="async" />
+                  <span>{f.name}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
     </div>
 
-    <nav aria-labelledby="f-apis">
-      <h2 id="f-apis">{t(lang, 'footer.apis')}</h2>
-      <ul role="list">
-        {catalog.map((e) => <li><a href={href(lang, docPath(e))}>{pick(e.name, lang)}</a></li>)}
-      </ul>
-    </nav>
-
-    <nav aria-labelledby="f-site">
-      <h2 id="f-site">{t(lang, 'footer.site')}</h2>
-      <ul role="list">
-        <li><a href={href(lang, '/apiIntro/')}>{t(lang, 'nav.docs')}</a></li>
-        <li><a href={href(lang, '/thank/')}>{t(lang, 'nav.thanks')}</a></li>
-        <li><a href={STATUS_URL} target="_blank" rel="noopener noreferrer">{t(lang, 'nav.status')}</a></li>
-        <li><a href="/sitemap.xml">{t(lang, 'footer.sitemap')}</a></li>
-      </ul>
-    </nav>
-
-    <div>
-      <h2 id="f-contact">{t(lang, 'footer.contact')}</h2>
-      <ul role="list" aria-labelledby="f-contact">
-        <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
-        <li><a href={CONTACT_CN} target="_blank" rel="noopener noreferrer">{t(lang, 'footer.contactCn')}</a></li>
-        <li><a href={CONTACT_GLOBAL} target="_blank" rel="noopener noreferrer">{t(lang, 'footer.contactGlobal')}</a></li>
-      </ul>
+    <div class="base">
+      <p>© {new Date().getFullYear()} FurryAPI · {t(lang, 'footer.photoRights')}</p>
+      <p><a href={ICP.url} target="_blank" rel="noopener noreferrer">{ICP.text}</a></p>
     </div>
-
-    <div>
-      <h2 id="f-friends">{t(lang, 'footer.friends')}</h2>
-      <ul role="list" class="friends" aria-labelledby="f-friends">
-        {
-          friends.map((f) => (
-            <li>
-              <a href={f.url} target="_blank" rel="noopener noreferrer" title={f.title}>
-                <img src={avatarOf(f)} alt="" width="20" height="20" loading="lazy" decoding="async" />
-                <span>{f.name}</span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </div>
-
-  <div class="base">
-    <p>© {new Date().getFullYear()} FurryAPI</p>
-    <p><a href={ICP.url} target="_blank" rel="noopener noreferrer">{ICP.text}</a></p>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    margin-top: var(--space-10);
-    font-size: var(--step--1);
+    border-top: 1px solid var(--line);
+    background: var(--stage);
+    font-size: 14px;
+    line-height: 1.6;
   }
 
   .cols {
     display: grid;
-    grid-template-columns: minmax(14rem, 1.6fr) repeat(4, minmax(9rem, 1fr));
-    gap: var(--space-6) var(--space-5);
-    padding-top: var(--space-5);
-    border-top: 1px solid var(--ink);
+    grid-template-columns: minmax(15rem, 1.5fr) repeat(4, minmax(8rem, 1fr));
+    gap: 48px 32px;
+    padding-block: 72px 56px;
   }
 
-  .about p {
-    max-width: 18em;
-    margin-top: var(--space-3);
-    color: var(--ash);
-  }
-  .wordmark {
-    font-size: var(--step-2);
-    font-weight: 500;
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--bone);
+    font-size: 17px;
+    font-weight: 600;
     letter-spacing: -0.01em;
-    line-height: 1;
     text-decoration: none;
+  }
+  .brand :global(.paw) {
+    width: 20px;
+    height: 20px;
+    color: var(--champagne);
+  }
+  .about p {
+    max-width: 19em;
+    margin-top: 16px;
+    color: var(--text-3);
   }
 
   h2 {
-    margin-bottom: var(--space-3);
-    font-family: var(--font-sans);
-    font-size: var(--step--1);
-    font-weight: 500;
-    color: var(--ash);
+    margin-bottom: 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-4);
   }
 
   li + li {
-    margin-top: var(--space-2);
+    margin-top: 10px;
   }
-
   ul a {
-    text-decoration-color: transparent;
+    color: var(--text-3);
+    text-decoration: none;
+    transition: color 0.2s;
   }
   ul a:hover {
-    text-decoration-color: currentColor;
+    color: var(--bone);
   }
 
   .friends a {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 10px;
   }
   .friends img {
     width: 20px;
     height: 20px;
     border-radius: 50%;
     object-fit: cover;
-    background: var(--wash);
+    background: var(--surface-2);
+    filter: grayscale(0.4);
+    transition: filter 0.2s;
+  }
+  .friends a:hover img {
+    filter: none;
   }
 
   .base {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: var(--space-2) var(--space-6);
-    margin-top: var(--space-8);
-    padding-block: var(--space-4) var(--space-6);
-    border-top: 1px solid var(--rule);
-    color: var(--ash);
+    gap: 8px 32px;
+    padding-block: 24px 40px;
+    border-top: 1px solid var(--line);
+    color: var(--text-4);
+    font-size: 13px;
   }
   .base a {
-    text-decoration-color: transparent;
+    text-decoration: none;
   }
   .base a:hover {
-    text-decoration-color: currentColor;
+    color: var(--text-2);
   }
 
-  @media (max-width: 63.99rem) {
+  @media (max-width: 1000px) {
     .cols {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }

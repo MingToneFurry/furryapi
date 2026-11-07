@@ -1,0 +1,28 @@
+---
+// 代码块：标题栏写语言或标题，右边是复制按钮；高亮用 Shiki 的 css-variables 主题，颜色在 global.css 里
+import { Code } from 'astro:components';
+import CopyButton from './CopyButton.astro';
+import type { Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  code: string;
+  /** 示例里的语言：url、html、markdown、js、bash、css、json */
+  language: string;
+  title?: string;
+}
+
+const { lang, code, language, title } = Astro.props;
+
+// url 不是 Shiki 认识的语言，按纯文本显示；标题栏里显示更易读的名字
+const SHIKI: Record<string, string> = { url: 'plaintext', markdown: 'md', js: 'js', bash: 'bash' };
+const LABEL: Record<string, string> = { url: 'URL', html: 'HTML', markdown: 'Markdown', js: 'JavaScript', bash: 'Shell', css: 'CSS', json: 'JSON' };
+---
+
+<div class="code">
+  <div class="code-bar">
+    <span>{title ?? LABEL[language] ?? language}</span>
+    <CopyButton lang={lang} text={code} />
+  </div>
+  <Code code={code} lang={(SHIKI[language] ?? language) as any} theme="css-variables" />
+</div>

@@ -1,0 +1,136 @@
+---
+// 接口列表：细线分隔的一行一个接口。首页和文档总览共用
+import Icon from './Icon.astro';
+import { catalog, docPath, shortPath } from '../apis';
+import { CATEGORIES } from '../apis/types';
+import { href, pick, t, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<ol class="rows" role="list">
+  {
+    catalog.map((e) => {
+      const path = shortPath(e);
+      return (
+        <li>
+          <a href={href(lang, docPath(e))}>
+            <span class="meta">
+              <span class="cat">{pick(CATEGORIES[e.category].name, lang)}</span>
+              {path ? <code class="path">{path}</code> : <span class="path tool">{t(lang, 'apis.tool')}</span>}
+            </span>
+            <span class="name" data-display>
+              {pick(e.name, lang)}
+            </span>
+            <span class="sum">{pick(e.summary, lang)}</span>
+            <Icon name="arrow" class="go" />
+          </a>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .rows {
+    border-top: 1px solid var(--line);
+  }
+  a {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(9rem, 13rem) minmax(11rem, 15rem) minmax(0, 1fr) 20px;
+    align-items: baseline;
+    gap: 8px 28px;
+    padding: 28px 12px;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    transition: background 0.3s;
+  }
+  a:hover {
+    background: linear-gradient(to right, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0) 85%);
+  }
+
+  /* 宽屏时 meta 的两个子元素直接参与网格：分类在第一列，地址在第三列 */
+  .meta {
+    display: contents;
+  }
+  .cat {
+    grid-column: 1;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+  }
+  .name {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 21px;
+    line-height: 1.35;
+    transition: color 0.2s;
+  }
+  .path {
+    grid-column: 3;
+    grid-row: 1;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .path.tool {
+    font-size: 14px;
+  }
+  .sum {
+    grid-column: 4;
+    grid-row: 1;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-3);
+  }
+  a :global(.go) {
+    grid-column: 5;
+    grid-row: 1;
+    align-self: center;
+    width: 18px;
+    height: 18px;
+    color: var(--text-4);
+    transition:
+      transform 0.35s var(--ease-out),
+      color 0.2s;
+  }
+  a:hover .name {
+    color: #fff;
+  }
+  a:hover :global(.go) {
+    color: var(--champagne);
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 960px) {
+    a {
+      grid-template-columns: minmax(0, 1fr) 20px;
+      gap: 6px 16px;
+      padding: 22px 4px;
+    }
+    .meta {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .name {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .sum {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    a :global(.go) {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+    }
+  }
+</style>

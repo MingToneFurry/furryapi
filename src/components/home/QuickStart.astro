@@ -1,0 +1,115 @@
+---
+// 一行代码：左边说明，右边是几种常见用法的代码，用标签切换
+import { Code } from 'astro:components';
+import CopyButton from '../CopyButton.astro';
+import { href, t, type Lang } from '../../i18n';
+import { inline } from '../../lib/format';
+import { IMAGE_API } from '../../lib/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const alt = lang === 'zh' ? '随机兽装照片' : 'Random fursuit photo';
+
+const samples = [
+  { id: 'html', label: 'HTML', shiki: 'html', code: `<img src="${IMAGE_API}" alt="${alt}">` },
+  { id: 'md', label: 'Markdown', shiki: 'md', code: `![${alt}](${IMAGE_API})` },
+  { id: 'css', label: 'CSS', shiki: 'css', code: `.banner {\n  background: url("${IMAGE_API}?mode=large") center / cover;\n}` },
+  {
+    id: 'js',
+    label: 'JavaScript',
+    shiki: 'js',
+    code: `const res = await fetch('${IMAGE_API}?format=json');\nconst { url, type, filename } = await res.json();\n\ndocument.querySelector('img').src = url;`,
+  },
+];
+---
+
+<section class="section wrap quick" aria-labelledby="quick-title">
+  <header class="section-head">
+    <p class="eyebrow">{t(lang, 'quick.eyebrow')}</p>
+    <h2 id="quick-title">{t(lang, 'quick.title')}</h2>
+    <p class="lede" set:html={inline(t(lang, 'quick.lead'))} />
+    <p><a class="more" href={href(lang, '/apiIntro/image-api/')}>{t(lang, 'quick.docs')}</a></p>
+  </header>
+
+  <div class="code tabs" data-tabs>
+    <div class="code-bar" role="tablist" aria-label={t(lang, 'quick.title')}>
+      {
+        samples.map((s, i) => (
+          <button type="button" role="tab" id={`qs-tab-${s.id}`} aria-controls={`qs-${s.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+            {s.label}
+          </button>
+        ))
+      }
+    </div>
+    {
+      samples.map((s, i) => (
+        <div class="panel" role="tabpanel" id={`qs-${s.id}`} aria-labelledby={`qs-tab-${s.id}`} hidden={i !== 0}>
+          <Code code={s.code} lang={s.shiki as any} theme="css-variables" />
+          <CopyButton lang={lang} text={s.code} class="panel-copy" />
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  import { initTabs } from '../../scripts/tabs';
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach(initTabs);
+</script>
+
+<style>
+  .quick {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 48px 72px;
+    align-items: start;
+  }
+  .quick .section-head {
+    margin-bottom: 0;
+  }
+
+  [role='tablist'] {
+    justify-content: flex-start;
+    gap: 4px;
+    padding-left: 8px;
+  }
+  [role='tab'] {
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: var(--text-3);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    transition:
+      color 0.2s,
+      background 0.2s;
+  }
+  [role='tab']:hover {
+    color: var(--text-2);
+  }
+  [role='tab'][aria-selected='true'] {
+    color: var(--bone);
+    background: rgb(255 255 255 / 0.07);
+  }
+  .panel {
+    position: relative;
+    min-height: 168px;
+  }
+  .panel :global(.panel-copy) {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  .panel :global(pre) {
+    padding-right: 56px;
+  }
+
+  @media (max-width: 960px) {
+    .quick {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

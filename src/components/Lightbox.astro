@@ -1,0 +1,123 @@
+---
+// 全站共用的灯箱，放在 Base 布局里，每页一个。图片墙和在线试用的预览图都通过 scripts/lightbox.ts 打开它
+import Icon from './Icon.astro';
+import { t, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<dialog class="lightbox" data-lightbox aria-label={t(lang, 'lightbox.label')}>
+  <figure>
+    <img data-lb-img alt="" />
+    <figcaption>
+      <span data-lb-cap></span>
+      <a data-lb-orig target="_blank" rel="noopener">{t(lang, 'gallery.open')}<Icon name="external" class="ext" /></a>
+    </figcaption>
+  </figure>
+  <button type="button" class="icon-btn lb-close" data-lb-close aria-label={t(lang, 'gallery.close')}><Icon name="close" /></button>
+  <button type="button" class="icon-btn lb-prev" data-lb-prev aria-label={t(lang, 'gallery.prev')}><Icon name="prev" /></button>
+  <button type="button" class="icon-btn lb-next" data-lb-next aria-label={t(lang, 'gallery.next')}><Icon name="next" /></button>
+</dialog>
+
+<script>
+  import { initLightbox } from '../scripts/lightbox';
+  initLightbox();
+</script>
+
+<style>
+  .lightbox {
+    width: 100vw;
+    max-width: none;
+    height: 100svh;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-2);
+  }
+  .lightbox::backdrop {
+    background: rgb(3 3 3 / 0.94);
+  }
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+  figure {
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+    max-width: min(92vw, 1400px);
+    animation: rise 0.5s var(--ease-out) both;
+  }
+  img {
+    max-width: 100%;
+    max-height: 82svh;
+    width: auto;
+    height: auto;
+  }
+  figcaption {
+    display: flex;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  figcaption a {
+    color: var(--text-2);
+    text-decoration: none;
+  }
+  figcaption a:hover {
+    color: var(--bone);
+  }
+  figcaption :global(.ext) {
+    display: inline;
+    width: 11px;
+    height: 11px;
+    margin-left: 2px;
+    vertical-align: -1px;
+  }
+  .lb-close,
+  .lb-prev,
+  .lb-next {
+    position: fixed;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    color: var(--text-2);
+  }
+  .lb-close :global(svg),
+  .lb-prev :global(svg),
+  .lb-next :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+  .lb-close {
+    top: 20px;
+    right: 20px;
+  }
+  .lb-prev {
+    left: 20px;
+    top: 50%;
+    translate: 0 -50%;
+  }
+  .lb-next {
+    right: 20px;
+    top: 50%;
+    translate: 0 -50%;
+  }
+  [hidden] {
+    display: none;
+  }
+  @media (max-width: 700px) {
+    .lb-prev,
+    .lb-next {
+      top: auto;
+      bottom: 20px;
+      translate: none;
+    }
+  }
+</style>

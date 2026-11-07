@@ -1,14 +1,28 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import fontSubset from './integrations/font-subset.mjs';
 
+// 等宽字体固定保留的字符：ASCII、常用符号和箭头。接口地址、编号和代码都用它
+const MONO_TEXT =
+  Array.from({ length: 95 }, (_, i) => String.fromCharCode(32 + i)).join('') + '·×÷–—‘’“”…•°±←↑→↓↗↘✓';
+
 export default defineConfig({
   site: 'https://api.furry.ist',
-  // 保持 v6 的空白处理，避免相邻行内元素之间的空格被吞掉
   compressHTML: true,
   build: { format: 'directory' },
+  // 缓存放在项目里：几个工作树共用一份 node_modules，默认缓存目录会互相干扰
+  cacheDir: './.astro-cache',
   integrations: [
-    // 脚本里动态写入、用宋体显示的字
-    fontSubset({ extra: '第号张横图竖图加载中失败重试换一' }),
+    fontSubset({
+      fonts: [
+        {
+          id: 'sans-sc',
+          source: 'fonts-src/NotoSansSC-GB2312.ttf',
+          selector: 'h1, h2, h3, [data-display]',
+          cjkOnly: true,
+          axes: { wght: { min: 400, max: 700 } },
+        },
+        { id: 'mono', source: 'fonts-src/JetBrainsMono-VF.ttf', text: MONO_TEXT, axes: { wght: { min: 400, max: 700 } } },
+      ],
+    }),
   ],
 });

@@ -1,12 +1,4 @@
-// 全站通用的小交互：深浅色切换、记住语言、复制按钮。
-
-const root = document.documentElement;
-
-function effectiveTheme(): 'light' | 'dark' {
-  const set = root.dataset.theme;
-  if (set === 'light' || set === 'dark') return set;
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
+// 全站通用的小交互：记住语言、复制按钮、首页页头在顶部时透明。
 
 function store(key: string, value: string) {
   try {
@@ -16,38 +8,29 @@ function store(key: string, value: string) {
   }
 }
 
-/** 复制文字到剪贴板，并让按钮短暂显示“已复制” */
+/** 复制文字到剪贴板。按钮里有 [data-copy-text] 时把那段文字换成提示，否则只换读屏标签 */
 export async function copyText(button: HTMLElement, text: string) {
-  const label = button.dataset.label ?? button.textContent ?? '';
-  button.dataset.label = label;
+  const textEl = button.querySelector<HTMLElement>('[data-copy-text]');
+  const original = textEl?.textContent ?? '';
+  const label = button.getAttribute('aria-label');
+  let ok = true;
   try {
     await navigator.clipboard.writeText(text);
-    button.textContent = button.dataset.copiedLabel ?? '已复制';
-    button.dataset.state = 'done';
   } catch {
-    button.textContent = button.dataset.failedLabel ?? '复制失败';
+    ok = false;
   }
+  const message = ok ? (button.dataset.copiedLabel ?? '已复制') : (button.dataset.failedLabel ?? '复制失败');
+  button.dataset.state = ok ? 'done' : 'failed';
+  if (textEl) textEl.textContent = message;
+  button.setAttribute('aria-label', message);
   window.setTimeout(() => {
-    button.textContent = label;
+    if (textEl) textEl.textContent = original;
+    if (label) button.setAttribute('aria-label', label);
     delete button.dataset.state;
-  }, 1800);
+  }, 1600);
 }
 
 export function initChrome() {
-  document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
-    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
-    const apply = () => {
-      root.dataset.theme = next;
-      store('theme', next);
-    };
-    // 支持视图过渡的浏览器用一次淡入淡出切换
-    if ('startViewTransition' in document && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.startViewTransition(apply);
-    } else {
-      apply();
-    }
-  });
-
   document.querySelectorAll<HTMLAnchorElement>('[data-set-lang]').forEach((a) => {
     a.addEventListener('click', () => store('language', a.dataset.setLang!));
   });
@@ -57,4 +40,12 @@ export function initChrome() {
     const button = (event.target as Element).closest<HTMLElement>('[data-copy]');
     if (button) copyText(button, button.dataset.copy!);
   });
+
+  // 首页页头叠在照片上：在顶部时透明，往下滚才出现底色
+  const header = document.querySelector<HTMLElement>('[data-header][data-overlay]');
+  if (header) {
+    const update = () => header.toggleAttribute('data-top', window.scrollY < 8);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  }
 }

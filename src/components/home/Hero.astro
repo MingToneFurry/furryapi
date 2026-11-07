@@ -1,0 +1,311 @@
+---
+// 首屏：一张兽装照片铺满展台，下缘沉进黑色，标题从暗处浮出来。
+// 照片从精选池里随机：横版池给宽屏，竖版池给窄屏。每次打开页面由下面的内联脚本在照片开始下载前各挑一张，
+// 「换一张」在同一个池里轮换（scripts/hero.ts）。没有脚本时显示池里的第一张。
+import { getImage } from 'astro:assets';
+import Icon from '../Icon.astro';
+import CopyButton from '../CopyButton.astro';
+import { href, t, uiSubset, type Lang } from '../../i18n';
+import { IMAGE_API } from '../../lib/site';
+import { HERO_LANDSCAPE, HERO_PORTRAIT, originalUrl, type Photo } from '../../lib/photos';
+import { num } from '../../lib/format';
+
+interface Props {
+  lang: Lang;
+  total: number;
+}
+
+const { lang, total } = Astro.props;
+
+// 每张照片生成一组尺寸，序列化给内联脚本和 hero.ts
+async function entry(p: Photo, widths: number[]) {
+  const img = await getImage({ src: p.src, widths, format: 'webp', quality: 80 });
+  return { n: p.n, src: img.src, srcset: img.srcSet.attribute, focus: p.focus, original: originalUrl(p.kind, p.n) };
+}
+const pool = {
+  l: await Promise.all(HERO_LANDSCAPE.map((p) => entry(p, [960, 1440, 1920, 2400]))),
+  p: await Promise.all(HERO_PORTRAIT.map((p) => entry(p, [480, 720, 960, 1280]))),
+};
+const [l0, p0] = [pool.l[0], pool.p[0]];
+const strings = uiSubset(lang, ['hero.no', 'hero.large', 'hero.box', 'hero.alt', 'hero.loading', 'hero.next', 'hero.original']);
+---
+
+<section class="hero" data-hero data-pool={JSON.stringify(pool)} data-strings={JSON.stringify(strings)} aria-labelledby="hero-title">
+  <div class="stage">
+    <div class="layer is-front" data-layer>
+      <picture data-first>
+        <source media="(max-aspect-ratio: 4/5)" sizes="100vw" />
+        <img sizes="100vw" alt={t(lang, 'hero.altFirst')} fetchpriority="high" decoding="async" />
+      </picture>
+      <noscript>
+        <img src={l0.src} srcset={l0.srcset} sizes="100vw" alt={t(lang, 'hero.altFirst')} style={`--focus:${l0.focus}`} />
+      </noscript>
+    </div>
+    <div class="layer" data-layer><img alt="" decoding="async" /></div>
+    <div class="shade"></div>
+  </div>
+
+  <div class="copy wrap-wide">
+    <h1 id="hero-title">
+      <span>{t(lang, 'hero.title1')}</span>
+      <span class="fade">{t(lang, 'hero.title2')}</span>
+    </h1>
+    <p class="lede"><span>{t(lang, 'hero.lead1')}</span><span>{t(lang, 'hero.lead2', { total: num(total) })}</span></p>
+    <div class="actions">
+      <button type="button" class="btn btn-solid" data-next>
+        <Icon name="refresh" />
+        <span data-next-label>{t(lang, 'hero.next')}</span>
+      </button>
+      <div class="endpoint">
+        <span class="method">GET</span>
+        <code>{IMAGE_API}</code>
+        <CopyButton lang={lang} text={IMAGE_API} label={t(lang, 'hero.copy')} />
+      </div>
+      <a class="more" href={href(lang, '/apiIntro/image-api/')}>{t(lang, 'hero.docs')}</a>
+    </div>
+
+    <p class="caption" data-caption>
+      <span class="for-l">
+        {t(lang, 'hero.no', { n: '' })}<span data-n="l">{l0.n}</span> · {t(lang, 'hero.large')} ·
+        <a data-o="l" href={l0.original} target="_blank" rel="noopener">{t(lang, 'hero.original')}<Icon name="external" class="ext" /></a>
+      </span>
+      <span class="for-p">
+        {t(lang, 'hero.no', { n: '' })}<span data-n="p">{p0.n}</span> · {t(lang, 'hero.box')} ·
+        <a data-o="p" href={p0.original} target="_blank" rel="noopener">{t(lang, 'hero.original')}<Icon name="external" class="ext" /></a>
+      </span>
+      <span class="live" data-live hidden></span>
+    </p>
+  </div>
+
+  <script is:inline>
+    // 照片开始下载前，从精选池里各挑一张横版和竖版
+    (function () {
+      var hero = document.currentScript.parentElement;
+      var pool = JSON.parse(hero.dataset.pool);
+      var l = Math.floor(Math.random() * pool.l.length);
+      var p = Math.floor(Math.random() * pool.p.length);
+      var L = pool.l[l];
+      var P = pool.p[p];
+      var pic = hero.querySelector('[data-first]');
+      var img = pic.querySelector('img');
+      pic.querySelector('source').srcset = P.srcset;
+      img.style.setProperty('--focus', L.focus);
+      img.style.setProperty('--focus-p', P.focus);
+      img.srcset = L.srcset;
+      img.src = L.src;
+      hero.dataset.l = l;
+      hero.dataset.p = p;
+      hero.querySelector('[data-n="l"]').textContent = L.n;
+      hero.querySelector('[data-o="l"]').href = L.original;
+      hero.querySelector('[data-n="p"]').textContent = P.n;
+      hero.querySelector('[data-o="p"]').href = P.original;
+    })();
+  </script>
+</section>
+
+<script>
+  import { initHero } from '../../scripts/hero';
+  document.querySelectorAll<HTMLElement>('[data-hero]').forEach(initHero);
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    height: 100svh;
+    min-height: 640px;
+    max-height: 1120px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .stage {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--stage);
+  }
+  .layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.9s var(--ease-out);
+  }
+  .layer.is-front {
+    opacity: 1;
+  }
+  /* <picture> 默认按内容撑高，要显式铺满整层，否则竖版图只有原始比例那么高 */
+  .layer picture {
+    height: 100%;
+  }
+  /* 层里的图片都铺满整层，包括没有脚本时 noscript 里的那张 */
+  .layer :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--focus, 50% 35%);
+  }
+  @media (max-aspect-ratio: 4/5) {
+    .layer :global(img) {
+      object-position: var(--focus-p, 50% 35%);
+    }
+  }
+  /* 照片从暗处显影：首屏照片还没加载完时先藏住，加载后由脚本触发 */
+  :global([data-develop]) .layer.is-front:not(.developed) :global(img) {
+    opacity: 0;
+  }
+  .layer.developed :global(img) {
+    animation: develop 1.6s var(--ease-out) both;
+  }
+
+  /* 光线：下缘和左侧沉进黑色给文字留出位置，四周压暗，顶部略暗托住页头 */
+  .shade {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--stage) 0%, rgb(5 5 5 / 0.9) 16%, rgb(5 5 5 / 0.5) 40%, rgb(5 5 5 / 0) 64%),
+      linear-gradient(to right, rgb(5 5 5 / 0.6) 0%, rgb(5 5 5 / 0.15) 45%, rgb(5 5 5 / 0) 65%),
+      radial-gradient(130% 95% at 60% 36%, rgb(5 5 5 / 0) 52%, rgb(5 5 5 / 0.55) 100%),
+      linear-gradient(to bottom, rgb(5 5 5 / 0.55), rgb(5 5 5 / 0) 20%);
+  }
+
+  .copy {
+    position: relative;
+    padding-bottom: clamp(48px, 8vh, 88px);
+  }
+  .copy > * {
+    animation: rise 1s var(--ease-out) both;
+  }
+
+  h1 {
+    max-width: 12em;
+    font-size: clamp(42px, 6vw, 88px);
+  }
+  h1 span {
+    display: block;
+  }
+  /* 英文单词比汉字宽，上限收一点，免得压到照片主体 */
+  :global(:lang(en)) h1 {
+    font-size: clamp(40px, 5.2vw, 76px);
+  }
+  h1 .fade {
+    color: #85827b;
+    animation: rise 1.2s 0.25s var(--ease-out) both;
+  }
+
+  .lede {
+    max-width: 40em;
+    margin-top: 24px;
+    animation-delay: 0.35s;
+  }
+  /* 英文两句之间要空格，中文不要 */
+  :global(:lang(en)) .lede span + span::before {
+    content: ' ';
+  }
+  /* 两句话各占一行，避免在词中间断开 */
+  @media (min-width: 720px) {
+    .lede span {
+      display: block;
+    }
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    margin-top: 36px;
+    animation-delay: 0.5s;
+  }
+
+  .endpoint {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 5px 0 16px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: rgb(5 5 5 / 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .method {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--champagne);
+  }
+  .endpoint code {
+    color: var(--text-2);
+  }
+
+  .caption {
+    position: absolute;
+    right: 0;
+    bottom: clamp(48px, 8vh, 88px);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    color: var(--text-3);
+    animation-delay: 0.7s;
+  }
+  .caption a {
+    color: var(--text-2);
+    text-decoration: none;
+  }
+  .caption a:hover {
+    color: var(--bone);
+  }
+  .caption :global(.ext) {
+    display: inline;
+    width: 11px;
+    height: 11px;
+    margin-left: 2px;
+    vertical-align: -1px;
+  }
+  .for-p,
+  .caption[data-swapped] :is(.for-l, .for-p) {
+    display: none;
+  }
+  @media (max-aspect-ratio: 4/5) {
+    .for-l {
+      display: none;
+    }
+    .for-p {
+      display: inline;
+    }
+  }
+
+  /* 竖屏：文字盖住的是照片下半部分，压暗的范围要更高 */
+  @media (max-aspect-ratio: 4/5) {
+    .shade {
+      background:
+        linear-gradient(to top, var(--stage) 0%, rgb(5 5 5 / 0.94) 30%, rgb(5 5 5 / 0.72) 48%, rgb(5 5 5 / 0.25) 66%, rgb(5 5 5 / 0) 80%),
+        linear-gradient(to bottom, rgb(5 5 5 / 0.6), rgb(5 5 5 / 0) 18%);
+    }
+    h1 .fade {
+      color: #a3a098;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .caption {
+      position: static;
+      margin-top: 28px;
+    }
+  }
+  @media (max-width: 560px) {
+    .endpoint code {
+      max-width: 13.5em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+</style>

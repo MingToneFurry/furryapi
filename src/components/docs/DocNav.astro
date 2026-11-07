@@ -1,0 +1,136 @@
+---
+// 文档侧栏：按分类列出全部接口，当前接口下面列出本页各节
+import { catalog, docPath, groupByCategory } from '../../apis';
+import { href, pick, t, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+  current: string;
+  sections: { id: string; label: string }[];
+}
+
+const { lang, current, sections } = Astro.props;
+const groups = groupByCategory(catalog);
+---
+
+<nav class="doc-nav" aria-label={t(lang, 'docs.nav')}>
+  <a class="all" href={href(lang, '/apiIntro/')}>{t(lang, 'docs.nav')}</a>
+  {
+    groups.map((g) => (
+      <div class="group">
+        <p class="cat">{pick(g.name, lang)}</p>
+        <ul role="list">
+          {g.items.map((e) => (
+            <li>
+              <a href={href(lang, docPath(e))} aria-current={e.slug === current ? 'page' : undefined}>
+                {pick(e.name, lang)}
+              </a>
+              {e.slug === current && sections.length > 0 && (
+                <ul role="list" class="toc">
+                  {sections.map((s) => (
+                    <li>
+                      <a href={`#${s.id}`}>{s.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</nav>
+
+<style>
+  .doc-nav {
+    display: grid;
+    gap: 28px;
+    font-size: 14.5px;
+  }
+  a {
+    color: var(--text-3);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  a:hover {
+    color: var(--bone);
+  }
+  .all {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+  }
+  .cat {
+    margin-bottom: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-4);
+  }
+  li + li {
+    margin-top: 8px;
+  }
+  a[aria-current] {
+    position: relative;
+    color: var(--bone);
+  }
+  a[aria-current]::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 0.25em;
+    bottom: 0.25em;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--champagne);
+  }
+  .toc {
+    margin: 10px 0 4px;
+    padding-left: 12px;
+    border-left: 1px solid var(--line);
+    font-size: 13.5px;
+  }
+  .toc li + li {
+    margin-top: 6px;
+  }
+
+  /* 窄屏：只留一行可横向滑动的接口列表 */
+  @media (max-width: 1100px) {
+    .doc-nav {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .all,
+    .cat,
+    .toc {
+      display: none;
+    }
+    .group > ul {
+      display: flex;
+      gap: 10px;
+    }
+    li + li {
+      margin-top: 0;
+    }
+    .group a {
+      display: block;
+      padding: 6px 14px;
+      border: 1px solid var(--line-2);
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    a[aria-current] {
+      border-color: var(--champagne);
+    }
+    a[aria-current]::before {
+      display: none;
+    }
+  }
+</style>

@@ -1,24 +1,24 @@
-// 宋体标题字体按需裁剪。
-// 构建：扫描 dist 里所有 HTML 中用宋体显示的元素（h1–h4、.serif、[data-serif]），
-//       只把出现过的字打包成 dist/fonts/serif-sc.woff2 和 serif-latin.woff2，
-//       再把 CSS / HTML 里的 __FONT_VERSION__ 换成内容哈希，让浏览器缓存随内容更新。
-// 开发：启动时按 src/ 里出现过的全部汉字生成一份较大的字体，由开发服务器直接提供。
+// 自托管网页字体按需裁剪。
+// fonts 里每一项是一份字体：
+//   id        文件名前缀，构建后的地址是 /fonts/<id>.<内容哈希>.woff2
+//   source    源字体，相对项目根目录
+//   selector  从构建出的 HTML 里收集这些元素的文字，只保留出现过的字（中文标题用）
+//   text      额外固定保留的字符（脚本动态写入的文字、等宽字体的字符集）
+//   cjkOnly   只保留中日韩字符和全角标点，拉丁字母交给别的字体
+//   axes      可变字体保留的轴范围
+// 构建：生成 dist/fonts/<id>.<哈希>.woff2，再把 HTML 里的 __FONT_URL_<id>__ 换成这个地址（见 src/lib/fonts.ts）。
+// 开发：按 src/ 里出现过的全部字符生成一份较大的字体，开发服务器在 /fonts/<id>.dev.woff2 提供。
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 import subsetFont from 'subset-font';
 import { parse } from 'node-html-parser';
 
-const SERIF_SELECTOR = 'h1, h2, h3, h4, .serif, [data-serif]';
-const PLACEHOLDER = '__FONT_VERSION__';
-const CJK_SOURCE = 'fonts-src/NotoSerifSC-GB2312-400-600.ttf';
-const LATIN_SOURCE = '@fontsource-variable/source-serif-4/files/source-serif-4-latin-opsz-normal.woff2';
-// 拉丁字体始终保留完整 ASCII 和常用排版符号，供脚本动态写入的文字使用
-const LATIN_BASE = Array.from({ length: 95 }, (_, i) => String.fromCharCode(32 + i)).join('') + ' ·×–—‘’“”…←→−';
-
-const isCjk = (ch) => ch.codePointAt(0) >= 0x2e80;
+const isCjk = (ch) => {
+  const p = ch.codePointAt(0);
+  return p >= 0x2e80 || (p >= 0x2018 && p <= 0x201d) || p === 0x2026 || p === 0x2014;
+};
 
 async function walk(dir, exts, out = []) {
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
@@ -29,22 +29,17 @@ async function walk(dir, exts, out = []) {
   return out;
 }
 
-async function buildFonts(root, text) {
-  const require = createRequire(path.join(root, 'package.json'));
-  const chars = [...new Set(text)];
-  const cjk = chars.filter(isCjk).join('');
-  const latin = [...new Set(LATIN_BASE + chars.filter((c) => !isCjk(c)).join(''))].join('');
-  const [sc, lat] = await Promise.all([
-    subsetFont(await fs.readFile(path.join(root, CJK_SOURCE)), cjk + '　', { targetFormat: 'woff2' }),
-    subsetFont(await fs.readFile(require.resolve(LATIN_SOURCE)), latin, {
-      targetFormat: 'woff2',
-      variationAxes: { wght: { min: 400, max: 600 } },
-    }),
-  ]);
-  return { sc, lat, cjkCount: [...cjk].length };
+async function subset(root, font, collected) {
+  let chars = [...new Set((font.text ?? '') + collected)];
+  if (font.cjkOnly) chars = chars.filter(isCjk);
+  const buf = await subsetFont(await fs.readFile(path.join(root, font.source)), chars.join('') + ' ', {
+    targetFormat: 'woff2',
+    ...(font.axes ? { variationAxes: font.axes } : {}),
+  });
+  return { buf, count: chars.length };
 }
 
-export default function fontSubset({ extra = '' } = {}) {
+export default function fontSubset({ fonts = [] } = {}) {
   let root = '';
   let logger;
   return {
@@ -56,49 +51,54 @@ export default function fontSubset({ extra = '' } = {}) {
       },
 
       'astro:server:setup': async ({ server }) => {
-        let fonts;
+        const built = new Map();
         const ready = (async () => {
           const files = await walk(path.join(root, 'src'), ['.astro', '.ts', '.js', '.mjs', '.json', '.md']);
-          let text = extra;
+          let text = '';
           for (const f of files) text += await fs.readFile(f, 'utf8');
-          fonts = await buildFonts(root, text);
-          logger.info(`开发用宋体：${fonts.cjkCount} 个汉字和符号`);
+          for (const font of fonts) {
+            const { buf, count } = await subset(root, font, font.selector ? text : '');
+            built.set(font.id, buf);
+            logger.info(`开发用字体 ${font.id}：${count} 个字符，${(buf.length / 1024).toFixed(1)} KB`);
+          }
         })();
         server.middlewares.use(async (req, res, next) => {
-          const url = (req.url || '').split('?')[0];
-          if (url !== '/fonts/serif-sc.woff2' && url !== '/fonts/serif-latin.woff2') return next();
+          const m = (req.url || '').split('?')[0].match(/^\/fonts\/([\w-]+)\.dev\.woff2$/);
+          if (!m || !fonts.some((f) => f.id === m[1])) return next();
           await ready;
           res.setHeader('Content-Type', 'font/woff2');
           res.setHeader('Cache-Control', 'no-cache');
-          res.end(url.endsWith('-sc.woff2') ? fonts.sc : fonts.lat);
+          res.end(built.get(m[1]));
         });
       },
 
       'astro:build:done': async ({ dir }) => {
         const out = fileURLToPath(dir);
         const htmlFiles = await walk(out, ['.html']);
-        let text = extra;
-        for (const f of htmlFiles) {
-          const doc = parse(await fs.readFile(f, 'utf8'));
-          for (const el of doc.querySelectorAll(SERIF_SELECTOR)) text += el.textContent;
-        }
-        const { sc, lat, cjkCount } = await buildFonts(root, text);
+        const docs = await Promise.all(htmlFiles.map(async (f) => parse(await fs.readFile(f, 'utf8'))));
         await fs.mkdir(path.join(out, 'fonts'), { recursive: true });
-        await fs.writeFile(path.join(out, 'fonts/serif-sc.woff2'), sc);
-        await fs.writeFile(path.join(out, 'fonts/serif-latin.woff2'), lat);
 
-        const version = crypto.createHash('sha256').update(sc).update(lat).digest('hex').slice(0, 10);
-        const targets = await walk(out, ['.html', '.css']);
+        const urls = {};
+        for (const font of fonts) {
+          let text = '';
+          if (font.selector) for (const doc of docs) for (const el of doc.querySelectorAll(font.selector)) text += el.textContent;
+          const { buf, count } = await subset(root, font, text);
+          const hash = crypto.createHash('sha256').update(buf).digest('hex').slice(0, 10);
+          const file = `${font.id}.${hash}.woff2`;
+          await fs.writeFile(path.join(out, 'fonts', file), buf);
+          urls[font.id] = `/fonts/${file}`;
+          logger.info(`字体 ${file}：${count} 个字符，${(buf.length / 1024).toFixed(1)} KB`);
+        }
+
         let replaced = 0;
-        for (const f of targets) {
-          const src = await fs.readFile(f, 'utf8');
-          if (!src.includes(PLACEHOLDER)) continue;
-          await fs.writeFile(f, src.replaceAll(PLACEHOLDER, version));
+        for (const f of htmlFiles) {
+          let src = await fs.readFile(f, 'utf8');
+          if (!src.includes('__FONT_URL_')) continue;
+          for (const [id, url] of Object.entries(urls)) src = src.replaceAll(`__FONT_URL_${id}__`, url);
+          await fs.writeFile(f, src);
           replaced++;
         }
-        logger.info(
-          `宋体子集：${cjkCount} 个汉字和符号，serif-sc ${(sc.length / 1024).toFixed(1)} KB，serif-latin ${(lat.length / 1024).toFixed(1)} KB，更新了 ${replaced} 个文件的版本号`,
-        );
+        logger.info(`更新了 ${replaced} 个页面里的字体地址`);
       },
     },
   };

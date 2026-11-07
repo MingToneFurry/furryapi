@@ -1,0 +1,112 @@
+---
+// 图片墙：按每张照片的原始比例排成等高的行，不裁切；点开在全站共用的灯箱里看大图
+import { getImage } from 'astro:assets';
+import { GALLERY, originalUrl } from '../../lib/photos';
+import { t, type Lang } from '../../i18n';
+import { num } from '../../lib/format';
+
+interface Props {
+  lang: Lang;
+  counts: { large: number; box: number };
+}
+
+const { lang, counts } = Astro.props;
+
+const items = await Promise.all(
+  GALLERY.map(async (p) => {
+    const label = t(lang, p.kind === 'box' ? 'hero.box' : 'hero.large');
+    const thumb = await getImage({ src: p.src, widths: [360, 560, 840], format: 'webp', quality: 76 });
+    const full = await getImage({ src: p.src, width: Math.min(p.src.width, 1600), format: 'webp', quality: 82 });
+    return { ...p, label, thumb, full, ratio: p.src.width / p.src.height };
+  }),
+);
+---
+
+<section id="gallery" class="section gallery" aria-labelledby="gallery-title">
+  <header class="wrap section-head">
+    <p class="eyebrow">{t(lang, 'gallery.eyebrow')}</p>
+    <h2 id="gallery-title">{t(lang, 'gallery.title', { total: num(counts.large + counts.box) })}</h2>
+    <p class="lede">{t(lang, 'gallery.lead', { large: num(counts.large), box: num(counts.box) })}</p>
+  </header>
+
+  <div class="wall wrap-wide" data-gallery>
+    {
+      items.map((p, i) => (
+        <a
+          class="tile"
+          href={originalUrl(p.kind, p.n)}
+          target="_blank"
+          rel="noopener"
+          style={`--ratio:${p.ratio.toFixed(4)}`}
+          data-index={i}
+          data-full={p.full.src}
+          data-caption={`${t(lang, 'hero.no', { n: p.n })} · ${p.label}`}
+        >
+          <img
+            src={p.thumb.src}
+            srcset={p.thumb.srcSet.attribute}
+            sizes="(max-width: 700px) 60vw, 30vw"
+            width={p.src.width}
+            height={p.src.height}
+            alt={t(lang, 'hero.alt', { n: p.n, kind: p.label })}
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="cap">{t(lang, 'hero.no', { n: p.n })}</span>
+        </a>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  import { initGallery } from '../../scripts/gallery';
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initGallery);
+</script>
+
+<style>
+  /* 等高行：每张的伸展比例和基准宽度都正比于宽高比，同一行的高度就一致 */
+  .wall {
+    --row: clamp(140px, 21vw, 300px);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .tile {
+    position: relative;
+    flex: calc(var(--ratio) * 1000) 1 calc(var(--ratio) * var(--row));
+    aspect-ratio: var(--ratio);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9);
+    transition:
+      transform 1.4s var(--ease-out),
+      filter 0.6s;
+  }
+  .tile:hover img,
+  .tile:focus-visible img {
+    transform: scale(1.025);
+    filter: none;
+  }
+  .cap {
+    position: absolute;
+    left: 12px;
+    bottom: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--bone);
+    text-shadow: 0 1px 10px rgb(0 0 0 / 0.8);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .tile:hover .cap,
+  .tile:focus-visible .cap {
+    opacity: 1;
+  }
+</style>

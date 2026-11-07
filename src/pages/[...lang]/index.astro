@@ -1,27 +1,40 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Cover from '../../components/home/Cover.astro';
-import Catalog from '../../components/Catalog.astro';
-import Picks from '../../components/home/Picks.astro';
-import { langParams, t, type Lang } from '../../i18n';
+import Hero from '../../components/home/Hero.astro';
+import ApiIndex from '../../components/ApiIndex.astro';
+import Gallery from '../../components/home/Gallery.astro';
+import QuickStart from '../../components/home/QuickStart.astro';
+import Sources from '../../components/home/Sources.astro';
+import { catalog } from '../../apis';
+import { href, langParams, t, type Lang } from '../../i18n';
+import { getCounts } from '../../lib/site';
 
-export const getStaticPaths = () => langParams;
+export const getStaticPaths = () => langParams();
 
 const { lang } = Astro.props as { lang: Lang };
+const counts = await getCounts();
 ---
 
-<Base lang={lang} title={t(lang, 'site.title')} path="/">
-  <Cover lang={lang} />
-  <div class="wrap sections">
-    <Catalog lang={lang} />
-    <Picks lang={lang} />
-  </div>
+<Base lang={lang} title={t(lang, 'site.title')} path="/" overlay>
+  <Hero lang={lang} total={counts.large + counts.box} />
+
+  <section id="apis" class="section wrap" aria-labelledby="apis-title">
+    <header class="section-head">
+      <p class="eyebrow">{t(lang, 'apis.eyebrow')} · {catalog.length}</p>
+      <h2 id="apis-title">{t(lang, 'apis.title', { n: catalog.length })}</h2>
+      <p class="lede">{t(lang, 'apis.lead')}</p>
+    </header>
+    <ApiIndex lang={lang} />
+    <p class="all"><a class="more" href={href(lang, '/apiIntro/')}>{t(lang, 'apis.all')}</a></p>
+  </section>
+
+  <Gallery lang={lang} counts={counts} />
+  <QuickStart lang={lang} />
+  <Sources lang={lang} />
 </Base>
 
 <style>
-  .sections {
-    display: grid;
-    gap: var(--space-10);
-    margin-top: var(--space-10);
+  .all {
+    margin-top: 36px;
   }
 </style>

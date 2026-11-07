@@ -1,0 +1,69 @@
+---
+// 文档示例：每个示例一段代码，有返回示例时跟在下面
+import CodeBlock from '../CodeBlock.astro';
+import { pick, t, type Lang } from '../../i18n';
+import { inline } from '../../lib/format';
+import type { Example } from '../../apis/types';
+
+interface Props {
+  lang: Lang;
+  examples: Example[];
+}
+
+const { lang, examples } = Astro.props;
+
+// 单行的 JSON 返回排版成多行再显示
+function pretty(text: string) {
+  if (!/^\s*[[{]/.test(text)) return { code: text, language: 'plaintext' };
+  try {
+    return { code: JSON.stringify(JSON.parse(text), null, 2), language: 'json' };
+  } catch {
+    return { code: text, language: 'plaintext' };
+  }
+}
+---
+
+<section id="examples" class="block">
+  <h2>{t(lang, 'docs.examples')}</h2>
+  <ol role="list" class="examples">
+    {
+      examples.map((ex, i) => {
+        const res = ex.response ? pretty(ex.response) : null;
+        return (
+          <li id={`example-${i + 1}`}>
+            <h3>{pick(ex.title, lang)}</h3>
+            {ex.desc && <p class="desc" set:html={inline(pick(ex.desc, lang))} />}
+            <CodeBlock lang={lang} code={ex.code} language={ex.lang} />
+            {res && (
+              <div class="response">
+                <CodeBlock lang={lang} code={res.code} language={res.language} title={t(lang, 'docs.response')} />
+              </div>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</section>
+
+<style>
+  .examples {
+    display: grid;
+    gap: 40px;
+  }
+  h3 {
+    margin-bottom: 8px;
+    font-size: 17px;
+  }
+  .desc {
+    margin-bottom: 14px;
+    font-size: 15px;
+  }
+  .response {
+    margin-top: 10px;
+  }
+  .response :global(pre) {
+    max-height: 420px;
+    overflow: auto;
+  }
+</style>

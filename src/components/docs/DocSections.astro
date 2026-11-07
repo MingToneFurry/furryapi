@@ -1,0 +1,295 @@
+---
+// 文档正文里的参数、返回字段、附表、错误和说明。数据来自 src/apis/<接口>.ts
+import { pick, t, type Lang } from '../../i18n';
+import { inline } from '../../lib/format';
+import type { ApiDoc } from '../../apis/types';
+
+interface Props {
+  lang: Lang;
+  doc: ApiDoc;
+}
+
+const { lang, doc } = Astro.props;
+const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' ? v : pick(v, lang));
+---
+
+<section id="params" class="block">
+  <h2>{t(lang, 'docs.params')}</h2>
+  {
+    doc.params.length === 0 ? (
+      <p class="muted">—</p>
+    ) : (
+      <ul role="list" class="params">
+        {doc.params.map((p) => (
+          <li>
+            <div class="p-head">
+              <code class="p-name">{p.name}</code>
+              <span class="tag">{p.type}</span>
+              {p.in === 'path' && <span class="tag">{t(lang, 'docs.param.path')}</span>}
+              {p.required && <span class="tag req">{t(lang, 'docs.param.required')}</span>}
+              {p.multiple && <span class="tag">{t(lang, 'docs.param.multiple')}</span>}
+              {p.default !== undefined && (
+                <span class="def">
+                  {t(lang, 'docs.param.default')} <code>{p.default}</code>
+                </span>
+              )}
+            </div>
+            <p class="p-desc" set:html={inline(pick(p.desc, lang))} />
+            {p.options && (
+              <ul role="list" class="opts">
+                {p.options.map((o) => (
+                  <li>
+                    <code>{o.value}</code>
+                    <span>{pick(o.label, lang)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>
+
+{
+  doc.fields && (
+    <section id="fields" class="block">
+      <h2>{t(lang, 'docs.fields')}</h2>
+      {doc.fields.map((g, i) => (
+        <details class="group" open={i === 0 || g.items.length <= 12}>
+          <summary>
+            {g.title ? <span set:html={inline(pick(g.title, lang))} /> : <span>{t(lang, 'docs.fields')}</span>}
+            <span class="count">{g.items.length}</span>
+          </summary>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>{t(lang, 'docs.field.name')}</th>
+                <th>{t(lang, 'docs.param.type')}</th>
+                <th>{t(lang, 'docs.param.desc')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {g.items.map((f) => (
+                <tr>
+                  <td><code class="f-name">{f.name}</code></td>
+                  <td><code class="f-type">{f.type}</code></td>
+                  <td set:html={inline(pick(f.desc, lang))} />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+      ))}
+    </section>
+  )
+}
+
+{
+  doc.tables?.map((tb, i) => (
+    <section id={`table-${i + 1}`} class="block">
+      <h2>{pick(tb.title, lang)}</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            {tb.head.map((h) => (
+              <th>{pick(h, lang)}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {tb.rows.map((r) => (
+            <tr>
+              {r.map((c, j) => (j === 0 ? <td><code>{cell(c)}</code></td> : <td set:html={inline(cell(c))} />))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  ))
+}
+
+{
+  doc.errors && (
+    <section id="errors" class="block">
+      <h2>{t(lang, 'docs.errors')}</h2>
+      {doc.errors.note && <p class="note" set:html={inline(pick(doc.errors.note, lang))} />}
+      <ul role="list" class="errors">
+        {doc.errors.items.map((e) => (
+          <li>
+            <div class="e-head">
+              <code class="e-code">{e.code}</code>
+              <span set:html={inline(pick(e.when, lang))} />
+            </div>
+            <pre class="e-body">{e.body}</pre>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+{
+  doc.notes && (
+    <section id="notes" class="block">
+      <h2>{t(lang, 'docs.notes')}</h2>
+      <ul class="notes">
+        {doc.notes.map((n) => (
+          <li set:html={inline(pick(n, lang))} />
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .block :global(code) {
+    font-size: 0.88em;
+  }
+  .muted {
+    color: var(--text-4);
+  }
+
+  .params > li {
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+  }
+  .params > li:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .p-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+  }
+  .p-name {
+    color: var(--bone);
+    font-size: 15px !important;
+    font-weight: 500;
+  }
+  .tag {
+    padding: 2px 8px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text-3);
+  }
+  .tag.req {
+    border-color: rgb(217 196 163 / 0.5);
+    color: var(--champagne);
+  }
+  .def {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-4);
+  }
+  .def code {
+    color: var(--text-2);
+  }
+  .p-desc {
+    margin-top: 10px;
+    font-size: 15px;
+  }
+  .opts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+  .opts li {
+    display: contents;
+  }
+  .opts code {
+    color: var(--bone);
+  }
+  .opts span {
+    color: var(--text-3);
+  }
+
+  .group {
+    margin-top: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .group summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    color: var(--bone);
+    font-size: 15px;
+    list-style: none;
+  }
+  .group summary::-webkit-details-marker {
+    display: none;
+  }
+  .group summary::after {
+    content: '+';
+    margin-left: auto;
+    color: var(--text-4);
+    font-family: var(--font-mono);
+  }
+  .group[open] summary::after {
+    content: '−';
+  }
+  .count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-4);
+  }
+  .group .table {
+    border-top: 1px solid var(--line);
+  }
+  .group .table th:first-child,
+  .group .table td:first-child {
+    padding-left: 18px;
+  }
+
+  .note {
+    margin-bottom: 16px;
+    font-size: 15px;
+  }
+  .errors > li {
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
+  }
+  .e-head {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    font-size: 15px;
+  }
+  .e-code {
+    flex: none;
+    min-width: 3.5em;
+    color: var(--champagne);
+  }
+  .e-body {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-3);
+    font-size: 12.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .notes {
+    display: grid;
+    gap: 10px;
+    padding-left: 1.2em;
+    font-size: 15px;
+  }
+  .notes li::marker {
+    color: var(--text-4);
+  }
+</style>

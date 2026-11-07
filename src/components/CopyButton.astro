@@ -1,0 +1,38 @@
+---
+// 复制按钮：点一下复制 text，图标短暂变成对勾
+import Icon from './Icon.astro';
+import { t, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  text: string;
+  /** 读屏和悬停提示，默认是“复制” */
+  label?: string;
+  class?: string;
+}
+
+const { lang, text, label = t(lang, 'copy'), class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={['icon-btn', 'copy-btn', className]}
+  data-copy={text}
+  aria-label={label}
+  title={label}
+  data-copied-label={t(lang, 'copied')}
+  data-failed-label={t(lang, 'copy.failed')}
+>
+  <Icon name="copy" class="i-copy" />
+  <Icon name="check" class="i-check" />
+</button>
+
+<style is:global>
+  .copy-btn .i-check,
+  .copy-btn[data-state='done'] .i-copy {
+    display: none;
+  }
+  .copy-btn[data-state='done'] .i-check {
+    display: block;
+  }
+</style>
