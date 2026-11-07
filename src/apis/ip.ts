@@ -100,10 +100,10 @@ const ip: ApiDoc = {
     zh: '返回 IP 的位置、时区、运营商、ASN 和代理判断等信息。不带 `db` 时查询全部数据源并合并返回；某个数据源失败时，它的字段是错误对象，其余数据源照常返回。用 `db` 可以只查一个数据源。不带 IP 时查询的是请求者自己的地址。',
     en: 'Returns location, time zone, ISP, ASN, proxy detection and more for an IP. Without `db`, every source is queried and the results are merged. If a source fails, its field holds an error object and the other sources still return data. Use `db` to query just one source. Without an IP, it looks up the address the request came from.',
   },
-  base: 'https://sni-api.furry.ist/ipapi',
+  base: 'https://api.furry.ist/ipapi',
   endpoints: [
-    { method: 'GET', url: 'https://sni-api.furry.ist/ipapi', label: { zh: '查询自己', en: 'Your own IP' } },
-    { method: 'GET', url: 'https://sni-api.furry.ist/ipapi/{ip}', label: { zh: '查询指定 IP', en: 'A specific IP' } },
+    { method: 'GET', url: 'https://api.furry.ist/ipapi', label: { zh: '查询自己', en: 'Your own IP' } },
+    { method: 'GET', url: 'https://api.furry.ist/ipapi/{ip}', label: { zh: '查询指定 IP', en: 'A specific IP' } },
   ],
   methods: { zh: '`GET`、`HEAD`、`OPTIONS`', en: '`GET`, `HEAD`, `OPTIONS`' },
   params: [
@@ -680,7 +680,7 @@ const ip: ApiDoc = {
       title: { zh: '查询自己的 IP', en: 'Look up your own IP' },
       desc: { zh: '不带 IP 时，查询的是请求者自己的地址。', en: 'Without an IP, the lookup uses the address the request came from.' },
       lang: 'bash',
-      code: 'curl https://sni-api.furry.ist/ipapi',
+      code: 'curl https://api.furry.ist/ipapi',
     },
     {
       title: { zh: '只查 ipapi', en: 'Query ipapi only' },
@@ -689,19 +689,19 @@ const ip: ApiDoc = {
         en: '`db=ipapi` returns location, time zone, network and security data.',
       },
       lang: 'bash',
-      code: 'curl "https://sni-api.furry.ist/ipapi/8.8.8.8?db=ipapi"',
+      code: 'curl "https://api.furry.ist/ipapi/8.8.8.8?db=ipapi"',
     },
     {
       title: { zh: 'IPv6 地址', en: 'IPv6 address' },
       desc: { zh: '路径里直接写 IPv6 地址即可。', en: 'Put an IPv6 address in the path the same way.' },
       lang: 'bash',
-      code: 'curl "https://sni-api.furry.ist/ipapi/2606:4700:4700::1111?db=ipapi"',
+      code: 'curl "https://api.furry.ist/ipapi/2606:4700:4700::1111?db=ipapi"',
     },
     {
       title: { zh: '只查 ipinfo', en: 'Query ipinfo only' },
       desc: { zh: '大部分字段是 `-`，字段说明见上面的 `ipinfo` 部分。', en: 'Most fields are `-`. See the `ipinfo` fields above.' },
       lang: 'bash',
-      code: 'curl "https://sni-api.furry.ist/ipapi/1.1.1.1?db=ipinfo"',
+      code: 'curl "https://api.furry.ist/ipapi/1.1.1.1?db=ipinfo"',
     },
     {
       title: { zh: '只查 bilibili', en: 'Query bilibili only' },
@@ -710,7 +710,7 @@ const ip: ApiDoc = {
         en: 'The response always includes `ip`, `country` and `region`.',
       },
       lang: 'url',
-      code: 'https://sni-api.furry.ist/ipapi/1.1.1.1?db=bilibili',
+      code: 'https://api.furry.ist/ipapi/1.1.1.1?db=bilibili',
       response: '{"available_db":["ipapi","ipinfo","bilibili"],"bilibili":{"ip":"1.1.1.1","country":"CLOUDFLARE.COM","region":"CLOUDFLARE.COM"},"code":200}',
     },
     {
@@ -720,7 +720,7 @@ const ip: ApiDoc = {
         en: 'On an error `response.ok` is still `true`, so check `code` in the body.',
       },
       lang: 'js',
-      code: "const res = await fetch('https://sni-api.furry.ist/ipapi/1.1.1.1?db=ipapi');\nconst data = await res.json();\nif (data.code !== 200) throw new Error(`Lookup failed with code ${data.code}`);\nconsole.log(data.ipapi.country_name);",
+      code: "const res = await fetch('https://api.furry.ist/ipapi/1.1.1.1?db=ipapi');\nconst data = await res.json();\nif (data.code !== 200) throw new Error(`Lookup failed with code ${data.code}`);\nconsole.log(data.ipapi.country_name);",
     },
     {
       title: { zh: '完整返回', en: 'Full response' },
@@ -729,7 +729,7 @@ const ip: ApiDoc = {
         en: 'Result for 1.1.1.1 with `db=ipapi`, captured on 7 November 2026.',
       },
       lang: 'url',
-      code: 'https://sni-api.furry.ist/ipapi/1.1.1.1?db=ipapi',
+      code: 'https://api.furry.ist/ipapi/1.1.1.1?db=ipapi',
       response: ipapiFull,
     },
   ],
