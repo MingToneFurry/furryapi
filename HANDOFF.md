@@ -2,21 +2,43 @@
 
 ## 当前目标
 
-首页友情链接头像不再从对方站点实时加载，改为由脚本拉取后缓存到本站 `assets/friends/`，发布到 Cloudflare Pages 项目 `furryapi`。
+把 api.furry.ist 的前端改写为 Astro 7 静态站，采用站长选定的「暗场影廊」风格：近黑底、全幅照片、灰阶文字、细线分隔，只有一个香槟色点缀。中英双语，中文在根路径，英文在 `/en/`。
 
 ## 当前状态
 
-- 友链数据来源是 `friends.json`，`generate-friends.js` 拉取头像并重写 `index.html` 中 `<!-- friends:start -->` 与 `<!-- friends:end -->` 之间的内容。
-- 头像保存为 `assets/friends/<slug>.<内容哈希>.<扩展名>`，必须提交进 git（站点无构建步骤，Pages 直接部署仓库文件）。
-- 拉取失败时保留上一次成功的头像，从未成功过则使用 `assets/friends/default.svg`。
-- 脚本需在国内网络下本地运行（部分友链站点屏蔽海外）；不使用 GitHub Actions 定时任务，也不改 Pages 构建命令。
-- `_headers` 为 `/assets/friends/*` 增加了 CSP `sandbox`；缓存沿用全站规则，未单独设置 `Cache-Control`，避免与 `/*.png` 等规则叠加冲突。
-- 正式内容承载在 Pages；不要用 `wrangler deploy` 代替 Pages 发布。
+- 代码在 `redesign` 分支，工作目录是 `F:\furryapi\furryapi-next`（主仓库 `F:\furryapi\furryapi index` 的一个 worktree）。只在本地提交，没有推送，也没有发布。
+- 已完成的页面：
+  - 首页：随机首屏大图（「换一张」）、接口目录、图片墙和灯箱、快速开始、图片来源。
+  - 接口目录 `/apiIntro/`，四个接口的文档页（带在线试用）。
+  - IP 计算器 `/apiIntro/ip-calc/`，图片来源 `/thank/`，404 页，站点地图。
+- 线上仍是 `main` 分支上的旧站，Pages 构建设置没有改。
+- 项目结构、照片、字体、友链等说明见 `README.md`。
+
+## 上线前要做的事（都需要站长确认后再做）
+
+1. 把 `redesign` 合入 `main` 并推送。
+2. 修改 Pages 项目 `furryapi` 的构建设置：构建命令 `npm run build`，输出目录 `dist`。如果设置过 `NODE_VERSION`，与 `.node-version` 保持一致；不要设置 `NODE_ENV=production`。
+3. 首次预览部署后用 `curl -sI` 核对 `_headers`：
+   - `/_astro/*` 和 `/fonts/*` 只有一个 `Cache-Control: public, max-age=31536000, immutable`。
+   - `/thank/` 和 `/thank/name.js` 是 `no-store`。
+   - `/assets/friends/*` 带 `Content-Security-Policy`。
+4. 正式发布后，如果 `api.furry.ist` 上有缓存 HTML 的规则（全站 `s-maxage` 为 30 天），按主机名清理一次缓存。
+5. 主仓库的 `.git/hooks/post-commit` 还会运行已经删除的 `generate-sitemap.js`，每次提交都报 `MODULE_NOT_FOUND`，但不影响提交。站点地图现在由构建生成，确认后可以删掉这个钩子。
 
 ## 验收
 
-推送后检查 `https://api.furry.ist/` 首页友链区的 `<img src>` 均指向 `/assets/friends/`，且对应图片可正常访问。
+- 中英文各页面都能打开，导航和页脚里的站内链接都有对应页面。
+- 首页每次打开首屏大图不同，「换一张」可用；图片墙和在线试用的图片可以用灯箱放大。
+- 文档页的在线试用，四个接口都能返回结果。
+- 不存在的地址返回 404 页。
+
+## 已知的接口问题（与前端无关）
+
+- IP 查询的合并模式里，`ipinfo` 和 `bilibili` 总是返回 `Upstream fetch failed`，单独查询这两个源是正常的。
+- 抖音解析文档里的示例链接 `https://v.douyin.com/DQyLiuMdIlk/` 现在返回 422，需要换一个有效的分享链接。
 
 ## 授权与边界
 
-本任务在用户授权的维护环境中执行。操作范围仅限本仓库、关联 GitHub 仓库和 Cloudflare Pages 项目 `furryapi`；不处理任何非本项目资源或凭据。
+- 发布、修改 Pages 设置、使用 `.env` 里的 Cloudflare 令牌，都需要站长明确同意。
+- 正式发布走 Pages，不要用 `wrangler deploy` 代替。
+- 图库在独立的 `furry-img-pages` 项目里，不在这个仓库。首页用的精选照片从本地图库导入，见 `README.md`。
