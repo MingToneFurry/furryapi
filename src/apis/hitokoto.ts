@@ -101,8 +101,8 @@ const hitokoto: ApiDoc = {
           name: 'type_desc',
           type: 'String',
           desc: {
-            zh: '分类的英文名和中文名，中间用 ` - ` 连接，例如 `Original - 原创`。`d`、`i`、`j` 三类的值后面还附一句分类说明。',
-            en: 'English and Chinese names of the category, joined by ` - `, e.g. `Original - 原创`. Categories `d`, `i` and `j` also end with a sentence describing the category.',
+            zh: '分类的英文名和中文名，中间用 ` - ` 连接，例如 `Original - 原创`。`d`、`i`、`j` 三类的值后面还附一句分类说明。`f` 类的中文部分是 `来自网络`，`type` 里则是 `网络`。',
+            en: 'English and Chinese names of the category, joined by ` - `, e.g. `Original - 原创`. Categories `d`, `i` and `j` also end with a sentence describing the category. For `f`, the Chinese part is `来自网络`, while `type` shows `网络`.',
           },
         },
         {
@@ -164,8 +164,8 @@ const hitokoto: ApiDoc = {
   ],
   errors: {
     note: {
-      zh: '所有响应的 HTTP 状态码都是 `200`，错误码只在 JSON 的 `code` 字段中；`OPTIONS` 预检请求返回 `204`，没有响应体。',
-      en: 'Every response uses HTTP status `200`, and error codes appear only in the `code` field of the JSON body. An `OPTIONS` preflight request returns `204` with no body.',
+      zh: '除 `OPTIONS` 外，所有响应的 HTTP 状态码都是 `200`，错误码只在 JSON 的 `code` 字段中；`OPTIONS` 预检请求返回 `204`，没有响应体。',
+      en: 'Every response except `OPTIONS` uses HTTP status `200`, and error codes appear only in the `code` field of the JSON body. An `OPTIONS` preflight request returns `204` with no body.',
     },
     items: [
       {
@@ -185,8 +185,8 @@ const hitokoto: ApiDoc = {
   },
   notes: [
     {
-      zh: '长度筛选最多尝试 10 次。如果没有符合长度的句子，会忽略长度限制，仍在分类条件内随机返回一句。',
-      en: 'Length filtering tries up to 10 times. If no sentence fits, it ignores the length limits and still picks a random sentence within the category filter.',
+      zh: '长度筛选最多随机尝试 10 次。如果 10 次都没有符合长度的句子，会忽略长度限制，仍在分类条件内随机返回一句。字数范围很窄时（例如最小和最大字数相同），经常会返回范围外的句子。',
+      en: 'Length filtering tries up to 10 times. If none of those 10 tries fits, it ignores the length limits and still picks a random sentence within the category filter. A narrow range, such as equal min and max, often returns a sentence outside it.',
     },
     {
       zh: '多个分类要重复传 `c`，例如 `c=a&c=b`。不支持逗号分隔，`c=a,b` 会被当作无效值忽略。',
@@ -211,19 +211,19 @@ const hitokoto: ApiDoc = {
       lang: 'url',
       code: 'https://api.furry.ist/hitokoto',
       response: `{
-  "id": 6212,
-  "uuid": "e4c6a54a-be51-4cdd-88ab-3df273dbaa87",
-  "hitokoto": "在不同的遭遇里我发现你的瞬间，有种不可言说的温柔直觉。",
-  "type": "网易云",
-  "from": "保留",
-  "from_who": "郭顶",
-  "creator": "陨星、若芜芫",
-  "creator_uid": 6317,
-  "reviewer": 1044,
+  "id": 459,
+  "uuid": "63b6e184-1d19-4461-8736-effe551a6efb",
+  "hitokoto": "是金子一定会发光，是银子一定会花光，是裙子一定会走光，是节操一定要丢光。",
+  "type": "网络",
+  "from": "绝对萌域",
+  "from_who": null,
+  "creator": "hsk",
+  "creator_uid": 0,
+  "reviewer": 0,
   "commit_from": "web",
-  "created_at": "1590718236",
-  "length": 27,
-  "type_desc": "NCM - 网易云。主要收录网易云音乐热评。"
+  "created_at": "1468949807",
+  "length": 36,
+  "type_desc": "Internet - 来自网络"
 }`,
     },
     {
@@ -240,7 +240,7 @@ const hitokoto: ApiDoc = {
       title: { zh: '只返回句子', en: 'Sentence only' },
       lang: 'url',
       code: 'https://api.furry.ist/hitokoto?encode=text',
-      response: '我本来不想使出这一招的',
+      response: '他强任他强，清风拂山岗。他横任他横，明月照大江。',
     },
     {
       title: { zh: '诗词，长度 8 到 20 字', en: 'Poetry, 8 to 20 characters' },
