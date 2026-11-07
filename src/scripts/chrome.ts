@@ -41,11 +41,16 @@ export function initChrome() {
     if (button) copyText(button, button.dataset.copy!);
   });
 
-  // 首页页头叠在照片上：在顶部时透明，往下滚才出现底色
+  // 首页页头叠在照片上：在顶部时透明，往下滚才出现底色和磨砂
   const header = document.querySelector<HTMLElement>('[data-header][data-overlay]');
   if (header) {
     const update = () => header.toggleAttribute('data-top', window.scrollY < 8);
     update();
-    window.addEventListener('scroll', update, { passive: true });
+    // 只听滚动事件不够：带锚点打开、后退回来、页面在后台时，浏览器可能已经滚到别处却没派发滚动事件，
+    // 页头就会一直停在透明状态。这些时机都再判断一次
+    for (const type of ['scroll', 'load', 'pageshow', 'hashchange', 'resize']) {
+      window.addEventListener(type, update, { passive: true });
+    }
+    document.addEventListener('visibilitychange', update);
   }
 }
