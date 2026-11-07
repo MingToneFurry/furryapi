@@ -47,8 +47,10 @@ function pretty(text: string) {
 </section>
 
 <style>
+  /* 网格默认会被最长的一行代码撑宽，列宽要写成 minmax(0, 1fr) 才能限制在正文栏里 */
   .examples {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 40px;
   }
   h3 {

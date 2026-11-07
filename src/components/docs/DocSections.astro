@@ -62,6 +62,7 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
             {g.title ? <span set:html={inline(pick(g.title, lang))} /> : <span>{t(lang, 'docs.fields')}</span>}
             <span class="count">{g.items.length}</span>
           </summary>
+          <div class="scroll-x">
           <table class="table">
             <thead>
               <tr>
@@ -80,6 +81,7 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
               ))}
             </tbody>
           </table>
+          </div>
         </details>
       ))}
     </section>
@@ -90,6 +92,7 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
   doc.tables?.map((tb, i) => (
     <section id={`table-${i + 1}`} class="block">
       <h2>{pick(tb.title, lang)}</h2>
+      <div class="scroll-x">
       <table class="table">
         <thead>
           <tr>
@@ -106,6 +109,7 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
           ))}
         </tbody>
       </table>
+      </div>
     </section>
   ))
 }
@@ -244,7 +248,11 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
     font-size: 12px;
     color: var(--text-4);
   }
-  .group .table {
+  /* 表格太宽时在自己的框里横向滚动，不撑破正文栏 */
+  .scroll-x {
+    overflow-x: auto;
+  }
+  .group .scroll-x {
     border-top: 1px solid var(--line);
   }
   .group .table th:first-child,

@@ -82,6 +82,22 @@ const sections = [
   </div>
 </Base>
 
+<script>
+  // 试用面板比可视区域高时，让它先随页面滚动、底部露出来后再停住，而不是在面板里面出现滚动条
+  const panel = document.querySelector<HTMLElement>('.try .sticky');
+  if (panel) {
+    const update = () => {
+      const style = getComputedStyle(panel);
+      const top = parseFloat(style.getPropertyValue('--header-h')) + parseFloat(style.getPropertyValue('--docs-top'));
+      const fit = window.innerHeight - panel.offsetHeight - 24;
+      panel.style.setProperty('--try-top', `${Math.min(top, fit)}px`);
+    };
+    new ResizeObserver(update).observe(panel);
+    window.addEventListener('resize', update);
+    update();
+  }
+</script>
+
 <style>
   /* 侧栏吸顶的位置和页面上边距一致：一开始就停在吸顶的位置，滚动时完全不动 */
   .docs {
@@ -114,10 +130,10 @@ const sections = [
   .sticky {
     position: sticky;
     top: calc(var(--header-h) + var(--docs-top));
-    max-height: calc(100svh - var(--header-h) - var(--docs-top) - 24px);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--surface-3) transparent;
+  }
+  /* 试用面板比窗口高时（例如出了预览图），先跟着页面滚，底部露出来再停住；top 由下面的脚本按面板高度算 */
+  .try .sticky {
+    top: var(--try-top, calc(var(--header-h) + var(--docs-top)));
   }
   .side .sticky {
     padding-left: 14px;
@@ -185,10 +201,23 @@ const sections = [
     color: var(--text-2);
   }
 
+  /* 中等宽度：左侧导航改成顶部一行，正文和试用面板两栏 */
   @media (max-width: 1280px) {
     .docs {
-      grid-template-columns: 172px minmax(0, 1fr) 340px;
-      gap: 0 44px;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      grid-template-areas:
+        'side side'
+        'intro try'
+        'body try';
+      grid-template-rows: auto auto 1fr;
+      gap: 0 48px;
+    }
+    .side {
+      margin-bottom: 32px;
+    }
+    .side .sticky {
+      position: static;
+      padding-left: 0;
     }
   }
   @media (max-width: 1100px) {
@@ -199,13 +228,11 @@ const sections = [
       gap: 40px;
       padding-top: 32px;
     }
+    .side {
+      margin-bottom: 0;
+    }
     .sticky {
       position: static;
-      max-height: none;
-      overflow: visible;
-    }
-    .side .sticky {
-      padding-left: 0;
     }
   }
 </style>
