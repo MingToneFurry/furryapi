@@ -33,7 +33,8 @@ const strings = uiSubset(lang, ['credits.count']);
       <div class="tools">
         <input
           class="input"
-          type="search"
+          type="text"
+          role="searchbox"
           aria-label={t(lang, 'credits.filterLabel')}
           placeholder={t(lang, 'credits.filter')}
           autocomplete="off"
@@ -73,12 +74,16 @@ const strings = uiSubset(lang, ['credits.count']);
   h1 {
     font-size: clamp(36px, 4.4vw, 60px);
   }
-  /* 说明文字分两行时尽量等长，避免只剩一个词在第二行 */
+  /* 说明文字不用 balance（等长拆行会把短语拆开）；中文按标点断行，只有超宽时才断在字中间 */
   .note {
     font-size: 15px;
     line-height: 1.75;
     color: var(--text-3);
-    text-wrap: balance;
+    text-wrap: pretty;
+  }
+  :lang(zh) .note {
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
 
   /* 筛选：输入框沿用文档试用面板的样式，计数放在右边，窄屏时换到下一行 */
