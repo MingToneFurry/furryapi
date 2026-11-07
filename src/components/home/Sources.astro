@@ -45,7 +45,8 @@ const shown = list.slice(0, 48);
     break-inside: avoid;
     border-bottom: 1px solid var(--line);
   }
-  a {
+  /* 只管名单里的链接，下面的“查看全部”用全站的 .more 样式 */
+  .names a {
     display: block;
     padding: 11px 0;
     overflow: hidden;
@@ -56,7 +57,7 @@ const shown = list.slice(0, 48);
     text-decoration: none;
     transition: color 0.2s;
   }
-  a:hover {
+  .names a:hover {
     color: var(--bone);
   }
   .all {
