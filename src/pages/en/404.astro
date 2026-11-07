@@ -1,0 +1,9 @@
+---
+// 英文 404：/en/ 下找不到的地址用这一页。构建成 /en/404.html（见 astro.config.mjs 的 build.format）。
+import Base from '../../layouts/Base.astro';
+import NotFound from '../../components/NotFound.astro';
+---
+
+<Base lang="en" title="404 - FurryAPI" path="/" noindex overlay>
+  <NotFound lang="en" />
+</Base>

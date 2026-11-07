@@ -2,12 +2,11 @@
 // 首屏：一张兽装照片铺满展台，下缘沉进黑色，标题从暗处浮出来。
 // 照片从精选池里随机：横版池给宽屏，竖版池给窄屏。每次打开页面由下面的内联脚本在照片开始下载前各挑一张，
 // 「换一张」在同一个池里轮换（scripts/hero.ts）。没有脚本时显示池里的第一张。
-import { getImage } from 'astro:assets';
 import Icon from '../Icon.astro';
 import CopyButton from '../CopyButton.astro';
 import { href, t, uiSubset, type Lang } from '../../i18n';
 import { IMAGE_API } from '../../lib/site';
-import { HERO_LANDSCAPE, HERO_PORTRAIT, originalUrl, type Photo } from '../../lib/photos';
+import { heroPool } from '../../lib/photos';
 import { num } from '../../lib/format';
 
 interface Props {
@@ -17,15 +16,8 @@ interface Props {
 
 const { lang, total } = Astro.props;
 
-// 每张照片生成一组尺寸，序列化给内联脚本和 hero.ts
-async function entry(p: Photo, widths: number[]) {
-  const img = await getImage({ src: p.src, widths, format: 'webp', quality: 80 });
-  return { n: p.n, src: img.src, srcset: img.srcSet.attribute, focus: p.focus, original: originalUrl(p.kind, p.n) };
-}
-const pool = {
-  l: await Promise.all(HERO_LANDSCAPE.map((p) => entry(p, [960, 1440, 1920, 2400]))),
-  p: await Promise.all(HERO_PORTRAIT.map((p) => entry(p, [480, 720, 960, 1280]))),
-};
+// 每张照片的一组尺寸，序列化给内联脚本和 hero.ts
+const pool = await heroPool();
 const [l0, p0] = [pool.l[0], pool.p[0]];
 const strings = uiSubset(lang, ['hero.no', 'hero.large', 'hero.box', 'hero.alt', 'hero.loading', 'hero.next', 'hero.original']);
 ---

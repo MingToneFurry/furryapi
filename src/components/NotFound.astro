@@ -1,0 +1,137 @@
+---
+// 404 页正文，中英文各一份：中文是 /404.html，英文是 /en/404.html，Cloudflare Pages 会用离请求路径最近的那份。
+// 背景和首页首屏一样，每次从精选照片里随机挑一张（宽屏横版、竖屏竖版），压得很暗。
+// 照片由下面的内联脚本挑好后才开始下载；没有脚本时用每组的第一张。
+import { heroPool } from '../lib/photos';
+import { href, t, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const pool = await heroPool();
+const [l0, p0] = [pool.l[0], pool.p[0]];
+---
+
+<section class="nf" data-pool={JSON.stringify(pool)} aria-labelledby="nf-title">
+  <picture class="bg">
+    <source media="(max-aspect-ratio: 4/5)" sizes="100vw" />
+    <img sizes="100vw" alt="" fetchpriority="high" decoding="async" />
+  </picture>
+  <noscript>
+    <picture class="bg">
+      <source media="(max-aspect-ratio: 4/5)" srcset={p0.srcset} sizes="100vw" />
+      <img src={l0.src} srcset={l0.srcset} sizes="100vw" alt="" style={`--focus:${l0.focus};--focus-p:${p0.focus}`} />
+    </picture>
+  </noscript>
+  <div class="shade"></div>
+
+  <div class="copy wrap">
+    <p class="nf-code">404</p>
+    <h1 id="nf-title">{t(lang, 'nf.title')}</h1>
+    <p class="lede">{t(lang, 'nf.lead')}</p>
+    <div class="actions">
+      <a class="btn btn-solid" href={href(lang, '/')}>{t(lang, 'nf.home')}</a>
+      <a class="btn" href={href(lang, '/apiIntro/')}>{t(lang, 'nf.docs')}</a>
+    </div>
+  </div>
+
+  <script is:inline>
+    // 照片开始下载前各挑一张横版和竖版，加载完再显影
+    (function () {
+      var nf = document.currentScript.parentElement;
+      var pool = JSON.parse(nf.dataset.pool);
+      var L = pool.l[Math.floor(Math.random() * pool.l.length)];
+      var P = pool.p[Math.floor(Math.random() * pool.p.length)];
+      var pic = nf.querySelector('.bg');
+      var img = pic.querySelector('img');
+      nf.setAttribute('data-wait', '');
+      img.onload = img.onerror = function () {
+        nf.removeAttribute('data-wait');
+      };
+      pic.querySelector('source').srcset = P.srcset;
+      img.style.setProperty('--focus', L.focus);
+      img.style.setProperty('--focus-p', P.focus);
+      img.srcset = L.srcset;
+      img.src = L.src;
+    })();
+  </script>
+</section>
+
+<style>
+  .nf {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .bg,
+  .shade {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  /* 压暗写在 picture 上：显影动画结束时会把 img 自己的 filter 清掉 */
+  .bg {
+    filter: brightness(0.55) saturate(0.85);
+  }
+  .bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--focus, 50% 40%);
+    animation: develop 2s var(--ease-out) both;
+  }
+  .nf[data-wait] .bg img {
+    opacity: 0;
+    animation: none;
+  }
+  .shade {
+    background:
+      radial-gradient(90% 80% at 50% 45%, rgb(5 5 5 / 0.2) 0%, rgb(5 5 5 / 0.85) 75%, var(--stage) 100%),
+      linear-gradient(to right, rgb(5 5 5 / 0.75), rgb(5 5 5 / 0) 60%);
+  }
+  /* 竖屏时文字正好压在人物身上，再暗一些 */
+  @media (max-aspect-ratio: 4/5) {
+    .bg {
+      filter: brightness(0.45) saturate(0.85);
+    }
+    .bg img {
+      object-position: var(--focus-p, 50% 35%);
+    }
+    .shade {
+      background: linear-gradient(to bottom, rgb(5 5 5 / 0.2), rgb(5 5 5 / 0.6) 35%, rgb(5 5 5 / 0.7) 70%, var(--stage));
+    }
+  }
+
+  .copy {
+    padding-block: calc(var(--header-h) + 48px) 64px;
+  }
+  .copy > * {
+    animation: rise 1s var(--ease-out) both;
+  }
+  .nf-code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--champagne);
+  }
+  h1 {
+    margin-top: 20px;
+    font-size: clamp(40px, 5.6vw, 80px);
+  }
+  .lede {
+    max-width: 34em;
+    margin-top: 24px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 36px;
+  }
+</style>

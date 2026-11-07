@@ -8,7 +8,8 @@ const MONO_TEXT =
 export default defineConfig({
   site: 'https://api.furry.ist',
   compressHTML: true,
-  build: { format: 'directory' },
+  // 输出路径跟源文件一致：xxx/index.astro 生成 xxx/index.html，en/404.astro 生成 en/404.html（Pages 的英文 404）
+  build: { format: 'preserve' },
   // 缓存放在项目里：几个工作树共用一份 node_modules，默认缓存目录会互相干扰
   cacheDir: './.astro-cache',
   integrations: [
