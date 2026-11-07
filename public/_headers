@@ -1,9 +1,11 @@
 # 响应头规则只在 Cloudflare Pages 上生效（npm run preview 不套用）。
 # Cloudflare 会把同名 header 从所有命中的规则里逗号拼接，所以每个 header 只在一处设置。
 
-# 全站默认：安全头，浏览器缓存 1 小时，边缘缓存 30 天。
+# 全站默认：安全头；页面每次都向源站确认是否有更新（内容没变时只回 304，很快）。
+# 不能像旧站那样让边缘缓存 HTML 30 天：页面引用的样式和脚本文件名带内容哈希，
+# 发布新版本后，缓存里的旧页面会引用到新部署里已经不存在的文件，页面就没有样式了。
 /*
-  Cache-Control: public, max-age=3600, s-maxage=2592000
+  Cache-Control: public, max-age=0, must-revalidate
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
   X-XSS-Protection: 1; mode=block
