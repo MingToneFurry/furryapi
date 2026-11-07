@@ -127,6 +127,11 @@ const douyin: ApiDoc = {
           },
         },
         {
+          name: 'data.nickname',
+          type: 'String',
+          desc: { zh: '作者昵称，兼容旧调用方的字段。', en: 'Author nickname, kept for legacy callers.' },
+        },
+        {
           name: 'data.cover',
           type: 'String | null',
           desc: {
@@ -193,7 +198,10 @@ const douyin: ApiDoc = {
         {
           name: 'data.duration / data.duration_ms',
           type: 'Number',
-          desc: { zh: '时长，单位为毫秒。', en: 'Duration in milliseconds.' },
+          desc: {
+            zh: '时长。`duration_ms` 的单位为毫秒；`duration` 的单位未经确认，请使用 `duration_ms`。',
+            en: 'Duration. `duration_ms` is in milliseconds. The unit of `duration` is not confirmed, so use `duration_ms`.',
+          },
         },
         {
           name: 'data.create_time',
@@ -214,6 +222,14 @@ const douyin: ApiDoc = {
           desc: {
             zh: '互动数据，包含 `comment_count`、`digg_count`、`play_count`、`share_count` 和 `collect_count`。',
             en: 'Interaction counts: `comment_count`, `digg_count`, `play_count`, `share_count` and `collect_count`.',
+          },
+        },
+        {
+          name: 'data.comment_count / digg_count / play_count / share_count / collect_count',
+          type: 'Number | null',
+          desc: {
+            zh: '兼容旧调用方的统计字段，与 `data.statistics` 中的字段同名。',
+            en: 'Legacy count fields, with the same names as in `data.statistics`.',
           },
         },
         {
@@ -244,8 +260,8 @@ const douyin: ApiDoc = {
       {
         code: 'INVALID_URL',
         when: {
-          zh: '返回 HTTP 400。`url` 不是有效的完整链接，例如 `url=x`。',
-          en: 'Returns HTTP 400. `url` is not a valid full link, for example `url=x`.',
+          zh: '返回 HTTP 400。`url` 没有以 `http://` 或 `https://` 开头，例如 `url=x`。不以协议开头的分享口令也返回这个错误。',
+          en: 'Returns HTTP 400. `url` does not start with `http://` or `https://`, for example `url=x`. Share text that does not start with a scheme also returns this error.',
         },
         body: '{"ok":false,"code":"INVALID_URL","message":"Invalid url"}',
       },
@@ -297,8 +313,8 @@ const douyin: ApiDoc = {
   },
   notes: [
     {
-      zh: '接口只接受完整的 `http://` 或 `https://` 链接。直接传入分享口令，或者传入没有协议的链接，都会返回 `INVALID_URL`。在线试用会先从粘贴的文字里取出链接，再发送请求。',
-      en: 'The API only accepts a full `http://` or `https://` link. Share text, or a link without a scheme, returns `INVALID_URL`. The online trial pulls the link out of pasted text first.',
+      zh: '以 `http://` 或 `https://` 开头的值会交给解析器。其他值，包括不以协议开头的分享口令和没有协议的链接，都会返回 `INVALID_URL`。在线试用会先从粘贴的文字里取出链接，再发送请求。',
+      en: 'A value that starts with `http://` or `https://` goes to the parser. Other values, including share text that does not start with a scheme and links without one, return `INVALID_URL`. The online trial pulls the link out of pasted text first.',
     },
     {
       zh: '当可访问的抖音数据只暴露 `play_count: 0` 时，接口会把公开播放数返回为 `null`，原始上游统计保存在 `data.extra.raw_statistics` 中。',

@@ -87,6 +87,11 @@ test('空输入返回空字符串', () => {
   assert.strictEqual(extractDouyinUrl('   '), '');
 });
 
+test('同一个词里有两个链接时分开判断', () => {
+  assert.strictEqual(extractDouyinUrl('https://v.douyin.com/abc/,https://v.douyin.com/def/'), 'https://v.douyin.com/abc/');
+  assert.strictEqual(extractDouyinUrl('https://www.douyin.com/video/1,https://v.douyin.com/def/'), 'https://v.douyin.com/def/');
+});
+
 test('协议或端口不完整时不报错', () => {
   assert.strictEqual(extractDouyinUrl('看看 https:// 复制'), '看看 https:// 复制');
   assert.strictEqual(extractDouyinUrl('看看 https://v.douyin.com:abc/x'), '看看 https://v.douyin.com:abc/x');

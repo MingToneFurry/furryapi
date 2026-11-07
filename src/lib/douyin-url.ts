@@ -5,6 +5,8 @@
 // 因此词里不会出现中文标点，首尾只需要处理 ASCII 字符。
 // 不能改用 new URL() 来切分：它遇到中文不会报错，而是把中文转义后拼进地址，错误会悄悄发生。
 const WORD = /[\x21-\x7e]+/g;
+// 词里再次出现协议时从那里断开，如 `https://a/,https://b/` 分成两段，各自判断
+const SCHEME_START = /(?=https?:\/\/)/i;
 
 const ALNUM = /[a-z0-9]/i;
 // 词尾要去掉的标点
@@ -54,10 +56,12 @@ export function extractDouyinUrl(input: string): string {
   const text = input.trim();
   let other: string | null = null;
   for (const [word] of text.matchAll(WORD)) {
-    const found = douyinLink(trimPunctuation(word));
-    if (!found) continue;
-    if (found.host === 'v.douyin.com') return found.link;
-    other ??= found.link;
+    for (const part of word.split(SCHEME_START)) {
+      const found = douyinLink(trimPunctuation(part));
+      if (!found) continue;
+      if (found.host === 'v.douyin.com') return found.link;
+      other ??= found.link;
+    }
   }
   return other ?? text;
 }
