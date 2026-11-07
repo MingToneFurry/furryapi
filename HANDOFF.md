@@ -22,7 +22,7 @@
    - `/_astro/*` 和 `/fonts/*` 只有一个 `Cache-Control: public, max-age=31536000, immutable`。
    - `/thank/` 和 `/thank/name.js` 是 `no-store`。
    - `/assets/friends/*` 带 `Content-Security-Policy`。
-4. 正式发布后，如果 `api.furry.ist` 上有缓存 HTML 的规则（全站 `s-maxage` 为 30 天），按主机名清理一次缓存。
+4. 正式发布后，立刻按主机名清理 `api.furry.ist` 和 `sni-api.furry.ist` 的缓存。2026-11-08 核实过：线上旧站的页面在边缘缓存里（`CF-Cache-Status: HIT`，旧 `_headers` 让页面缓存 30 天），不清理的话访客会继续看到旧页面。新站的 `_headers` 让页面每次向源站确认，之后发布就不用再清。清完用 `curl -sI https://api.furry.ist/` 看 `CF-Cache-Status` 不再是长时间的 HIT；如果仍然是，说明后台有覆盖源站缓存头的缓存规则，需要调整。
 5. 主仓库的 `.git/hooks/post-commit` 还会运行已经删除的 `generate-sitemap.js`，每次提交都报 `MODULE_NOT_FOUND`，但不影响提交。站点地图现在由构建生成，确认后可以删掉这个钩子。
 
 ## 上线后在后台核对（SEO 和 GEO）
