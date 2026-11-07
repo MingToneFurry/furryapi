@@ -1,0 +1,164 @@
+---
+// 图片来源完整名单：构建时全部渲染，按站长在 X 上的关注顺序排列；筛选在浏览器里完成
+import Base from '../../../layouts/Base.astro';
+import { creators, profileUrl } from '../../../lib/sources';
+import { langParams, t, uiSubset, type Lang } from '../../../i18n';
+import { num } from '../../../lib/format';
+
+export const getStaticPaths = () => langParams();
+
+const { lang } = Astro.props as { lang: Lang };
+const list = creators().map((c) => ({
+  name: c.name,
+  handle: c.screen_name,
+  url: profileUrl(c),
+  // 筛选用的关键字：名字和用户名，中间用换行隔开，避免跨两项误匹配；与脚本里的规范化方式一致
+  key: `${c.name}\n${c.screen_name}`.normalize('NFKC').toLowerCase(),
+}));
+const total = num(list.length);
+// 筛选脚本用到的文字，{shown} 和 {total} 由脚本替换
+const strings = uiSubset(lang, ['credits.count']);
+---
+
+<Base lang={lang} title={`${t(lang, 'credits.title')} - FurryAPI`} description={t(lang, 'sources.lead')} path="/thank/">
+  <section class="section wrap credits" aria-labelledby="credits-title">
+    <header class="section-head">
+      <p class="eyebrow">{t(lang, 'credits.eyebrow', { n: total })}</p>
+      <h1 id="credits-title">{t(lang, 'credits.title')}</h1>
+      <p class="lede">{t(lang, 'sources.lead')}</p>
+      <p class="note">{t(lang, 'credits.note')}</p>
+    </header>
+
+    <div class="filter" data-credits data-strings={JSON.stringify(strings)}>
+      <div class="tools">
+        <input
+          class="input"
+          type="search"
+          aria-label={t(lang, 'credits.filterLabel')}
+          placeholder={t(lang, 'credits.filter')}
+          autocomplete="off"
+          spellcheck="false"
+          data-filter
+        />
+        <p class="count" aria-live="polite" data-count>{t(lang, 'credits.count', { shown: total, total })}</p>
+      </div>
+      <p class="empty" hidden data-empty>{t(lang, 'credits.empty')}</p>
+
+      <ul class="names" role="list" data-list>
+        {
+          list.map((c) => (
+            <li data-q={c.key}>
+              <a href={c.url} target="_blank" rel="noopener noreferrer" title={`${c.name} @${c.handle}`}>
+                <span class="name">{c.name}</span>
+                <span class="handle">@{c.handle}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { initSourcesFilter } from '../../../scripts/sources-filter';
+  document.querySelectorAll<HTMLElement>('[data-credits]').forEach(initSourcesFilter);
+</script>
+
+<style>
+  /* 页头的顶部留白和接口文档总览一致 */
+  .credits {
+    padding-top: clamp(64px, 8vw, 112px);
+  }
+  h1 {
+    font-size: clamp(36px, 4.4vw, 60px);
+  }
+  /* 说明文字分两行时尽量等长，避免只剩一个词在第二行 */
+  .note {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--text-3);
+    text-wrap: balance;
+  }
+
+  /* 筛选：输入框沿用文档试用面板的样式，计数放在右边，窄屏时换到下一行 */
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+    margin-bottom: 32px;
+  }
+  .input {
+    flex: 0 1 420px;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: var(--stage);
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--bone);
+  }
+  .input::placeholder {
+    color: var(--text-4);
+  }
+  .input:focus {
+    border-color: var(--champagne);
+    outline: none;
+  }
+  .count {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--text-4);
+  }
+  .empty {
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: var(--text-4);
+  }
+
+  /* 名单和首页的来源列表一致：多栏、细线分隔，每位创作者一行名字加一行用户名 */
+  .names {
+    columns: 4 13rem;
+    column-gap: 40px;
+    border-top: 1px solid var(--line);
+  }
+  .names li {
+    break-inside: avoid;
+    border-bottom: 1px solid var(--line);
+  }
+  .names li[hidden] {
+    display: none;
+  }
+  .names a {
+    display: block;
+    min-width: 0;
+    padding: 12px 0 11px;
+    text-decoration: none;
+  }
+  .name,
+  .handle {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .name {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--text-2);
+    transition: color 0.2s;
+  }
+  .handle {
+    margin-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-4);
+  }
+  .names a:hover .name {
+    color: var(--bone);
+  }
+</style>
