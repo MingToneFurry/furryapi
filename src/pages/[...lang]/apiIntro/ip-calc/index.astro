@@ -1,0 +1,113 @@
+---
+// IP 计算器页面：左侧是接口导航，正文是十二个计算器，分三组；全部在浏览器里运行，不向服务器发送任何内容
+import Base from '../../../../layouts/Base.astro';
+import DocNav from '../../../../components/docs/DocNav.astro';
+import IpCalc from '../../../../components/tools/IpCalc.astro';
+import { catalog, docPath } from '../../../../apis';
+import { CATEGORIES } from '../../../../apis/types';
+import { langParams, pick, t, type Lang } from '../../../../i18n';
+import { plain } from '../../../../lib/format';
+
+export const getStaticPaths = () => langParams();
+
+const { lang } = Astro.props as { lang: Lang };
+const tool = catalog.find((e) => e.slug === 'ip-calc')!;
+const name = pick(tool.name, lang);
+const sections = [
+  { id: 'subnets', label: t(lang, 'calc.group.subnets') },
+  { id: 'masks', label: t(lang, 'calc.group.masks') },
+  { id: 'formats', label: t(lang, 'calc.group.formats') },
+];
+---
+
+<Base lang={lang} title={`${name} - FurryAPI`} description={plain(pick(tool.summary, lang))} path={docPath(tool)}>
+  <div class="calc-page wrap-wide">
+    <aside class="side">
+      <div class="sticky">
+        <DocNav lang={lang} current="ip-calc" sections={sections} />
+      </div>
+    </aside>
+
+    <header class="intro">
+      <p class="eyebrow">{pick(CATEGORIES[tool.category].name, lang)} · {t(lang, 'calc.runs')}</p>
+      <h1>{name}</h1>
+      <p class="lede">{t(lang, 'calc.lede')}</p>
+    </header>
+
+    <div class="body">
+      <IpCalc lang={lang} />
+    </div>
+  </div>
+</Base>
+
+<style>
+  /* 布局和接口文档页一致：左侧导航吸顶，正文最宽 900px；没有右侧的试用列 */
+  .calc-page {
+    --docs-top: 40px;
+    display: grid;
+    grid-template-columns: 196px minmax(0, 900px);
+    grid-template-areas:
+      'side intro'
+      'side body';
+    grid-template-rows: auto 1fr;
+    gap: 0 64px;
+    align-items: start;
+    padding-block: var(--docs-top) 140px;
+  }
+  .side {
+    grid-area: side;
+    align-self: stretch;
+  }
+  .intro {
+    grid-area: intro;
+    max-width: 900px;
+  }
+  .body {
+    grid-area: body;
+    min-width: 0;
+    max-width: 900px;
+  }
+  .sticky {
+    position: sticky;
+    top: calc(var(--header-h) + var(--docs-top));
+  }
+  .side .sticky {
+    padding-left: 14px;
+  }
+
+  .intro h1 {
+    margin-top: 14px;
+    font-size: clamp(36px, 4vw, 54px);
+  }
+  .intro .lede {
+    margin-top: 20px;
+  }
+
+  /* 中等宽度：左侧导航改成顶部一行，正文独占一列 */
+  @media (max-width: 1280px) {
+    .calc-page {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'side'
+        'intro'
+        'body';
+      grid-template-rows: none;
+      gap: 0;
+    }
+    .side {
+      margin-bottom: 32px;
+    }
+    .side .sticky {
+      position: static;
+      padding-left: 0;
+    }
+  }
+  @media (max-width: 1100px) {
+    .calc-page {
+      padding-top: 32px;
+    }
+    .sticky {
+      position: static;
+    }
+  }
+</style>
