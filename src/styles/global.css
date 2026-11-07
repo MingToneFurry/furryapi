@@ -434,6 +434,67 @@
     font-size: 0.9em;
   }
 
+  /* 表单控件：文档的在线试用、IP 计算器、图片来源的筛选共用 */
+  .input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: var(--stage);
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--bone);
+  }
+  .input::placeholder {
+    color: var(--text-4);
+  }
+  .input:focus {
+    border-color: var(--champagne);
+    outline: none;
+  }
+  /* 分段选择：一组单选按钮，选中的一段垫上浅底 */
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--stage);
+  }
+  .seg label {
+    position: relative;
+    flex: 1 1 auto;
+  }
+  .seg span {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+    color: var(--text-3);
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+  .seg input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .seg input:checked + span {
+    background: var(--surface-3);
+    color: var(--bone);
+  }
+  .seg input:focus-visible + span {
+    outline: 2px solid var(--champagne);
+    outline-offset: 1px;
+  }
+
   .visually-hidden {
     position: absolute !important;
     width: 1px;

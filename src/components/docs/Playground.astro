@@ -193,79 +193,39 @@ const presets = doc.playground.presets ?? [];
     color: var(--text-4);
   }
 
-  .seg {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 4px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--stage);
-  }
-  .seg label {
-    flex: 1 1 auto;
-  }
-  .seg span,
-  .chips span {
-    display: block;
-    padding: 7px 12px;
-    border-radius: 7px;
-    font-size: 13.5px;
-    text-align: center;
-    color: var(--text-3);
-    cursor: pointer;
-    transition:
-      background 0.2s,
-      color 0.2s;
-  }
-  .seg input,
-  .chips input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .seg input:checked + span {
-    background: var(--surface-3);
-    color: var(--bone);
-  }
-  .seg input:focus-visible + span,
-  .chips input:focus-visible + span {
-    outline: 2px solid var(--champagne);
-    outline-offset: 1px;
-  }
+  /* 多选标签。分段选择 .seg 和输入框 .input 全站共用，写在 global.css */
   .chips {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
   }
+  .chips label {
+    position: relative;
+  }
   .chips span {
+    display: block;
     padding: 5px 11px;
     border: 1px solid var(--line-2);
     border-radius: 999px;
     font-size: 13px;
+    color: var(--text-3);
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+  .chips input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
   }
   .chips input:checked + span {
     border-color: var(--champagne);
     color: var(--bone);
   }
-
-  .input {
-    width: 100%;
-    height: 40px;
-    padding: 0 12px;
-    border: 1px solid var(--line-2);
-    border-radius: 10px;
-    background: var(--stage);
-    font-family: var(--font-mono);
-    font-size: 13.5px;
-    color: var(--bone);
-  }
-  .input::placeholder {
-    color: var(--text-4);
-  }
-  .input:focus {
-    border-color: var(--line-3);
-    outline: none;
+  .chips input:focus-visible + span {
+    outline: 2px solid var(--champagne);
+    outline-offset: 1px;
   }
 
   .presets {
