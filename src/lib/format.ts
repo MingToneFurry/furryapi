@@ -12,3 +12,13 @@ export const plain = (text: string) => text.replace(/`/g, '');
 
 /** 千位分隔，中英文都用逗号 */
 export const num = (n: number) => n.toLocaleString('en-US');
+
+/** 示例返回：单行的 JSON 排版成多行，其他内容原样当纯文本 */
+export function prettyResponse(text: string) {
+  if (!/^\s*[[{]/.test(text)) return { code: text, language: 'plaintext' };
+  try {
+    return { code: JSON.stringify(JSON.parse(text), null, 2), language: 'json' };
+  } catch {
+    return { code: text, language: 'plaintext' };
+  }
+}

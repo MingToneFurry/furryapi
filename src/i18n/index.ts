@@ -24,6 +24,8 @@ const ui = {
     'site.description':
       'FurryAPI 提供免费的公开接口：随机兽装照片、IP 查询、一言、抖音解析，以及在线 IP 计算器。无需注册，复制地址就能用。',
     'skip': '跳到正文',
+    'crumb.home': '首页',
+    'og.alt': 'FurryAPI 的网站图标',
     'nav.label': '主导航',
     'nav.apis': '接口',
     'nav.docs': '接口文档',
@@ -212,6 +214,8 @@ const ui = {
     'site.description':
       'FurryAPI offers free public APIs: random fursuit photos, IP lookup, Hitokoto quotes, Douyin parsing, and an online IP calculator. No sign-up. Copy a URL and it works.',
     'skip': 'Skip to content',
+    'crumb.home': 'Home',
+    'og.alt': 'The FurryAPI site icon',
     'nav.label': 'Main',
     'nav.apis': 'APIs',
     'nav.docs': 'Docs',

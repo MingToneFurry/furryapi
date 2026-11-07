@@ -4,13 +4,14 @@ import Base from '../../../layouts/Base.astro';
 import ApiIndex from '../../../components/ApiIndex.astro';
 import { catalog } from '../../../apis';
 import { langParams, t, type Lang } from '../../../i18n';
+import { catalogSchema } from '../../../lib/schema';
 
 export const getStaticPaths = () => langParams();
 
 const { lang } = Astro.props as { lang: Lang };
 ---
 
-<Base lang={lang} title={`${t(lang, 'docs.title')} - FurryAPI`} description={t(lang, 'docs.lead')} path="/apiIntro/">
+<Base lang={lang} title={`${t(lang, 'docs.title')} - FurryAPI`} description={t(lang, 'docs.lead')} path="/apiIntro/" schema={catalogSchema(lang, catalog)}>
   <section class="section wrap docs-index" aria-labelledby="docs-title">
     <header class="section-head">
       <p class="eyebrow">{t(lang, 'apis.eyebrow')} · {catalog.length}</p>

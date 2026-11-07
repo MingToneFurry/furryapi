@@ -8,6 +8,7 @@ import Sources from '../../components/home/Sources.astro';
 import { catalog } from '../../apis';
 import { href, langParams, t, type Lang } from '../../i18n';
 import { getCounts } from '../../lib/site';
+import { homeSchema } from '../../lib/schema';
 
 export const getStaticPaths = () => langParams();
 
@@ -15,7 +16,7 @@ const { lang } = Astro.props as { lang: Lang };
 const counts = await getCounts();
 ---
 
-<Base lang={lang} title={t(lang, 'site.title')} path="/" overlay>
+<Base lang={lang} title={t(lang, 'site.title')} path="/" overlay schema={homeSchema(lang)}>
   <Hero lang={lang} total={counts.large + counts.box} />
 
   <section id="apis" class="section wrap" aria-labelledby="apis-title">

@@ -1,3 +1,5 @@
+# All crawlers are welcome, including search engines and AI search and answer engines.
+# A summary of the site for AI assistants: https://api.furry.ist/llms.txt
 User-agent: *
 Disallow:
 

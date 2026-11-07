@@ -4,6 +4,7 @@ import Base from '../../../layouts/Base.astro';
 import { creators, profileUrl } from '../../../lib/sources';
 import { langParams, t, uiSubset, type Lang } from '../../../i18n';
 import { num } from '../../../lib/format';
+import { creditsSchema } from '../../../lib/schema';
 
 export const getStaticPaths = () => langParams();
 
@@ -20,7 +21,7 @@ const total = num(list.length);
 const strings = uiSubset(lang, ['credits.count']);
 ---
 
-<Base lang={lang} title={`${t(lang, 'credits.title')} - FurryAPI`} description={t(lang, 'sources.lead')} path="/thank/">
+<Base lang={lang} title={`${t(lang, 'credits.title')} - FurryAPI`} description={t(lang, 'sources.lead')} path="/thank/" schema={creditsSchema(lang, t(lang, 'credits.title'), t(lang, 'sources.lead'))}>
   <section class="section wrap credits" aria-labelledby="credits-title">
     <header class="section-head">
       <p class="eyebrow">{t(lang, 'credits.eyebrow', { n: total })}</p>

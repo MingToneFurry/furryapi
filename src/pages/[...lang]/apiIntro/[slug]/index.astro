@@ -10,6 +10,7 @@ import { apis, docPath } from '../../../../apis';
 import { CATEGORIES, type ApiDoc } from '../../../../apis/types';
 import { LANGS, pick, t, type Lang } from '../../../../i18n';
 import { inline, plain } from '../../../../lib/format';
+import { apiSchema } from '../../../../lib/schema';
 
 export function getStaticPaths() {
   return LANGS.flatMap((lang) =>
@@ -30,7 +31,7 @@ const sections = [
 ];
 ---
 
-<Base lang={lang} title={`${pick(doc.name, lang)} - FurryAPI`} description={plain(pick(doc.summary, lang))} path={docPath(doc)}>
+<Base lang={lang} title={`${pick(doc.name, lang)} - FurryAPI`} description={plain(pick(doc.summary, lang))} path={docPath(doc)} schema={apiSchema(lang, doc)}>
   <div class="docs wrap-wide">
     <aside class="side">
       <div class="sticky">
