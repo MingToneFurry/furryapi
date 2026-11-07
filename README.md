@@ -41,7 +41,7 @@ FurryAPI（<https://api.furry.ist>）是给福瑞圈准备的免费公开接口�
     ├── data/                  photos.json 精选照片清单，friends.json 友链列表
     ├── i18n/index.ts          中英文文字，以及中英文地址的生成规则
     ├── layouts/Base.astro     页面外壳：语言、hreflang、字体、统计脚本
-    ├── lib/                   站点常量、字体、照片、图片来源名单、IP 计算、抖音链接解析等
+    ├── lib/                   站点常量、字体、照片、图片来源名单、IP 计算、抖音链接解析、结构化数据和 llms 文档等
     ├── pages/
     │   ├── [...lang]/index.astro            首页（中文 /，英文 /en/）
     │   ├── [...lang]/apiIntro/index.astro   接口目录
@@ -49,6 +49,7 @@ FurryAPI（<https://api.furry.ist>）是给福瑞圈准备的免费公开接口�
     │   ├── [...lang]/apiIntro/ip-calc/      IP 计算器
     │   ├── [...lang]/thank/                 图片来源
     │   ├── 404.astro、en/404.astro          中文和英文的 404 页
+    │   ├── llms.txt.ts、llms-full.txt.ts、en/llms-full.txt.ts   给 AI 读的 Markdown 文档
     │   └── sitemap.xml.ts                   站点地图 /sitemap.xml
     ├── scripts/               浏览器端脚本，由 <script> 引入并打包
     └── styles/global.css      全站样式和设计变量
@@ -104,6 +105,14 @@ node scripts/import-photos.mjs <图库 public 目录>
 - 生成的文件是 `dist/fonts/<id>.<内容哈希>.woff2`。`@font-face` 直接写在每个页面的 `<head>` 里，地址先写成占位符 `__FONT_URL_<id>__`，构建后替换成带哈希的地址（见 `src/lib/fonts.ts`）。字体内容变了地址就会变，可以长期缓存。
 - 开发时按 `src/` 里出现过的全部字符生成一份较大的字体，开发服务器在 `/fonts/<id>.dev.woff2` 提供。
 - 源字体许可证见 `fonts-src/OFL-NotoSansSC.txt` 和 `fonts-src/OFL-JetBrainsMono.txt`。
+
+## SEO 和 GEO
+
+- 每个页面都有标题、描述、规范地址和中英文对应（hreflang）。404 页不收录，也不写规范地址。
+- 分享卡片（og:image）用网站图标（640×640 的方图），所以 Twitter 用小图卡片 `summary`。
+- 结构化数据（JSON-LD）由 `src/lib/schema.ts` 生成：首页是站点和发布方，文档页是 WebAPI 加面包屑，IP 计算器是网页应用，接口目录和图片来源是合集页。只写页面上本来就有的事实。
+- 给 AI 助手和编程代理读的 Markdown 由 `src/lib/llms.ts` 从接口登记表生成：`/llms.txt` 是中英双语的目录，`/llms-full.txt` 和 `/en/llms-full.txt` 是中文和英文的完整接口文档（地址、参数、返回字段、错误、示例）。新增接口后会自动出现在里面。
+- `public/robots.txt` 允许所有爬虫，包括 AI 搜索和问答引擎，并指向站点地图和 llms.txt。Cloudflare 后台的“屏蔽 AI 爬虫”或托管 robots.txt 会覆盖这里的设置，见 `HANDOFF.md`。
 
 ## 友链头像
 

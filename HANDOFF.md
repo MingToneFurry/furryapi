@@ -25,6 +25,12 @@
 4. 正式发布后，如果 `api.furry.ist` 上有缓存 HTML 的规则（全站 `s-maxage` 为 30 天），按主机名清理一次缓存。
 5. 主仓库的 `.git/hooks/post-commit` 还会运行已经删除的 `generate-sitemap.js`，每次提交都报 `MODULE_NOT_FOUND`，但不影响提交。站点地图现在由构建生成，确认后可以删掉这个钩子。
 
+## 上线后在后台核对（SEO 和 GEO）
+
+- `curl -sI https://api.furry.ist/llms.txt` 的 `Content-Type` 应带 `charset=utf-8`，否则有的客户端会把中文显示成乱码。没有的话在 `_headers` 里给 `/llms.txt`、`/llms-full.txt`、`/en/llms-full.txt` 补上。
+- Cloudflare 后台的 AI 爬虫设置（屏蔽 AI 爬虫、AI Crawl Control、托管 robots.txt）会覆盖仓库里的 robots.txt。想让 AI 搜索和问答引擎读到并引用本站，就不要屏蔽它们；用 `curl https://api.furry.ist/robots.txt` 看线上实际生效的内容。
+- 在 Google Search Console、Bing Webmaster Tools 和百度搜索资源平台提交 `https://api.furry.ist/sitemap.xml`（需要站长自己的账号）。
+
 ## 验收
 
 - 中英文各页面都能打开，导航和页脚里的站内链接都有对应页面。
