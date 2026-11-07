@@ -297,8 +297,8 @@ const douyin: ApiDoc = {
   },
   notes: [
     {
-      zh: '接口只接受带协议的完整链接。直接传入分享口令，或者传入没有 `https://` 的链接，都会返回 `INVALID_URL`。在线试用会先从粘贴的文字里取出链接，再发送请求。',
-      en: 'The API only accepts a full link with a scheme. Share text, or a link without `https://`, returns `INVALID_URL`. The online trial pulls the link out of pasted text first.',
+      zh: '接口只接受完整的 `http://` 或 `https://` 链接。直接传入分享口令，或者传入没有协议的链接，都会返回 `INVALID_URL`。在线试用会先从粘贴的文字里取出链接，再发送请求。',
+      en: 'The API only accepts a full `http://` or `https://` link. Share text, or a link without a scheme, returns `INVALID_URL`. The online trial pulls the link out of pasted text first.',
     },
     {
       zh: '当可访问的抖音数据只暴露 `play_count: 0` 时，接口会把公开播放数返回为 `null`，原始上游统计保存在 `data.extra.raw_statistics` 中。',
