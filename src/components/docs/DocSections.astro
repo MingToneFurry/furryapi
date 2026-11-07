@@ -11,6 +11,8 @@ interface Props {
 
 const { lang, doc } = Astro.props;
 const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' ? v : pick(v, lang));
+// 长字段名在“.”之前、“_”之后可以换行，例如 location.country_flag_emoji_unicode
+const parts = (name: string) => name.split(/(?=\.)|(?<=_)/);
 ---
 
 <section id="params" class="block">
@@ -63,7 +65,7 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
             <span class="count">{g.items.length}</span>
           </summary>
           <div class="scroll-x">
-          <table class="table">
+          <table class="table fields">
             <thead>
               <tr>
                 <th>{t(lang, 'docs.field.name')}</th>
@@ -74,7 +76,16 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
             <tbody>
               {g.items.map((f) => (
                 <tr>
-                  <td><code class="f-name">{f.name}</code></td>
+                  <td>
+                    <code class="f-name">
+                      {f.name.split(' / ').map((alt, k) => (
+                        <>
+                          {k > 0 && ' / '}
+                          <span class="alt">{parts(alt).map((s, j) => (j ? <><wbr />{s}</> : s))}</span>
+                        </>
+                      ))}
+                    </code>
+                  </td>
                   <td><code class="f-type">{f.type}</code></td>
                   <td set:html={inline(pick(f.desc, lang))} />
                 </tr>
@@ -259,6 +270,11 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
   .group .table td:first-child {
     padding-left: 18px;
   }
+  /* “a / b”这样的几个名字各自成块，换行先落在它们之间 */
+  .f-name .alt {
+    display: inline-block;
+    max-width: 100%;
+  }
 
   .note {
     margin-bottom: 16px;
@@ -299,5 +315,34 @@ const cell = (v: string | { zh: string; en: string }) => (typeof v === 'string' 
   }
   .notes li::marker {
     color: var(--text-4);
+  }
+
+  /* 手机上字段表改成上下排：名字和类型一行，说明在下面 */
+  @media (max-width: 640px) {
+    .fields,
+    .fields tbody {
+      display: block;
+    }
+    .fields thead {
+      display: none;
+    }
+    .fields tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px 12px;
+      padding: 14px 18px;
+    }
+    .fields tr + tr {
+      border-top: 1px solid var(--line);
+    }
+    .group .fields td,
+    .group .fields td:first-child {
+      width: auto;
+      padding: 0;
+      border: 0;
+    }
+    .fields td:last-child {
+      grid-column: 1 / -1;
+    }
   }
 </style>

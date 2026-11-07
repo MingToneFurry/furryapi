@@ -418,9 +418,13 @@
   .table tr:last-child td {
     border-bottom: 0;
   }
+  /* 第一列放字段名：固定占三分之一左右，过长的名字换行，不把后面两列挤出去 */
+  .table td:first-child {
+    width: 32%;
+  }
   .table td:first-child code {
     color: var(--bone);
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
   .table .f-type {
     color: var(--text-3);

@@ -88,6 +88,11 @@ const ui = {
     'footer.contactGlobal': '联系页（海外）',
     'footer.photoRights': '照片版权归各自的创作者所有',
 
+    'nf.title': '这里什么都没有',
+    'nf.lead': '这个地址可能写错了，或者页面已经搬走了。',
+    'nf.home': '回到首页',
+    'nf.docs': '查看接口文档',
+
     'docs.title': '接口文档',
     'docs.lead': '所有接口都支持跨域调用，不需要密钥。地址可以直接用在网页、博客和机器人里。',
     'docs.nav': '全部接口',
@@ -201,6 +206,11 @@ const ui = {
     'footer.contactCn': 'Contact page (China)',
     'footer.contactGlobal': 'Contact page (Global)',
     'footer.photoRights': 'Photos © their respective creators',
+
+    'nf.title': 'Nothing here.',
+    'nf.lead': 'The address may be mistyped, or the page has moved.',
+    'nf.home': 'Back to the homepage',
+    'nf.docs': 'API docs',
 
     'docs.title': 'API docs',
     'docs.lead': 'Every API allows cross-origin requests and needs no key. Use the URLs directly in web pages, blogs and bots.',
