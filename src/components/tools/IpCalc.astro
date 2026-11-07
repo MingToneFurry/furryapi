@@ -1,0 +1,523 @@
+---
+// IP 计算器的三组卡片，共十二个计算器。每张卡片的输入和结果行都在下面的 calcs 里定义（只写文字的键，翻译在渲染时做）。
+// 结果在构建时用默认值算好，所以没有脚本也能看到；脚本（src/scripts/ipcalc-page.ts）接管后随输入更新。
+import CopyButton from '../CopyButton.astro';
+import { t, uiSubset, type Lang, type UiKey } from '../../i18n';
+import { CALC_ERRORS } from '../../lib/ipcalc';
+import { runCalc, type CalcName, type Fields } from '../../scripts/ipcalc-page';
+
+interface Props {
+  lang: Lang;
+}
+
+interface Option {
+  value: string;
+  /** 界面文字的键；A、B、C 不需要翻译，直接写在 text 里 */
+  key?: UiKey;
+  text?: string;
+  /** 输入框为空时显示的示例 */
+  example?: string;
+}
+
+type Input =
+  | {
+      kind: 'text';
+      name: string;
+      label: UiKey;
+      value: string;
+      inputmode?: 'decimal' | 'numeric';
+      placeholder?: string;
+      optional?: boolean;
+    }
+  | { kind: 'seg'; name: string; label: UiKey; value: string; options: Option[] };
+
+interface Calc {
+  id: CalcName;
+  group: 'subnets' | 'masks' | 'formats';
+  name: UiKey;
+  desc: UiKey;
+  inputs: Input[];
+  rows: { key: string; label: UiKey }[];
+}
+
+const groups: { id: Calc['group']; title: UiKey }[] = [
+  { id: 'subnets', title: 'calc.group.subnets' },
+  { id: 'masks', title: 'calc.group.masks' },
+  { id: 'formats', title: 'calc.group.formats' },
+];
+
+const calcs: Calc[] = [
+  {
+    id: 'networkRange',
+    group: 'subnets',
+    name: 'calc.networkRange.name',
+    desc: 'calc.networkRange.desc',
+    inputs: [
+      { kind: 'text', name: 'ip', label: 'calc.ip', value: '192.168.1.10', inputmode: 'decimal' },
+      { kind: 'text', name: 'cidr', label: 'calc.cidr', value: '24', inputmode: 'numeric' },
+    ],
+    rows: [
+      { key: 'network', label: 'calc.network' },
+      { key: 'first', label: 'calc.first' },
+      { key: 'last', label: 'calc.last' },
+      { key: 'broadcast', label: 'calc.broadcast' },
+      { key: 'mask', label: 'calc.mask' },
+      { key: 'cidr', label: 'calc.cidr' },
+      { key: 'usable', label: 'calc.usable' },
+      { key: 'total', label: 'calc.total' },
+    ],
+  },
+  {
+    id: 'networkNode',
+    group: 'subnets',
+    name: 'calc.networkNode.name',
+    desc: 'calc.networkNode.desc',
+    inputs: [
+      { kind: 'text', name: 'mask', label: 'calc.mask', value: '255.255.255.0', inputmode: 'decimal' },
+      { kind: 'text', name: 'ip', label: 'calc.ip', value: '192.168.1.10', inputmode: 'decimal' },
+    ],
+    rows: [
+      { key: 'network', label: 'calc.network' },
+      { key: 'broadcast', label: 'calc.broadcast' },
+      { key: 'usable', label: 'calc.usable' },
+      { key: 'total', label: 'calc.total' },
+    ],
+  },
+  {
+    id: 'requiredToMask',
+    group: 'subnets',
+    name: 'calc.requiredToMask.name',
+    desc: 'calc.requiredToMask.desc',
+    inputs: [{ kind: 'text', name: 'required', label: 'calc.required', value: '50', inputmode: 'numeric' }],
+    rows: [
+      { key: 'cidr', label: 'calc.cidr' },
+      { key: 'mask', label: 'calc.mask' },
+      { key: 'usable', label: 'calc.usable' },
+      { key: 'total', label: 'calc.total' },
+    ],
+  },
+  {
+    id: 'maskHostCount',
+    group: 'subnets',
+    name: 'calc.maskHostCount.name',
+    desc: 'calc.maskHostCount.desc',
+    inputs: [{ kind: 'text', name: 'cidr', label: 'calc.cidr', value: '27', inputmode: 'numeric' }],
+    rows: [
+      { key: 'usable', label: 'calc.usable' },
+      { key: 'total', label: 'calc.total' },
+      { key: 'mask', label: 'calc.mask' },
+    ],
+  },
+  {
+    id: 'classful',
+    group: 'subnets',
+    name: 'calc.classful.name',
+    desc: 'calc.classful.desc',
+    inputs: [
+      { kind: 'text', name: 'ip', label: 'calc.ip', value: '192.168.1.10', inputmode: 'decimal' },
+      {
+        kind: 'seg',
+        name: 'netType',
+        label: 'calc.netType',
+        value: 'default',
+        options: [
+          { value: 'default', key: 'calc.seg.auto' },
+          { value: 'A', text: 'A' },
+          { value: 'B', text: 'B' },
+          { value: 'C', text: 'C' },
+        ],
+      },
+      { kind: 'text', name: 'subnets', label: 'calc.subnets', value: '4', inputmode: 'numeric', optional: true },
+      { kind: 'text', name: 'hosts', label: 'calc.hosts', value: '', placeholder: '50', inputmode: 'numeric', optional: true },
+    ],
+    rows: [
+      { key: 'netType', label: 'calc.netType' },
+      { key: 'mask', label: 'calc.mask' },
+      { key: 'cidr', label: 'calc.cidr' },
+      { key: 'subnets', label: 'calc.subnetCount' },
+      { key: 'hostsTotal', label: 'calc.hostsTotal' },
+    ],
+  },
+  {
+    id: 'maskToCidr',
+    group: 'masks',
+    name: 'calc.maskToCidr.name',
+    desc: 'calc.maskToCidr.desc',
+    inputs: [{ kind: 'text', name: 'mask', label: 'calc.mask', value: '255.255.255.0', inputmode: 'decimal' }],
+    rows: [{ key: 'cidr', label: 'calc.cidr' }],
+  },
+  {
+    id: 'cidrToMask',
+    group: 'masks',
+    name: 'calc.cidrToMask.name',
+    desc: 'calc.cidrToMask.desc',
+    inputs: [{ kind: 'text', name: 'cidr', label: 'calc.cidr', value: '24', inputmode: 'numeric' }],
+    rows: [
+      { key: 'dotted', label: 'calc.dotted' },
+      { key: 'decimal', label: 'calc.decimal' },
+      { key: 'hex', label: 'calc.hex' },
+      { key: 'hexOctets', label: 'calc.hexDotted' },
+    ],
+  },
+  {
+    id: 'maskConverter',
+    group: 'masks',
+    name: 'calc.maskConverter.name',
+    desc: 'calc.maskConverter.desc',
+    inputs: [
+      {
+        kind: 'seg',
+        name: 'mode',
+        label: 'calc.inputFormat',
+        value: 'dotted',
+        options: [
+          { value: 'dotted', key: 'calc.seg.maskDotted', example: '255.255.255.0' },
+          { value: 'bits', key: 'calc.seg.bits', example: '24' },
+        ],
+      },
+      { kind: 'text', name: 'value', label: 'calc.maskOrBits', value: '255.255.255.0', inputmode: 'decimal' },
+    ],
+    rows: [
+      { key: 'dotted', label: 'calc.dotted' },
+      { key: 'cidr', label: 'calc.cidr' },
+      { key: 'hex', label: 'calc.hex' },
+    ],
+  },
+  {
+    id: 'invertMask',
+    group: 'masks',
+    name: 'calc.invertMask.name',
+    desc: 'calc.invertMask.desc',
+    inputs: [{ kind: 'text', name: 'mask', label: 'calc.mask', value: '255.255.240.0', inputmode: 'decimal' }],
+    rows: [{ key: 'wildcard', label: 'calc.wildcard' }],
+  },
+  {
+    id: 'convertIp',
+    group: 'formats',
+    name: 'calc.convertIp.name',
+    desc: 'calc.convertIp.desc',
+    inputs: [
+      {
+        kind: 'seg',
+        name: 'mode',
+        label: 'calc.inputFormat',
+        value: 'dotted',
+        options: [
+          { value: 'dotted', key: 'calc.seg.dotted', example: '192.168.1.10' },
+          { value: 'binary', key: 'calc.seg.binary', example: '11000000.10101000.00000001.00001010' },
+          { value: 'hex', key: 'calc.seg.hex', example: 'C0A8010A' },
+          { value: 'decimal', key: 'calc.seg.decimal', example: '3232235786' },
+        ],
+      },
+      { kind: 'text', name: 'value', label: 'calc.ip', value: '192.168.1.10', inputmode: 'decimal' },
+    ],
+    rows: [
+      { key: 'dotted', label: 'calc.dotted' },
+      { key: 'binary', label: 'calc.binary' },
+      { key: 'hex', label: 'calc.hex' },
+      { key: 'hexOctets', label: 'calc.hexDotted' },
+      { key: 'decimal', label: 'calc.decimal' },
+    ],
+  },
+  {
+    id: 'dottedToBinHex',
+    group: 'formats',
+    name: 'calc.dottedToBinHex.name',
+    desc: 'calc.dottedToBinHex.desc',
+    inputs: [{ kind: 'text', name: 'ip', label: 'calc.ip', value: '10.0.0.255', inputmode: 'decimal' }],
+    rows: [
+      { key: 'binary', label: 'calc.binary' },
+      { key: 'hex', label: 'calc.hex' },
+      { key: 'hexOctets', label: 'calc.hexDotted' },
+    ],
+  },
+  {
+    id: 'hexToIp',
+    group: 'formats',
+    name: 'calc.hexToIp.name',
+    desc: 'calc.hexToIp.desc',
+    inputs: [{ kind: 'text', name: 'hex', label: 'calc.hex', value: 'C0A8010A' }],
+    rows: [
+      { key: 'dotted', label: 'calc.dotted' },
+      { key: 'binary', label: 'calc.binary' },
+    ],
+  },
+];
+
+const { lang } = Astro.props;
+const T = (key: UiKey) => t(lang, key);
+const ctx = { classType: T('calc.classType') };
+const strings = uiSubset(lang, ['calc.classType']);
+
+// 构建时用默认值算一遍，结果直接写进 HTML
+const cards = calcs.map((c) => {
+  const fields: Fields = Object.fromEntries(c.inputs.map((input) => [input.name, input.value]));
+  return { ...c, out: runCalc(c.id, fields, ctx) };
+});
+---
+
+<div class="ipcalc" data-ipcalc data-lang={lang} data-strings={JSON.stringify(strings)}>
+  {
+    groups.map((g) => (
+      <section id={g.id} class="block" aria-labelledby={`${g.id}-title`}>
+        <h2 id={`${g.id}-title`}>{T(g.title)}</h2>
+        <div class="cards">
+          {cards
+            .filter((c) => c.group === g.id)
+            .map((c) => (
+              <section class="calc" data-calc={c.id} aria-labelledby={`${c.id}-title`}>
+                <header class="calc-head">
+                  <h3 id={`${c.id}-title`}>{T(c.name)}</h3>
+                  <p class="desc">{T(c.desc)}</p>
+                </header>
+
+                <div class="inputs">
+                  {c.inputs.map((input) =>
+                    input.kind === 'seg' ? (
+                      <fieldset class="field">
+                        <legend>{T(input.label)}</legend>
+                        <div class="seg">
+                          {input.options.map((o) => (
+                            <label>
+                              <input
+                                type="radio"
+                                name={`${c.id}-${input.name}`}
+                                value={o.value}
+                                data-field={input.name}
+                                data-example={o.example}
+                                checked={o.value === input.value}
+                              />
+                              <span>{o.key ? T(o.key) : o.text}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </fieldset>
+                    ) : (
+                      <div class="field">
+                        <label for={`${c.id}-${input.name}`}>
+                          {T(input.label)}
+                          {input.optional && <span class="hint">{T('pg.optional')}</span>}
+                        </label>
+                        <input
+                          id={`${c.id}-${input.name}`}
+                          class="input"
+                          type="text"
+                          name={`${c.id}-${input.name}`}
+                          data-field={input.name}
+                          value={input.value}
+                          placeholder={input.placeholder}
+                          inputmode={input.inputmode}
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                    ),
+                  )}
+                </div>
+
+                <div class="out" aria-live="polite">
+                  <p class="err" data-error hidden={!('error' in c.out)}>
+                    {'error' in c.out ? CALC_ERRORS[c.out.error][lang] : ''}
+                  </p>
+                  <dl class="rows" data-rows hidden={'error' in c.out}>
+                    {c.rows.map((r) => {
+                      const value = 'rows' in c.out ? (c.out.rows[r.key] ?? '') : '';
+                      return (
+                        <div class="row">
+                          <dt>{T(r.label)}</dt>
+                          <dd>
+                            <code data-f={r.key}>{value}</code>
+                            <CopyButton lang={lang} text={value.replace(/,/g, '')} />
+                          </dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
+                </div>
+              </section>
+            ))}
+        </div>
+      </section>
+    ))
+  }
+</div>
+
+<script>
+  import { initIpCalc } from '../../scripts/ipcalc-page';
+  document.querySelectorAll<HTMLElement>('[data-ipcalc]').forEach(initIpCalc);
+</script>
+
+<style>
+  .ipcalc [hidden] {
+    display: none !important;
+  }
+
+  /* 宽度够就排两列，窄屏一列；每张卡片最窄 400px */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
+    gap: 20px;
+  }
+  .calc {
+    display: grid;
+    align-content: start;
+    gap: 22px;
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--stage-raise);
+  }
+  .calc-head {
+    display: grid;
+    gap: 8px;
+  }
+  .desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-3);
+  }
+
+  .inputs {
+    display: grid;
+    gap: 14px;
+  }
+  .field {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .field > label,
+  .field > legend {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+  .hint {
+    font-size: 12px;
+    color: var(--text-4);
+  }
+
+  /* 和在线试用的输入框一致：40px 高，mono 字体；聚焦时用香槟色描边 */
+  .input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: var(--stage);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--bone);
+  }
+  .input::placeholder {
+    color: var(--text-4);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--champagne);
+  }
+
+  /* 分段选择：和在线试用的 .seg 一致 */
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--stage);
+  }
+  .seg label {
+    position: relative;
+    flex: 1 1 auto;
+  }
+  .seg span {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+    color: var(--text-3);
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+  .seg input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .seg input:checked + span {
+    background: var(--surface-3);
+    color: var(--bone);
+  }
+  .seg input:focus-visible + span {
+    outline: 2px solid var(--champagne);
+    outline-offset: 1px;
+  }
+
+  /* 结果：标签在上，等宽的值和复制按钮在下，行与行之间是细线 */
+  .out {
+    padding-top: 4px;
+    border-top: 1px solid var(--line);
+  }
+  .err {
+    padding: 12px 0 4px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--err);
+  }
+  .row {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .row:last-child {
+    border-bottom: 0;
+  }
+  .row dt {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+  .row dd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    margin-top: 4px;
+  }
+  .row code {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--bone);
+  }
+
+  @media (max-width: 560px) {
+    .cards {
+      gap: 16px;
+    }
+    .calc {
+      padding: 20px;
+    }
+    .seg span {
+      padding: 7px 9px;
+    }
+    .row code {
+      font-size: 12.5px;
+    }
+  }
+</style>
