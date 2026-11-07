@@ -447,6 +447,26 @@ test('maskConverter：点分十进制优先，位元数只在点分为空时使�
   assert.deepStrictEqual(maskConverter({ dotted: ' ', bits: '' }), { ok: false, error: 'MASK_CONVERTER_EMPTY' });
 });
 
+test('位数输入为 -0 时结果也是 0，不会显示 -0', () => {
+  // Object.is 才能区分 -0 与 0，所以用 deepStrictEqual 整体比较
+  assert.deepStrictEqual(networkRange('10.0.0.1', '-0'), {
+    ok: true,
+    usable: 4294967294,
+    total: 4294967296,
+    mask: '0.0.0.0',
+    cidr: 0,
+    network: '0.0.0.0',
+    first: '0.0.0.1',
+    last: '255.255.255.254',
+    broadcast: '255.255.255.255',
+  });
+  for (const bits of ['-0', '-0.0', '-0e0']) {
+    const result = maskConverter({ dotted: '', bits });
+    assert.ok(result.ok, bits);
+    if (result.ok) assert.ok(Object.is(result.cidr, 0), bits);
+  }
+});
+
 test('classful：默认按首字节推断 A 类，子网数量优先', () => {
   assert.deepStrictEqual(classful({ ip: '10.1.2.3', netType: 'default', subnets: '4', hosts: '' }), {
     ok: true,

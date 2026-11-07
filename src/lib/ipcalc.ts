@@ -246,7 +246,8 @@ export type NetworkRangeValues = {
 /** 按 IP 与 CIDR 位数算网络范围；CIDR 为空或只有空白时报错 */
 export function networkRange(ip: string, cidr: string): CalcResult<NetworkRangeValues> {
   const ipValue = parseIPv4(ip);
-  const bits = Number(cidr);
+  // 加 0 把 -0 变成 0，避免结果里出现 -0
+  const bits = Number(cidr) + 0;
   const mask = isBlank(cidr) ? null : maskFromCidr(bits);
   if (ipValue === null || mask === null) return fail('NETWORK_RANGE_INVALID');
 
@@ -433,7 +434,8 @@ export function maskConverter(input: MaskConverterInput): CalcResult<MaskConvert
   }
 
   if (bitsText) {
-    const bits = Number(bitsText);
+    // 加 0 把 -0 变成 0，避免结果里出现 -0
+    const bits = Number(bitsText) + 0;
     const mask = maskFromCidr(bits);
     if (mask === null) return fail('MASK_CONVERTER_BITS_INVALID');
     return { ok: true, dotted: toIPv4(mask), cidr: bits, hex: toHex32(mask) };
