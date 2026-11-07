@@ -196,7 +196,14 @@ function initCard(card: HTMLElement, lang: Lang, ctx: Ctx) {
   // 带格式选择的卡片（转换 IP、掩码换算）：记住当前格式，切换时换算输入框里的值
   const checked = card.querySelector<HTMLInputElement>('[data-field="mode"]:checked');
   let mode = checked?.value ?? '';
-  if (valueEl && checked) valueEl.placeholder = checked.dataset.example ?? '';
+
+  // 换格式时同步示例和手机键盘类型：十六进制用字母键，点分和二进制用数字键
+  const syncFormat = (radio: HTMLInputElement) => {
+    if (!valueEl) return;
+    valueEl.placeholder = radio.dataset.example ?? '';
+    valueEl.setAttribute('inputmode', radio.dataset.inputmode ?? 'text');
+  };
+  if (checked) syncFormat(checked);
 
   let timer = 0;
 
@@ -240,8 +247,8 @@ function initCard(card: HTMLElement, lang: Lang, ctx: Ctx) {
       if (valueEl) {
         const next = convertMode(name, mode, valueEl.value, target.value);
         if (next !== null) valueEl.value = next;
-        valueEl.placeholder = target.dataset.example ?? '';
       }
+      syncFormat(target);
       mode = target.value;
     }
     schedule();

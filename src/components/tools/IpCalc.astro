@@ -17,6 +17,8 @@ interface Option {
   text?: string;
   /** 输入框为空时显示的示例 */
   example?: string;
+  /** 切换到这个格式时输入框的键盘类型：十六进制要字母键，点分和二进制用数字键 */
+  inputmode?: 'decimal' | 'numeric' | 'text';
 }
 
 type Input =
@@ -171,8 +173,8 @@ const calcs: Calc[] = [
         label: 'calc.inputFormat',
         value: 'dotted',
         options: [
-          { value: 'dotted', key: 'calc.seg.maskDotted', example: '255.255.255.0' },
-          { value: 'bits', key: 'calc.seg.bits', example: '24' },
+          { value: 'dotted', key: 'calc.seg.maskDotted', example: '255.255.255.0', inputmode: 'decimal' },
+          { value: 'bits', key: 'calc.seg.bits', example: '24', inputmode: 'numeric' },
         ],
       },
       { kind: 'text', name: 'value', label: 'calc.maskOrBits', value: '255.255.255.0', inputmode: 'decimal' },
@@ -203,10 +205,10 @@ const calcs: Calc[] = [
         label: 'calc.inputFormat',
         value: 'dotted',
         options: [
-          { value: 'dotted', key: 'calc.seg.dotted', example: '192.168.1.10' },
-          { value: 'binary', key: 'calc.seg.binary', example: '11000000.10101000.00000001.00001010' },
-          { value: 'hex', key: 'calc.seg.hex', example: 'C0A8010A' },
-          { value: 'decimal', key: 'calc.seg.decimal', example: '3232235786' },
+          { value: 'dotted', key: 'calc.seg.dotted', example: '192.168.1.10', inputmode: 'decimal' },
+          { value: 'binary', key: 'calc.seg.binary', example: '11000000.10101000.00000001.00001010', inputmode: 'numeric' },
+          { value: 'hex', key: 'calc.seg.hex', example: 'C0A8010A', inputmode: 'text' },
+          { value: 'decimal', key: 'calc.seg.decimal', example: '3232235786', inputmode: 'numeric' },
         ],
       },
       { kind: 'text', name: 'value', label: 'calc.ip', value: '192.168.1.10', inputmode: 'decimal' },
@@ -285,6 +287,7 @@ const cards = calcs.map((c) => {
                                 value={o.value}
                                 data-field={input.name}
                                 data-example={o.example}
+                                data-inputmode={o.inputmode}
                                 checked={o.value === input.value}
                               />
                               <span>{o.key ? T(o.key) : o.text}</span>
