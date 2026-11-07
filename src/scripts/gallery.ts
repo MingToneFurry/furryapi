@@ -17,4 +17,15 @@ export function initGallery(root: HTMLElement) {
       if (openLightbox(items, i, tile)) event.preventDefault();
     }),
   );
+
+  // 照片加载完再淡入。已经加载好的（缓存命中、脚本晚到）直接显示；加载失败也显示，露出底色
+  root.dataset.fade = '';
+  root.querySelectorAll('img').forEach((img) => {
+    const show = () => img.classList.add('is-loaded');
+    if (img.complete) show();
+    else {
+      img.addEventListener('load', show, { once: true });
+      img.addEventListener('error', show, { once: true });
+    }
+  });
 }

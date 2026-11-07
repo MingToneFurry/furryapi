@@ -22,8 +22,9 @@ const items = await Promise.all(
 );
 ---
 
-<section id="gallery" class="section gallery" aria-labelledby="gallery-title">
-  <header class="wrap section-head">
+<section class="section gallery" aria-labelledby="gallery-title">
+  <!-- 页头“图库”链接的落点放在标题上，不在整节顶部，免得停下时上方空出一大截留白 -->
+  <header id="gallery" class="wrap section-head">
     <p class="eyebrow">{t(lang, 'gallery.eyebrow')}</p>
     <h2 id="gallery-title">{t(lang, 'gallery.title', { total: num(counts.large + counts.box) })}</h2>
     <p class="lede">{t(lang, 'gallery.lead', { large: num(counts.large), box: num(counts.box) })}</p>
@@ -65,6 +66,10 @@ const items = await Promise.all(
 </script>
 
 <style>
+  #gallery {
+    scroll-margin-top: 24px;
+  }
+
   /* 等高行：每张的伸展比例和基准宽度都正比于宽高比，同一行的高度就一致 */
   .wall {
     --row: clamp(140px, 21vw, 300px);
@@ -85,8 +90,13 @@ const items = await Promise.all(
     object-fit: cover;
     filter: brightness(0.9);
     transition:
+      opacity 0.9s var(--ease-out),
       transform 1.4s var(--ease-out),
       filter 0.6s;
+  }
+  /* 有脚本时，照片加载完再从暗处淡入，不一张张蹦出来；没有脚本时照常显示 */
+  [data-fade] .tile img:not(.is-loaded) {
+    opacity: 0;
   }
   .tile:hover img,
   .tile:focus-visible img {

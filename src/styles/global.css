@@ -122,6 +122,8 @@
     color: var(--text-2);
     font-family: var(--font-sans);
     scroll-padding-top: calc(var(--header-h) + 24px);
+    /* 页内锚点（页头的图库、文档目录）平滑滚过去；系统要求减少动态效果时，下面的 reduce 规则会改回直接跳 */
+    scroll-behavior: smooth;
   }
   body {
     min-height: 100svh;
