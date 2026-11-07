@@ -13,7 +13,7 @@ const { lang, current, sections } = Astro.props;
 const groups = groupByCategory(catalog);
 ---
 
-<nav class="doc-nav" aria-label={t(lang, 'docs.nav')}>
+<nav class="doc-nav" aria-label={t(lang, 'docs.nav')} data-doc-nav>
   <a class="all" href={href(lang, '/apiIntro/')}>{t(lang, 'docs.nav')}</a>
   {
     groups.map((g) => (
@@ -41,6 +41,23 @@ const groups = groupByCategory(catalog);
     ))
   }
 </nav>
+
+<script>
+  // 窄屏时导航是一行横向滑动的标签。当前接口不在可见范围里时，打开页面就把它滑到中间
+  document.querySelectorAll<HTMLElement>('[data-doc-nav]').forEach((nav) => {
+    const current = nav.querySelector<HTMLElement>('a[aria-current]');
+    if (!current) return;
+    const reveal = () => {
+      if (nav.scrollWidth <= nav.clientWidth) return;
+      const box = nav.getBoundingClientRect();
+      const item = current.getBoundingClientRect();
+      if (item.left >= box.left && item.right <= box.right) return;
+      nav.scrollLeft += item.left - box.left - (box.width - item.width) / 2;
+    };
+    // 等字体加载完再量，标签宽度才准
+    document.fonts.ready.then(reveal);
+  });
+</script>
 
 <style>
   .doc-nav {
