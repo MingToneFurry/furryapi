@@ -1,18 +1,17 @@
-// 拉取 friends.json 中的友链头像到本站 assets/friends/，并重写 index.html 的友链区块。
-// 用法：node generate-friends.js（Node 18+，无依赖）
-// 需要代理时（Node 24+）：NODE_USE_ENV_PROXY=1 HTTPS_PROXY=http://127.0.0.1:7890 node generate-friends.js
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+// 拉取 src/data/friends.json 里的友链头像，缓存到 public/assets/friends/。
+// 文件名为 <slug>.<内容哈希>.<扩展名>，Footer.astro 构建时按 <slug>. 前缀找到它。
+// 用法：npm run friends（Node 24，无依赖）。部分友链站点屏蔽海外访问，请在国内网络下运行。
+// 需要代理时：NODE_USE_ENV_PROXY=1 HTTPS_PROXY=http://127.0.0.1:7890 npm run friends
+// PowerShell 中：$env:NODE_USE_ENV_PROXY='1'; $env:HTTPS_PROXY='http://127.0.0.1:7890'; npm run friends
+// 运行后请把 public/assets/friends/ 里的变化一起提交。
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
 
-const ROOT = path.resolve(__dirname);
-const FRIENDS_JSON = path.join(ROOT, 'friends.json');
-const AVATAR_DIR = path.join(ROOT, 'assets', 'friends');
-const AVATAR_URL_PREFIX = '/assets/friends/';
+const ROOT = path.resolve(import.meta.dirname, '..');
+const FRIENDS_JSON = path.join(ROOT, 'src', 'data', 'friends.json');
+const AVATAR_DIR = path.join(ROOT, 'public', 'assets', 'friends');
 const DEFAULT_AVATAR = 'default.svg';
-const INDEX_HTML = path.join(ROOT, 'index.html');
-const MARK_START = '<!-- friends:start -->';
-const MARK_END = '<!-- friends:end -->';
 
 const TIMEOUT_MS = 15000;
 const RETRIES = 1;
@@ -28,7 +27,7 @@ function sniffExt(buf) {
   if (hex.startsWith('52494646') && buf.subarray(8, 12).toString() === 'WEBP') return 'webp';
   if (hex.startsWith('00000100')) return 'ico';
   if (buf.subarray(4, 12).toString() === 'ftypavif') return 'avif';
-  const head = buf.subarray(0, 512).toString('utf8').replace(/^﻿/, '').trimStart();
+  const head = buf.subarray(0, 512).toString('utf8').replace(/^\uFEFF/, '').trimStart();
   if (/^(<\?xml[^>]*>\s*)?(<!--[\s\S]*?-->\s*)*(<!DOCTYPE svg[^>]*>\s*)?<svg[\s>]/i.test(head)) return 'svg';
   return null;
 }
@@ -69,39 +68,31 @@ function existingFiles(slug) {
   return fs.readdirSync(AVATAR_DIR).filter(f => f.startsWith(`${slug}.`));
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
 async function processFriend(friend) {
   const old = existingFiles(friend.slug);
 
-  // 对方站点完全拉不到时，可手动把图放进 assets/friends/ 并在 friends.json 里写 avatarFile（文件名）
+  // 对方站点完全拉不到时，可手动把图放进 public/assets/friends/ 并在 friends.json 里写 avatarFile（文件名）
   if (friend.avatarFile) {
-    return { file: friend.avatarFile, status: 'manual' };
+    const exists = fs.existsSync(path.join(AVATAR_DIR, friend.avatarFile));
+    if (!exists) console.warn(`[${friend.slug}] avatarFile 指向的文件不存在：${friend.avatarFile}`);
+    return { file: friend.avatarFile, status: 'manual', error: exists ? '' : 'avatarFile 文件不存在' };
   }
 
+  let fetched;
   try {
-    const { buf, ext } = await fetchAvatar(friend.avatar, friend.url);
-    const hash = crypto.createHash('sha256').update(buf).digest('hex').slice(0, 8);
-    const file = `${friend.slug}.${hash}.${ext}`;
-    fs.writeFileSync(path.join(AVATAR_DIR, file), buf);
-    old.filter(f => f !== file).forEach(f => fs.unlinkSync(path.join(AVATAR_DIR, f)));
-    return { file, status: old.includes(file) ? 'unchanged' : 'updated' };
+    fetched = await fetchAvatar(friend.avatar, friend.url);
   } catch (err) {
     // 拉取失败时保留上一次成功的文件；从未成功过则用占位图
     if (old.length > 0) return { file: old[0], status: 'kept-old', error: err.message };
     return { file: DEFAULT_AVATAR, status: 'placeholder', error: err.message };
   }
-}
 
-function renderLinks(friends, results, eol) {
-  return friends.map((f, i) => [
-    `          <a href="${escapeHtml(f.url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(f.title || f.name)}">`,
-    `            <img loading="lazy" src="${AVATAR_URL_PREFIX}${escapeHtml(results[i].file)}" alt="${escapeHtml(f.name)}">`,
-    `            ${escapeHtml(f.name)}`,
-    `          </a>`,
-  ].join('\n')).join('\n');
+  const { buf, ext } = fetched;
+  const hash = crypto.createHash('sha256').update(buf).digest('hex').slice(0, 8);
+  const file = `${friend.slug}.${hash}.${ext}`;
+  fs.writeFileSync(path.join(AVATAR_DIR, file), buf);
+  old.filter(f => f !== file).forEach(f => fs.unlinkSync(path.join(AVATAR_DIR, f)));
+  return { file, status: old.includes(file) ? 'unchanged' : 'updated' };
 }
 
 async function main() {
@@ -123,15 +114,8 @@ async function main() {
     .filter(f => !keep.has(f))
     .forEach(f => fs.unlinkSync(path.join(AVATAR_DIR, f)));
 
-  const html = fs.readFileSync(INDEX_HTML, 'utf8');
-  const start = html.indexOf(MARK_START);
-  const end = html.indexOf(MARK_END);
-  if (start === -1 || end === -1 || end < start) throw new Error(`index.html 中缺少 ${MARK_START} / ${MARK_END} 标记`);
-  const next = `${html.slice(0, start + MARK_START.length)}\n${renderLinks(friends, results)}\n          ${html.slice(end)}`;
-  fs.writeFileSync(INDEX_HTML, next);
-
   console.table(friends.map((f, i) => ({ slug: f.slug, status: results[i].status, file: results[i].file, error: results[i].error || '' })));
-  console.log('index.html 友链区块已更新');
+  console.log('头像已写入 public/assets/friends/，请把其中的变化一起提交');
 }
 
 main().catch(err => {

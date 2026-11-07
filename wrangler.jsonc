@@ -1,7 +1,8 @@
 {
   "name": "furryapi",
   "compatibility_date": "2026-01-13",
+  // 构建产物目录（npm run build）。本站发布走 Pages，构建与输出目录在 Pages 控制台设置，Pages 不读取这里的 assets。
   "assets": {
-    "directory": "."
+    "directory": "./dist"
   }
 }
