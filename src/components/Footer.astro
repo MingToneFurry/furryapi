@@ -1,0 +1,162 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import { href, pick, t, type Lang } from '../i18n';
+import { catalog, docPath } from '../apis';
+import friends from '../data/friends.json';
+import { CONTACT_CN, CONTACT_GLOBAL, EMAIL, ICP, STATUS_URL } from '../lib/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+// 友链头像由 scripts/generate-friends.mjs 缓存到 public/assets/friends/<slug>.<哈希>.<扩展名>
+const avatarDir = path.join(process.cwd(), 'public/assets/friends');
+const avatarFiles = fs.existsSync(avatarDir) ? fs.readdirSync(avatarDir) : [];
+const avatarOf = (f: { slug: string; avatarFile?: string }) =>
+  `/assets/friends/${f.avatarFile ?? avatarFiles.find((n) => n.startsWith(`${f.slug}.`)) ?? 'default.svg'}`;
+---
+
+<footer class="site-footer wrap">
+  <div class="cols">
+    <div class="about">
+      <a class="wordmark serif" href={href(lang, '/')}>FurryAPI</a>
+      <p>{t(lang, 'footer.about')}</p>
+    </div>
+
+    <nav aria-labelledby="f-apis">
+      <h2 id="f-apis">{t(lang, 'footer.apis')}</h2>
+      <ul role="list">
+        {catalog.map((e) => <li><a href={href(lang, docPath(e))}>{pick(e.name, lang)}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav aria-labelledby="f-site">
+      <h2 id="f-site">{t(lang, 'footer.site')}</h2>
+      <ul role="list">
+        <li><a href={href(lang, '/apiIntro/')}>{t(lang, 'nav.docs')}</a></li>
+        <li><a href={href(lang, '/thank/')}>{t(lang, 'nav.thanks')}</a></li>
+        <li><a href={STATUS_URL} target="_blank" rel="noopener noreferrer">{t(lang, 'nav.status')}</a></li>
+        <li><a href="/sitemap.xml">{t(lang, 'footer.sitemap')}</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <h2 id="f-contact">{t(lang, 'footer.contact')}</h2>
+      <ul role="list" aria-labelledby="f-contact">
+        <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
+        <li><a href={CONTACT_CN} target="_blank" rel="noopener noreferrer">{t(lang, 'footer.contactCn')}</a></li>
+        <li><a href={CONTACT_GLOBAL} target="_blank" rel="noopener noreferrer">{t(lang, 'footer.contactGlobal')}</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 id="f-friends">{t(lang, 'footer.friends')}</h2>
+      <ul role="list" class="friends" aria-labelledby="f-friends">
+        {
+          friends.map((f) => (
+            <li>
+              <a href={f.url} target="_blank" rel="noopener noreferrer" title={f.title}>
+                <img src={avatarOf(f)} alt="" width="20" height="20" loading="lazy" decoding="async" />
+                <span>{f.name}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="base">
+    <p>© {new Date().getFullYear()} FurryAPI</p>
+    <p><a href={ICP.url} target="_blank" rel="noopener noreferrer">{ICP.text}</a></p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-10);
+    font-size: var(--step--1);
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(14rem, 1.6fr) repeat(4, minmax(9rem, 1fr));
+    gap: var(--space-6) var(--space-5);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--ink);
+  }
+
+  .about p {
+    max-width: 18em;
+    margin-top: var(--space-3);
+    color: var(--ash);
+  }
+  .wordmark {
+    font-size: var(--step-2);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  h2 {
+    margin-bottom: var(--space-3);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    font-weight: 500;
+    color: var(--ash);
+  }
+
+  li + li {
+    margin-top: var(--space-2);
+  }
+
+  ul a {
+    text-decoration-color: transparent;
+  }
+  ul a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .friends a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .friends img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--wash);
+  }
+
+  .base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-6);
+    margin-top: var(--space-8);
+    padding-block: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--rule);
+    color: var(--ash);
+  }
+  .base a {
+    text-decoration-color: transparent;
+  }
+  .base a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  @media (max-width: 63.99rem) {
+    .cols {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .about {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

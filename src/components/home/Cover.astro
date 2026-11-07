@@ -1,0 +1,171 @@
+---
+// 首页封面：打开页面时实时调用随机照片接口，拿到的照片就是封面。
+import { t, uiSubset, type Lang } from '../../i18n';
+import { IMAGE_API } from '../../lib/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const strings = uiSubset(lang, ['cover.no', 'cover.large', 'cover.box', 'cover.failed', 'cover.loading']);
+---
+
+<section class="cover wrap" aria-labelledby="cover-title">
+  <h1 id="cover-title">{t(lang, 'home.title')}</h1>
+  <p class="lead">{t(lang, 'home.lead')}</p>
+
+  <figure class="plate" data-cover data-api={IMAGE_API} data-strings={JSON.stringify(strings)} data-state="loading">
+    <a class="frame" data-cover-link href={IMAGE_API} target="_blank" rel="noopener noreferrer" aria-label={t(lang, 'cover.original')}>
+      <img data-layer alt="" decoding="async" fetchpriority="high" />
+      <img data-layer alt="" decoding="async" />
+      <span class="status" data-cover-status role="status">{t(lang, 'cover.loading')}</span>
+    </a>
+    <figcaption>
+      <p class="label">
+        <span class="no serif" data-cover-no>{t(lang, 'cover.no', { n: '…' })}</span>
+        <span class="kind" data-cover-kind></span>
+      </p>
+      <p class="actions">
+        <button class="text-btn" type="button" data-cover-next>{t(lang, 'cover.next')}</button>
+        <button
+          class="text-btn"
+          type="button"
+          data-copy={IMAGE_API}
+          data-copied-label={t(lang, 'copied')}
+          data-failed-label={t(lang, 'copy.failed')}>{t(lang, 'cover.copy')}</button
+        >
+      </p>
+      <p class="source">
+        <span>{t(lang, 'cover.via')}</span>
+        <code data-cover-source>{IMAGE_API}</code>
+      </p>
+    </figcaption>
+  </figure>
+</section>
+
+<script>
+  import { initCover } from '../../scripts/cover';
+  document.querySelectorAll<HTMLElement>('[data-cover]').forEach(initCover);
+</script>
+
+<style>
+  .cover {
+    padding-top: var(--space-8);
+    text-align: center;
+  }
+
+  h1 {
+    font-size: var(--step-5);
+    letter-spacing: -0.015em;
+    line-height: 1.12;
+  }
+
+  .lead {
+    max-width: 30em;
+    margin: var(--space-4) auto 0;
+    color: var(--ash);
+    font-size: var(--step-1);
+    line-height: 1.6;
+  }
+
+  .plate {
+    --frame-ratio: 4 / 3;
+    --frame-w: min(100%, max(26rem, calc((100svh - 22rem) * 4 / 3)), 68rem);
+    margin-top: var(--space-7);
+  }
+  @media (orientation: portrait) {
+    .plate {
+      --frame-ratio: 3 / 4;
+      --frame-w: min(100%, max(18rem, calc((100svh - 20rem) * 3 / 4)), 36rem);
+    }
+  }
+
+  .frame {
+    position: relative;
+    display: block;
+    width: var(--frame-w);
+    aspect-ratio: var(--frame-ratio);
+    margin-inline: auto;
+    background: var(--wash);
+    transition: background-color 600ms var(--ease);
+  }
+  .plate[data-state='ready'] .frame {
+    background: transparent;
+  }
+
+  .frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 700ms var(--ease);
+  }
+  .frame img:global(.is-front) {
+    opacity: 1;
+  }
+
+  .status {
+    position: absolute;
+    inset: auto 0 50% 0;
+    color: var(--ash);
+    font-size: var(--step--1);
+    transform: translateY(50%);
+  }
+  .plate[data-state='ready'] .status {
+    visibility: hidden;
+  }
+
+  figcaption {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-1) var(--space-5);
+    width: var(--frame-w);
+    margin: var(--space-4) auto 0;
+    text-align: left;
+  }
+
+  .label {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+  .no {
+    font-size: var(--step-1);
+  }
+  .kind {
+    color: var(--ash);
+    font-size: var(--step--1);
+  }
+
+  .actions {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-5);
+  }
+
+  .source {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
+    color: var(--ash);
+    font-size: var(--step--1);
+  }
+  .source code {
+    padding: 0;
+    background: none;
+    color: var(--ink);
+  }
+
+  @media (max-width: 39.99rem) {
+    .cover {
+      padding-top: var(--space-6);
+    }
+    figcaption {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

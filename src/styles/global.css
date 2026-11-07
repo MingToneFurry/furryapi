@@ -1,0 +1,405 @@
+/*
+  FurryAPI 设计系统
+  纸白和墨黑做底，照片是页面里唯一的大面积色彩；薄荷绿只用在焦点、选中和状态上。
+  标题用宋体（Source Serif 4 + 思源宋体子集），正文和界面用无衬线，代码用 IBM Plex Mono。
+  组件样式写在各自的 .astro 里（不分层，优先级高于这里的 base 层）。
+*/
+@import '@fontsource-variable/schibsted-grotesk/wght.css';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+
+@layer reset, base;
+
+/* 构建后由 integrations/font-subset.mjs 生成，__FONT_VERSION__ 会换成内容哈希 */
+@font-face {
+  font-family: 'FA Serif';
+  src: url('/fonts/serif-latin.woff2?v=__FONT_VERSION__') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-02FF, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212;
+}
+@font-face {
+  font-family: 'FA Serif';
+  src: url('/fonts/serif-sc.woff2?v=__FONT_VERSION__') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2E80-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* 色彩 */
+  --paper: light-dark(#ffffff, #000000);
+  --ink: light-dark(#000000, #ececec);
+  --ash: light-dark(#666666, #9d9d9d);
+  --mist: light-dark(#a0a0a0, #666666);
+  --rule: light-dark(#e3e3e3, #262626);
+  --wash: light-dark(#f4f4f4, #101010);
+  --mint: light-dark(#0a7a5a, #5ccfa3);
+  --mint-wash: light-dark(#e6f3ed, #0a2219);
+  --alert: light-dark(#b42318, #ff8f80);
+
+  /* 字体 */
+  --font-serif: 'FA Serif', 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', serif;
+  --font-sans: 'Schibsted Grotesk Variable', 'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei UI',
+    'Microsoft YaHei', 'Noto Sans SC', 'Source Han Sans SC', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'PingFang SC',
+    'Microsoft YaHei', monospace;
+
+  /* 字号：正文 16px，按 4:3 左右的比例往上走 */
+  --step--2: 0.75rem;
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.1875rem;
+  --step-2: 1.5rem;
+  --step-3: clamp(1.75rem, 1.45rem + 1.1vw, 2.25rem);
+  --step-4: clamp(2.25rem, 1.7rem + 2.3vw, 3.5rem);
+  --step-5: clamp(2.5rem, 1.6rem + 3.8vw, 4.5rem);
+
+  /* 间距 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  /* 版心 */
+  --gutter: clamp(1.25rem, 0.5rem + 3vw, 3rem);
+  --page: 80rem;
+  --measure: 38em;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    hanging-punctuation: allow-end;
+    scroll-padding-top: var(--space-6);
+  }
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  figure,
+  blockquote,
+  dl,
+  dd,
+  pre {
+    margin: 0;
+  }
+  ul[role='list'],
+  ol[role='list'] {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  img,
+  picture,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+  img {
+    height: auto;
+  }
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+  }
+  button {
+    cursor: pointer;
+  }
+  table {
+    border-collapse: collapse;
+  }
+}
+
+@layer base {
+  html {
+    background: var(--paper);
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    line-height: 1.75;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .serif {
+    font-family: var(--font-serif);
+    font-feature-settings: 'palt' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 400;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+    text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+    transition: text-decoration-color 160ms var(--ease);
+  }
+  a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+  }
+
+  :not(pre) > code {
+    padding: 0.08em 0.32em;
+    background: var(--wash);
+    overflow-wrap: anywhere;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--mint);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--mint);
+    color: var(--paper);
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+  }
+
+  /* 表单控件：只有下边线，像纸面上的填空 */
+  input[type='text'],
+  input[type='number'],
+  input[type='search'],
+  input[type='url'],
+  select,
+  textarea {
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0.35rem 0;
+    border: 0;
+    border-bottom: 1px solid var(--mist);
+    border-radius: 0;
+    background: transparent;
+    font-size: var(--step-0);
+    transition: border-color 160ms var(--ease);
+  }
+  input:hover,
+  select:hover,
+  textarea:hover {
+    border-bottom-color: var(--ink);
+  }
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+    border-bottom-color: var(--mint);
+    box-shadow: 0 1px 0 0 var(--mint);
+  }
+  input::placeholder {
+    color: var(--mist);
+  }
+  select {
+    appearance: none;
+    padding-right: 1.5rem;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: calc(100% - 9px) 55%, calc(100% - 5px) 55%;
+    background-size: 4px 4px;
+    background-repeat: no-repeat;
+  }
+  select option {
+    background: var(--paper);
+    color: var(--ink);
+  }
+}
+
+/* —— 通用版式 —— */
+
+.wrap {
+  width: 100%;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 版块标题：上方一条墨线，标题在左，附注在右 */
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--ink);
+  margin-bottom: var(--space-6);
+}
+.section-head h2 {
+  font-size: var(--step-3);
+}
+.section-head p {
+  color: var(--ash);
+  font-size: var(--step--1);
+}
+
+/* 按钮：实心用于主要动作，文字按钮用于次要动作 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  padding: 0 1.15rem;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: var(--step--1);
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 160ms var(--ease),
+    color 160ms var(--ease);
+}
+.btn:hover {
+  background: transparent;
+  color: var(--ink);
+}
+.btn[disabled],
+.btn[aria-busy='true'] {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.text-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: var(--step--1);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+  transition: text-decoration-color 160ms var(--ease);
+}
+.text-btn:hover {
+  text-decoration-color: currentColor;
+}
+.text-btn[data-state='done'] {
+  color: var(--mint);
+  text-decoration-color: currentColor;
+}
+
+/* 文档里的说明文字 */
+.prose {
+  max-width: var(--measure);
+}
+.prose > * + * {
+  margin-top: var(--space-4);
+}
+
+/* 页面切换时淡入淡出，减弱动效时关闭 */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

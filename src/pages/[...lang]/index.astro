@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import Cover from '../../components/home/Cover.astro';
+import Catalog from '../../components/Catalog.astro';
+import Picks from '../../components/home/Picks.astro';
+import { langParams, t, type Lang } from '../../i18n';
+
+export const getStaticPaths = () => langParams;
+
+const { lang } = Astro.props as { lang: Lang };
+---
+
+<Base lang={lang} title={t(lang, 'site.title')} path="/">
+  <Cover lang={lang} />
+  <div class="wrap sections">
+    <Catalog lang={lang} />
+    <Picks lang={lang} />
+  </div>
+</Base>
+
+<style>
+  .sections {
+    display: grid;
+    gap: var(--space-10);
+    margin-top: var(--space-10);
+  }
+</style>

@@ -1,0 +1,112 @@
+---
+// 图库一瞥：从图库里挑出的几张照片，构建时生成缩略图，点击打开 4K 原图。
+// 换照片：把新图放进 src/assets/picks/，文件名用“图库目录-编号”（如 box-00000459.webp），再在 ALT 里写描述。
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { t, type Lang } from '../../i18n';
+import { getCounts, SITE_ORIGIN } from '../../lib/site';
+import { num } from '../../lib/format';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const counts = await getCounts();
+
+const ALT: Record<string, { zh: string; en: string }> = {
+  'box-00000340': { zh: '棕色的狼兽装靠在白墙边，抱着一只毛绒玩偶', en: 'A brown wolf fursuiter leaning on a white wall, hugging a plush' },
+  'box-00000387': { zh: '黑白猫兽装坐在白色花丛后的栏杆上', en: 'A black-and-white cat fursuit sitting on a railing behind white flowers' },
+  'box-00000459': { zh: '三花猫兽装站在木亭子的门洞里', en: 'A calico cat fursuit standing in the doorway of a wooden pavilion' },
+  'box-00000579': { zh: '穿黄色上衣的蓝色兽装在日落时走过木栈道', en: 'A blue fursuiter in a yellow top walking along a boardwalk at sunset' },
+  'box-00000677': { zh: '黑白蓝配色的兽装在海边的亭子里拉着铃绳', en: 'A black, white and blue fursuiter pulling a bell rope in a seaside pavilion' },
+  'box-00000827': { zh: '戴面具的龙形兽装从树后探出头', en: 'A masked dragon fursuit peeking out from behind a tree' },
+};
+
+const files = import.meta.glob<{ default: ImageMetadata }>('../../assets/picks/*.webp', { eager: true });
+const picks = Object.entries(files)
+  .map(([file, mod]) => {
+    const id = file.split('/').pop()!.replace(/\.webp$/, '');
+    const [dir, number] = id.split('-');
+    return {
+      id,
+      image: mod.default,
+      n: parseInt(number, 10),
+      kind: dir === 'box' ? t(lang, 'cover.box') : t(lang, 'cover.large'),
+      url: `${SITE_ORIGIN}/${dir}/${number}.webp`,
+      alt: ALT[id]?.[lang] ?? t(lang, 'cover.no', { n: parseInt(number, 10) }),
+    };
+  })
+  .sort((a, b) => a.n - b.n);
+---
+
+<section class="picks" aria-labelledby="picks-title">
+  <div class="section-head">
+    <h2 id="picks-title">{t(lang, 'picks.title')}</h2>
+    <p>{t(lang, 'picks.summary', { large: num(counts.large), box: num(counts.box) })}</p>
+  </div>
+  <ul role="list" class="grid">
+    {
+      picks.map((p) => (
+        <li>
+          <a href={p.url} target="_blank" rel="noopener noreferrer" title={t(lang, 'picks.open')}>
+            <Image
+              src={p.image}
+              alt={p.alt}
+              widths={[240, 360, 480, 720]}
+              sizes="(min-width: 64rem) 14rem, (min-width: 40rem) 30vw, 44vw"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
+          <p class="no serif">{t(lang, 'cover.no', { n: p.n })}</p>
+          <p class="kind">{p.kind}</p>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-4);
+  }
+
+  a {
+    display: block;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    background: var(--wash);
+  }
+  a img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 300ms var(--ease);
+  }
+  a:hover img {
+    opacity: 0.88;
+  }
+
+  .no {
+    margin-top: var(--space-3);
+    font-size: var(--step-0);
+  }
+  .kind {
+    color: var(--ash);
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 63.99rem) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 39.99rem) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
